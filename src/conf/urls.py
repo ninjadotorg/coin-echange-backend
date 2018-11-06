@@ -18,6 +18,7 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/token/', include('coin_auth.urls')),
-    path('api/exchange/', include('coin_exchange.urls'))
+    path('api/', include('coin_auth.urls')),
+    path('api/exchange/', include('coin_exchange.urls')),
+    path('api/', include('misc_check.urls')),
 ]
