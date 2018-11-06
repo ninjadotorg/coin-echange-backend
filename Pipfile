@@ -22,6 +22,7 @@ gunicorn = "==19.9.0"
 pytest = "*"
 pytest-django = "*"
 "pytest-flake8" = "*"
+djangorestframework-simplejwt = "==3.2.3"
 
 [dev-packages]
 "flake8" = "*"
