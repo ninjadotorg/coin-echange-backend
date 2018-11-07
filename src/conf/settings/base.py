@@ -47,7 +47,7 @@ THIRD_PARTY_APPS = [
 
 LOCAL_APPS = [
     'coin_base',
-    'coin_config',
+    'coin_system',
     'coin_exchange',
     'coin_user'
 ]
