@@ -43,3 +43,10 @@ COUNTRY = Choices(
     ('VN', 'Vietnam'),
     ('HK', 'Hong Kong'),
 )
+
+EXCHANGE_SITE = Choices(
+    ('coinbase', 'Coinbase'),
+    ('bitstamp', 'BitStamp'),
+)
+
+CACHE_KEY_CRYPTO_RATE_CURRENCY_BY_EXCHANGE = 'crypto_rates.{}_{}'
