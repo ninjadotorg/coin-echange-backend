@@ -1,9 +1,9 @@
 from django.db import models
 
 from coin_base.models import TimestampedModel
-from coin_exchange.constants import DIRECTION, CURRENCY, ORDER_STATUS, ORDER_TYPE, COUNTRY, PAYMENT_STATUS, \
-    FIAT_CURRENCY
+from coin_exchange.constants import ORDER_STATUS, ORDER_TYPE, PAYMENT_STATUS
 from coin_user.models import ExchangeUser
+from common.constants import COUNTRY, CURRENCY, FIAT_CURRENCY, DIRECTION
 
 
 class Order(TimestampedModel):
@@ -14,7 +14,7 @@ class Order(TimestampedModel):
     fiat_amount = models.DecimalField(max_digits=20, decimal_places=4)
     fiat_currency = models.CharField(max_length=5, choices=FIAT_CURRENCY)
     fiat_local_amount = models.DecimalField(max_digits=20, decimal_places=4)
-    fiat_local_currency = models.CharField(max_length=5)
+    fiat_local_currency = models.CharField(max_length=5, choices=FIAT_CURRENCY)
     raw_fiat_amount = models.DecimalField(max_digits=20, decimal_places=4)
     price = models.DecimalField(max_digits=20, decimal_places=4)
     status = models.CharField(max_length=20, choices=ORDER_STATUS, default=ORDER_STATUS.pending)
@@ -71,11 +71,14 @@ class Review(TimestampedModel):
     class Meta:
         unique_together = ('user', 'order')
 
-    user = models.ForeignKey(ExchangeUser, related_name='user_reviews', on_delete=models.SET_NULL, null=True)
+    user = models.ForeignKey(ExchangeUser, related_name='user_reviews', on_delete=models.SET_NULL,
+                             null=True, blank=True)
     direction = models.CharField(max_length=10, choices=DIRECTION, null=True)
     review = models.CharField(max_length=500)
+    country = models.CharField(max_length=3, choices=COUNTRY)
     visible = models.BooleanField(default=True)
-    order = models.OneToOneField(Order, related_name='order_review', on_delete=models.PROTECT)
+    order = models.OneToOneField(Order, related_name='order_review', on_delete=models.PROTECT,
+                                 null=True, blank=True)
 
     def __str__(self):
         return '%s' % self.user.id
@@ -96,23 +99,12 @@ class Pool(TimestampedModel):
     usage = models.DecimalField(max_digits=30, decimal_places=18)
 
 
-class Center(models.Model):
-    class Meta:
-        unique_together = ('country', 'currency')
-
-    country = models.CharField(max_length=3, choices=COUNTRY)
-    currency = models.CharField(max_length=5, choices=CURRENCY)
-    account_name = models.CharField(max_length=255, blank=True)
-    account_number = models.CharField(max_length=255, blank=True)
-    bank_name = models.CharField(max_length=255, blank=True)
-    bank_id = models.CharField(max_length=255, blank=True)
-
-    def __str__(self):
-        return '%s (%s)' % (self.country, self.currency)
-
-
 class UserLimit(TimestampedModel):
-    user = models.OneToOneField(ExchangeUser, related_name='user_limit', on_delete=models.CASCADE)
+    class Meta:
+        unique_together = ('user', 'direction')
+
+    user = models.ForeignKey(ExchangeUser, related_name='user_limit', on_delete=models.CASCADE)
+    direction = models.CharField(max_length=5, choices=DIRECTION)
     limit = models.DecimalField(max_digits=20, decimal_places=4)
     usage = models.DecimalField(max_digits=20, decimal_places=4)
     fiat_currency = models.CharField(max_length=5, choices=FIAT_CURRENCY)

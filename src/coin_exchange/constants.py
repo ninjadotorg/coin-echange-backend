@@ -1,20 +1,5 @@
 from model_utils import Choices
 
-DIRECTION = Choices(
-    ('buy', 'Buy'),
-    ('sell', 'Sell'),
-)
-
-FIAT_CURRENCY = Choices(
-    ('VND', 'VND'),
-    ('HKD', 'HKD'),
-    ('USD', 'USD'),
-)
-
-CURRENCY = Choices(
-    ('ETH', 'ETH'),
-    ('BTC', 'BTC'),
-)
 
 ORDER_STATUS = Choices(
     ('pending', 'Pending'),
@@ -37,16 +22,6 @@ PAYMENT_STATUS = Choices(
     ('matched', 'Matched'),
     ('under', 'Under'),
     ('over', 'Over'),
-)
-
-COUNTRY = Choices(
-    ('VN', 'Vietnam'),
-    ('HK', 'Hong Kong'),
-)
-
-EXCHANGE_SITE = Choices(
-    ('coinbase', 'Coinbase'),
-    ('bitstamp', 'BitStamp'),
 )
 
 CACHE_KEY_CRYPTO_RATE_CURRENCY_BY_EXCHANGE = 'crypto_rates.{}_{}'
