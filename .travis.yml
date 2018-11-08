@@ -4,6 +4,7 @@ python:
   - "3.6"
 
 before_install:
+  - openssl aes-256-cbc -K $encrypted_f46fd4646bd0_key -iv $encrypted_f46fd4646bd0_iv -in deployments.tar.enc -out deployments.tar -d
   - pip install pipenv
 
 install:
@@ -12,3 +13,14 @@ install:
 script:
   - ./src/manage.py test --settings=conf.settings.test
 
+deploy:
+- provider: script
+  skip_cleanup: true
+  script: bash ./deploy.sh production
+  on:
+    branch: master
+- provider: script
+  skip_cleanup: true
+  script: bash ./deploy.sh staging
+  on:
+    branch: staging
