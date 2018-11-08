@@ -16,7 +16,5 @@ def get_config(key: str) -> Config:
 @raise_api_exception(UnexpectedException)
 @cache_first(CACHE_KEY_CONFIG)
 def get_fee(key: str) -> Fee:
-    # obj = Fee.objects.get(pk=key)
-    obj = Fee(key=key, value=Decimal('0.01'))
-
+    obj = Fee.objects.get(pk=key)
     return obj

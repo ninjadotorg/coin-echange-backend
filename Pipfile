@@ -26,6 +26,7 @@ djangorestframework-simplejwt = "==3.2.3"
 coinbase = "==2.1.0"
 django-redis = "==4.9.0"
 bitstampclient = "==2.2.5"
+python-memcached = "*"
 
 [dev-packages]
 "flake8" = "*"
