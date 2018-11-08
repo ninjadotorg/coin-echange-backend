@@ -159,19 +159,24 @@ REST_FRAMEWORK = {
     )
 }
 
+EMAIL_FROM_NAME = 'Coin Exchange'
+EMAIL_FROM_ADDRESS = "cash@shake.ninja"
+
+FRONTEND_HOST = 'https://staging.ninja.org'
+
 COINBASE = {
-    'API_KEY': 'xDj66xbTjcYF38ac',
-    'API_SECRET': 'ZRH2wcATua2zTKC7L9t0fS2z1ZRBUni5',
+    'API_KEY': '',
+    'API_SECRET': '',
     'ACCOUNTS': {
-        'LTC': 'a8772fa1-704d-55e4-baa3-a9c6a5ef615e',
-        'ETH': 'd2abe796-12ee-511f-bc13-81e012f4ef3d',
-        'BTC': '0ca2ee23-5a47-5435-81f1-f6e13a4f9e15',
-        'BCH': 'c9c61ba6-5e7d-5319-b82b-7e81ca71476a',
+        'LTC': '',
+        'ETH': '',
+        'BTC': '',
+        'BCH': '',
     }
 }
 
 BITSTAMP = {
-    'URL': 'https://www.bitstamp.net/api',
+    'URL': '',
     'CUSTOMER_ID': '',
     'API_KEY': '',
     'API_SECRET': '',
@@ -179,21 +184,16 @@ BITSTAMP = {
 
 OPENEXCHANGERATES = {
     'URL': '',
-    'API_KEY': '98c4568276c74a0587d2eac160420c14'
+    'API_KEY': ''
 }
 
 TWILIO = {
-    'URL': 'https://api.twilio.com',
-    'API_SID': 'ACac62d428fa9fe8eb616c70304f9681fb',
-    'API_AUTH_TOKEN': '84022c5c8da093e24dc060412c08e48f',
+    'URL': '',
+    'API_SID': '',
+    'API_AUTH_TOKEN': '',
 }
-FROM_PHONE_NUMBER = '+16463625331'
+FROM_PHONE_NUMBER = ''
 
 SLACK = {
-    'TOKEN': 'xoxb-278355793652-qbMUOcxUO2GQudX4VPCG70vC',
+    'TOKEN': '',
 }
-
-EMAIL_FROM_NAME = 'Coin Exchange'
-EMAIL_FROM_ADDRESS = "cash@shake.ninja"
-
-FRONTEND_HOST = 'https://staging.ninja.org'
