@@ -26,6 +26,6 @@ client = Client(settings.OPENEXCHANGERATES['API_KEY'])
 @raise_api_exception(ExternalAPIException)
 def get_rates():
     rates = client.get_rates()['rates']
-    result = [{key: Decimal(str(value))} for key, value in rates.items()]
+    result = [{'currency': key, 'value': Decimal(str(value))} for key, value in rates.items()]
 
     return result

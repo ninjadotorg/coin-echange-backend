@@ -146,10 +146,10 @@ STATIC_URL = '/static/'
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://35.197.70.171:6379/0",
+        "LOCATION": "",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            "PASSWORD": "SPFxg77eoyLU"
+            "PASSWORD": ""
         },
         "KEY_PREFIX": "coin_exchange"
     }

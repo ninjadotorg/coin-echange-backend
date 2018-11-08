@@ -2,8 +2,9 @@ from decimal import Decimal
 
 from django.core.cache import cache
 
-from coin_exchange.constants import CACHE_KEY_CRYPTO_RATE_CURRENCY_BY_EXCHANGE, EXCHANGE_SITE
+from coin_exchange.constants import CACHE_KEY_CRYPTO_RATE_CURRENCY_BY_EXCHANGE, EXCHANGE_SITE, CACHE_KEY_CURRENCY_RATE
 from integration.bitstamp import get_buy_price, get_sell_price
+from integration.openexchangerates import get_rates
 
 
 class CoinPrice(object):
@@ -25,3 +26,14 @@ def save_cache_price(currency: str):
 
 def get_cache_price(currency: str):
     return cache.get(CACHE_KEY_CRYPTO_RATE_CURRENCY_BY_EXCHANGE.format(currency, EXCHANGE_SITE.coinbase))
+
+
+def save_rates():
+    rates = get_rates()
+    for rate in rates:
+        cache.set(CACHE_KEY_CURRENCY_RATE.format(rate['currency']), rate['value'],
+                  timeout=None)
+
+
+def get_cache_rate(currency: str) -> Decimal:
+    return cache.get(CACHE_KEY_CURRENCY_RATE.format(currency))

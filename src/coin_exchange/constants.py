@@ -50,3 +50,4 @@ EXCHANGE_SITE = Choices(
 )
 
 CACHE_KEY_CRYPTO_RATE_CURRENCY_BY_EXCHANGE = 'crypto_rates.{}_{}'
+CACHE_KEY_CURRENCY_RATE = 'currency_rates.{}'
