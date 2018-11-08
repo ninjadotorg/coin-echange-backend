@@ -1,0 +1,14 @@
+language: python
+
+python:
+  - 3.7
+
+before_install:
+  - pip install pipenv
+
+install:
+  - pipenv install --system --deploy
+
+script:
+  - ./src/manage.py test --settings=conf.settings.test
+

@@ -1,5 +1,6 @@
 .idea
 .pytest_cache
+deployments
 src/media
 src/static
 src/conf/credentials
