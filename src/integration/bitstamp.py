@@ -1,9 +1,6 @@
-import logging
-
 from decimal import Decimal
 
 from bitstamp import client
-from bitstamp.client import BitstampError
 from django.conf import settings
 
 from common.decorators import raise_api_exception
