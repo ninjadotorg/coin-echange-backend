@@ -35,7 +35,11 @@ class OrderView(mixins.CreateModelMixin,
 
 class QuoteView(APIView):
     def get(self, request, format=None):
-        params = request.query_params
+        serializer = QuoteView.get_quote(request, request.query_params)
+        return Response(serializer.data)
+
+    @classmethod
+    def get_quote(cls, user, params) -> QuoteSerializer:
         input_serializer = QuoteInputSerializer(data={
             'amount': params.get('amount'),
             'currency': params.get('currency'),
@@ -46,8 +50,9 @@ class QuoteView(APIView):
 
         if input_serializer.is_valid(raise_exception=True):
             if input_serializer.validated_data['user_check']:
+                # request.user
                 # User logged in
-                if request.user:
+                if user:
                     # Get user limit to check
                     # request.user
                     pass
@@ -63,4 +68,4 @@ class QuoteView(APIView):
         })
         serializer.is_valid(raise_exception=True)
 
-        return Response(serializer.data)
+        return serializer
