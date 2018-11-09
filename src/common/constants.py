@@ -32,7 +32,21 @@ CURRENCY = Choices(
     ('BTC', 'BTC'),
 )
 
+SUPPORT_CURRENCIES = [
+    CURRENCY.ETH,
+    CURRENCY.BTC,
+]
+
+SUPPORT_FIAT_CURRENCIES = [
+    FIAT_CURRENCY.HKD,
+    FIAT_CURRENCY.USD,
+    FIAT_CURRENCY.VND,
+]
+
 EXCHANGE_SITE = Choices(
     ('coinbase', 'Coinbase'),
     ('bitstamp', 'BitStamp'),
 )
+
+CACHE_KEY_CRYPTO_RATE_CURRENCY_BY_EXCHANGE = 'crypto_rates.{}_{}'
+CACHE_KEY_CURRENCY_RATE = 'currency_rates.{}'

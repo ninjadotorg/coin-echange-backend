@@ -6,7 +6,7 @@ from rest_framework.test import APITestCase
 
 class ViewTests(APITestCase):
     def test_public_view(self):
-        url = reverse('misc_check:public_view')
+        url = reverse('misc_check:public-view')
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
         self.assertEqual(response.json()['code'], 'unexpected_error', "It should be 'unexpected_error'")
@@ -26,10 +26,10 @@ class ViewTests(APITestCase):
         })
         token = token_resp.json()['access']
 
-        url = reverse('misc_check:protected_view')
+        url = reverse('misc_check:protected-view')
 
         self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + token)
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.json()['data']['user'], username)
+        self.assertEqual(response.json()['user'], username)

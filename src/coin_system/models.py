@@ -3,7 +3,7 @@ from decimal import Decimal
 from django.db import models
 
 from coin_system.constants import FEE_TYPE
-from common.constants import VALUE_TYPE, COUNTRY, FIAT_CURRENCY
+from common.constants import VALUE_TYPE, COUNTRY, FIAT_CURRENCY, LANGUAGE
 
 
 class Config(models.Model):
@@ -70,3 +70,10 @@ class PopularPlace(models.Model):
 
     def __str__(self):
         return '%s (%s)' % (self.name, self.country)
+
+
+class CountryDefaultConfig(models.Model):
+    country = models.CharField(max_length=3, choices=COUNTRY, primary_key=True)
+    language = models.CharField(max_length=10, choices=LANGUAGE)
+    currency = models.CharField(max_length=5, choices=FIAT_CURRENCY)
+    active = models.BooleanField(default=True)

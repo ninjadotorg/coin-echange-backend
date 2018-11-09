@@ -1,11 +1,28 @@
 from rest_framework import serializers
 
+from coin_exchange.models import Order
+from common import serializer_fields
 
-class PriceSerialize(serializers.Serializer):
-    fiat_amount = serializers.DecimalField(max_digits=20, decimal_places=4)
-    fiat_currency = serializers.CharField()
-    fiat_local_amount = serializers.DecimalField(max_digits=20, decimal_places=4)
-    fiat_local_currency = serializers.CharField()
-    fiat_amount_cod = serializers.DecimalField(max_digits=20, decimal_places=4)
-    fiat_local_amount_cod = serializers.DecimalField(max_digits=20, decimal_places=4)
-    price = serializers.DecimalField(max_digits=20, decimal_places=4)
+
+class QuoteInputSerializer(serializers.Serializer):
+    amount = serializer_fields.CryptoAmountField()
+    currency = serializer_fields.CryptoCurrencyField()
+    fiat_currency = serializer_fields.FiatCurrencyField()
+    pool_check = serializers.BooleanField()
+    user_check = serializers.BooleanField()
+
+
+class QuoteSerializer(serializers.Serializer):
+    fiat_amount = serializer_fields.FiatAmountField()
+    fiat_currency = serializer_fields.FiatCurrencyField()
+    fiat_local_amount = serializer_fields.FiatAmountField()
+    fiat_local_currency = serializer_fields.FiatCurrencyField()
+    fiat_amount_cod = serializer_fields.FiatAmountField()
+    fiat_local_amount_cod = serializer_fields.FiatAmountField()
+    price = serializer_fields.FiatAmountField()
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = '__all__'

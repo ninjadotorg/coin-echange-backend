@@ -1,8 +1,8 @@
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from common.exceptions import UnexpectedException
-from common.http import SuccessResponse
 
 
 class ProtectedView(APIView):
@@ -14,7 +14,7 @@ class ProtectedView(APIView):
             'auth': str(request.auth),  # None
         }
 
-        return SuccessResponse(content)
+        return Response(content)
 
 
 class PublicView(APIView):

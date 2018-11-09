@@ -13,3 +13,4 @@ SYSTEM_FEE = Choices(
 
 CACHE_KEY_CONFIG = 'system_config.{}'
 CACHE_KEY_FEE = 'system_fee.{}'
+CACHE_KEY_COUNTRY_DEFAULT = 'system_country_default.{}'

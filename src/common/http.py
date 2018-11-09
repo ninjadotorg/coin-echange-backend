@@ -26,8 +26,12 @@ def custom_exception_handler(exc, context):
     # Now add the HTTP status code to the response.
     if response is not None:
         response.data['status'] = response.status_code
-        response.data['message'] = response.data['detail']
-        response.data['code'] = exc.get_codes()
-        del response.data['detail']
+        if 'detail' in response.data:
+            response.data['message'] = response.data['detail']
+            response.data['code'] = exc.get_codes()
+            del response.data['detail']
+        else:
+            response.data['message'] = 'Validation error'
+            response.data['code'] = 'validation_error'
 
     return response
