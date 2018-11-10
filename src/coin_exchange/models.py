@@ -3,28 +3,28 @@ from django.db import models
 from coin_base.models import TimestampedModel
 from coin_exchange.constants import ORDER_STATUS, ORDER_TYPE, PAYMENT_STATUS
 from coin_user.models import ExchangeUser
+from common import model_fields
 from common.constants import COUNTRY, CURRENCY, FIAT_CURRENCY, DIRECTION
 
 
 class Order(TimestampedModel):
     user = models.ForeignKey(ExchangeUser, related_name='user_orders', on_delete=models.PROTECT)
     user_info = models.TextField(null=True)
-    amount = models.DecimalField(max_digits=30, decimal_places=18)
-    currency = models.CharField(max_length=5, choices=CURRENCY)
-    fiat_amount = models.DecimalField(max_digits=20, decimal_places=4)
-    fiat_currency = models.CharField(max_length=5, choices=FIAT_CURRENCY)
-    fiat_local_amount = models.DecimalField(max_digits=20, decimal_places=4)
-    fiat_local_currency = models.CharField(max_length=5, choices=FIAT_CURRENCY)
-    raw_fiat_amount = models.DecimalField(max_digits=20, decimal_places=4)
-    price = models.DecimalField(max_digits=20, decimal_places=4)
+    amount = model_fields.CryptoAmountField()
+    currency = model_fields.CurrencyField()
+    fiat_amount = model_fields.FiatAmountField()
+    fiat_currency = model_fields.FiatCurrencyField()
+    fiat_local_amount = model_fields.FiatAmountField()
+    fiat_local_currency = model_fields.FiatCurrencyField()
+    raw_fiat_amount = model_fields.FiatAmountField()
+    price = model_fields.FiatAmountField()
     status = models.CharField(max_length=20, choices=ORDER_STATUS, default=ORDER_STATUS.pending)
     order_type = models.CharField(max_length=20, choices=ORDER_TYPE)
-    direction = models.CharField(max_length=5, choices=DIRECTION)
+    direction = model_fields.DirectionField()
     duration = models.IntegerField(null=True)
-    fee_percentage = models.DecimalField(max_digits=7, decimal_places=4)
-    fee = models.DecimalField(max_digits=20, decimal_places=4)
-    address = models.CharField(max_length=100)
-    tx_hash = models.CharField(max_length=100, null=True)
+    fee = model_fields.FiatAmountField()
+    address = model_fields.CryptoHashField()
+    tx_hash = model_fields.CryptoHashField(null=True)
     provider_data = models.TextField(null=True)
     receipt_url = models.CharField(max_length=500)
     ref_code = models.CharField(max_length=10)
@@ -34,37 +34,40 @@ class Order(TimestampedModel):
 
 class Payment(TimestampedModel):
     order = models.ForeignKey(Order, related_name='order_payments', on_delete=models.PROTECT)
-    fiat_amount = models.DecimalField(max_digits=20, decimal_places=4)
-    fiat_currency = models.CharField(max_length=5)
-    overspent = models.DecimalField(max_digits=20, decimal_places=4)
+    fiat_amount = model_fields.FiatAmountField()
+    fiat_currency = model_fields.FiatCurrencyField()
+    overspent = model_fields.FiatAmountField()
     status = models.CharField(max_length=20, choices=PAYMENT_STATUS)
 
 
 class PaymentDetail(TimestampedModel):
     payment = models.ForeignKey(Payment, related_name='payment_details', on_delete=models.PROTECT)
-    fiat_amount = models.DecimalField(max_digits=20, decimal_places=4)
-    fiat_currency = models.CharField(max_length=5)
+    fiat_amount = model_fields.FiatAmountField()
+    fiat_currency = model_fields.FiatCurrencyField()
 
 
 class SellingPayment(TimestampedModel):
     address = models.CharField(max_length=100)
     order = models.ForeignKey(Order, related_name='selling_order_payments', on_delete=models.PROTECT, null=True)
-    amount = models.DecimalField(max_digits=30, decimal_places=18)
-    currency = models.CharField(max_length=5, choices=CURRENCY)
-    overspent = models.DecimalField(max_digits=30, decimal_places=18)
+    amount = model_fields.CryptoAmountField()
+    currency = model_fields.CurrencyField()
+    overspent = model_fields.CryptoAmountField()
     status = models.CharField(max_length=20, choices=PAYMENT_STATUS)
 
 
 class SellingPaymentDetail(TimestampedModel):
     payment = models.ForeignKey(SellingPayment, related_name='selling_payment_details', on_delete=models.PROTECT)
-    amount = models.DecimalField(max_digits=30, decimal_places=18)
-    currency = models.CharField(max_length=5, choices=CURRENCY)
+    amount = model_fields.CryptoAmountField()
+    currency = model_fields.CurrencyField()
     tx_hash = models.CharField(max_length=100, null=True)
 
 
 class TrackingAddress(TimestampedModel):
-    address = models.CharField(max_length=100)
-    currency = models.CharField(max_length=5, choices=CURRENCY)
+    class Meta:
+        unique_together = ('address', 'currency')
+
+    address = model_fields.CryptoHashField()
+    currency = model_fields.CurrencyField()
 
 
 class Review(TimestampedModel):
@@ -73,9 +76,9 @@ class Review(TimestampedModel):
 
     user = models.ForeignKey(ExchangeUser, related_name='user_reviews', on_delete=models.SET_NULL,
                              null=True, blank=True)
-    direction = models.CharField(max_length=10, choices=DIRECTION, null=True)
+    direction = model_fields.DirectionField()
     review = models.CharField(max_length=500)
-    country = models.CharField(max_length=3, choices=COUNTRY)
+    country = model_fields.CountryField()
     visible = models.BooleanField(default=True)
     order = models.OneToOneField(Order, related_name='order_review', on_delete=models.PROTECT,
                                  null=True, blank=True)
@@ -93,8 +96,8 @@ class Pool(TimestampedModel):
     class Meta:
         unique_together = ('currency', 'direction')
 
-    currency = models.CharField(max_length=5, choices=CURRENCY)
-    direction = models.CharField(max_length=5, choices=DIRECTION)
+    currency = model_fields.CurrencyField()
+    direction = model_fields.DirectionField()
     limit = models.DecimalField(max_digits=30, decimal_places=18)
     usage = models.DecimalField(max_digits=30, decimal_places=18)
 
@@ -104,7 +107,7 @@ class UserLimit(TimestampedModel):
         unique_together = ('user', 'direction')
 
     user = models.ForeignKey(ExchangeUser, related_name='user_limit', on_delete=models.CASCADE)
-    direction = models.CharField(max_length=5, choices=DIRECTION)
+    direction = model_fields.DirectionField()
     limit = models.DecimalField(max_digits=20, decimal_places=4)
     usage = models.DecimalField(max_digits=20, decimal_places=4)
-    fiat_currency = models.CharField(max_length=5, choices=FIAT_CURRENCY)
+    fiat_currency = model_fields.FiatCurrencyField()

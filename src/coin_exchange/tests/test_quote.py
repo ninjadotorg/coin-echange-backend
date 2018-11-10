@@ -1,11 +1,25 @@
+from decimal import Decimal
+from unittest.mock import patch, Mock, MagicMock
+
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from coin_exchange.constants import FEE_COIN_ORDER_BANK, FEE_COIN_ORDER_COD
+from coin_system.constants import FEE_TYPE
+from coin_system.factories import FeeFactory
+from common.business import PriceManagement, RateManagement
 from common.constants import CURRENCY, FIAT_CURRENCY
 
 
-class BankTests(APITestCase):
+class QuoteValidationTests(APITestCase):
+    def setUp(self):
+        PriceManagement.get_cache_price = MagicMock(return_value=Decimal('100'))
+        RateManagement.get_cache_rate = MagicMock(return_value=Decimal('23000'))
+
+        FeeFactory(key=FEE_COIN_ORDER_BANK, value=Decimal('1'), fee_type=FEE_TYPE.percentage)
+        FeeFactory(key=FEE_COIN_ORDER_COD, value=Decimal('10'), fee_type=FEE_TYPE.percentage)
+
     def test_invalid(self):
         url = reverse('exchange:quote-detail')
         response = self.client.get(url, data={
@@ -13,34 +27,7 @@ class BankTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_invalid_amount(self):
-        url = reverse('exchange:quote-detail')
-        response = self.client.get(url, data={
-            'amount': '-1'
-        }, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('amount', response.json())
-
-    def test_invalid_currency(self):
-        url = reverse('exchange:quote-detail')
-        response = self.client.get(url, data={
-            'currency': 'AAA'
-        }, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('currency', response.json())
-
-    def test_invalid_fiat_currency(self):
-        url = reverse('exchange:quote-detail')
-        response = self.client.get(url, data={
-            'fiat_currency': 'AAA'
-        }, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn('fiat_currency', response.json())
-
-    def test_valid(self):
+    def test_crypto_rate(self):
         url = reverse('exchange:quote-detail')
         response = self.client.get(url, data={
             'amount': '1',
@@ -48,4 +35,5 @@ class BankTests(APITestCase):
             'fiat_currency': FIAT_CURRENCY.VND,
         }, format='json')
 
+        print(response.json())
         self.assertEqual(response.status_code, status.HTTP_200_OK)

@@ -12,3 +12,9 @@ class CoinOverLimitException(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
     default_detail = 'Coin over limit'
     default_code = 'coin_over_limit'
+
+
+class CoinUserOverLimitException(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = 'Coin user over limit'
+    default_code = 'coin_user_over_limit'

@@ -1,4 +1,5 @@
 from decimal import Decimal
+from typing import List
 
 from django.core.cache import cache
 
@@ -15,42 +16,51 @@ class CoinPrice(object):
         self.sell = sell
 
 
-def save_cache_price(currency: str):
-    buy_price = get_buy_price(currency)
-    sell_price = get_sell_price(currency)
+class PriceManagement(object):
+    @staticmethod
+    def save_cache_price(currency: str):
+        buy_price = get_buy_price(currency)
+        sell_price = get_sell_price(currency)
 
-    coin_price = CoinPrice(currency, Decimal(buy_price), Decimal(sell_price))
+        coin_price = CoinPrice(currency, Decimal(buy_price), Decimal(sell_price))
 
-    cache.set(CACHE_KEY_CRYPTO_RATE_CURRENCY_BY_EXCHANGE.format(currency, EXCHANGE_SITE.coinbase),
-              coin_price, timeout=None)
+        cache.set(CACHE_KEY_CRYPTO_RATE_CURRENCY_BY_EXCHANGE.format(currency, EXCHANGE_SITE.coinbase),
+                  coin_price, timeout=None)
+
+    @staticmethod
+    def get_cache_price(currency: str):
+        data = cache.get(CACHE_KEY_CRYPTO_RATE_CURRENCY_BY_EXCHANGE.format(currency, EXCHANGE_SITE.coinbase))
+        if not data:
+            raise InvalidDataException
+        return data
 
 
-def get_cache_price(currency: str):
-    data = cache.get(CACHE_KEY_CRYPTO_RATE_CURRENCY_BY_EXCHANGE.format(currency, EXCHANGE_SITE.coinbase))
-    if not data:
-        raise InvalidDataException
+class RateManagement(object):
+    @staticmethod
+    def save_rates():
+        rates = get_rates()
+        for rate in rates:
+            cache.set(CACHE_KEY_CURRENCY_RATE.format(rate['currency']), rate['value'],
+                      timeout=None)
+
+    @staticmethod
+    def get_cache_rate(currency: str) -> Decimal:
+        data = cache.get(CACHE_KEY_CURRENCY_RATE.format(currency))
+        if not data:
+            raise InvalidDataException
+        return data
+
+    @staticmethod
+    def convert_to_local_currency(amount: Decimal, currency: str) -> Decimal:
+        rate = RateManagement.get_cache_rate(currency)
+        return rate * amount
+
+    @staticmethod
+    def convert_from_local_currency(amount: Decimal, currency: str) -> Decimal:
+        rate = RateManagement.get_cache_rate(currency)
+        return amount / rate
+
+
+def view_serializer_fields(fields: List[str], serializer_data: dict) -> List[dict]:
+    data = [{key: serializer_data[key] for key in fields}]
     return data
-
-
-def save_rates():
-    rates = get_rates()
-    for rate in rates:
-        cache.set(CACHE_KEY_CURRENCY_RATE.format(rate['currency']), rate['value'],
-                  timeout=None)
-
-
-def get_cache_rate(currency: str) -> Decimal:
-    data = cache.get(CACHE_KEY_CURRENCY_RATE.format(currency))
-    if not data:
-        raise InvalidDataException
-    return data
-
-
-def convert_to_local_currency(amount: Decimal, currency: str) -> Decimal:
-    rate = get_cache_rate(currency)
-    return rate * amount
-
-
-def convert_from_local_currency(amount: Decimal, currency: str) -> Decimal:
-    rate = get_cache_rate(currency)
-    return amount / rate

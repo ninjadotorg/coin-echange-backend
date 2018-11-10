@@ -3,6 +3,7 @@ from decimal import Decimal
 from django.db import models
 
 from coin_system.constants import FEE_TYPE
+from common import model_fields
 from common.constants import VALUE_TYPE, COUNTRY, FIAT_CURRENCY, LANGUAGE
 
 
@@ -36,8 +37,8 @@ class Bank(models.Model):
     class Meta:
         unique_together = ('country', 'currency')
 
-    country = models.CharField(max_length=3, choices=COUNTRY)
-    currency = models.CharField(max_length=5, choices=FIAT_CURRENCY)
+    country = model_fields.CountryField()
+    currency = model_fields.FiatCurrencyField()
     account_name = models.CharField(max_length=255, blank=True)
     account_number = models.CharField(max_length=255, blank=True)
     bank_name = models.CharField(max_length=255, blank=True)
@@ -52,8 +53,8 @@ class CountryCurrency(models.Model):
     class Meta:
         unique_together = ('country', 'currency')
 
-    country = models.CharField(max_length=3, choices=COUNTRY)
-    currency = models.CharField(max_length=5, choices=FIAT_CURRENCY)
+    country = model_fields.CountryField()
+    currency = model_fields.FiatCurrencyField()
     active = models.BooleanField(default=True)
 
     def __str__(self):
@@ -61,7 +62,7 @@ class CountryCurrency(models.Model):
 
 
 class PopularPlace(models.Model):
-    country = models.CharField(max_length=3, choices=COUNTRY)
+    country = model_fields.CountryField()
     name = models.CharField(max_length=100)
     address = models.CharField(max_length=500, blank=True)
     latitude = models.FloatField(null=True, blank=True)
@@ -73,7 +74,7 @@ class PopularPlace(models.Model):
 
 
 class CountryDefaultConfig(models.Model):
-    country = models.CharField(max_length=3, choices=COUNTRY, primary_key=True)
-    language = models.CharField(max_length=10, choices=LANGUAGE)
-    currency = models.CharField(max_length=5, choices=FIAT_CURRENCY)
+    country = model_fields.CountryField(primary_key=True)
+    language = model_fields.LanguageField()
+    currency = model_fields.FiatCurrencyField()
     active = models.BooleanField(default=True)
