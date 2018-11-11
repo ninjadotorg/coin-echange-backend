@@ -4,7 +4,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import empty
 
-from common.constants import SUPPORT_CURRENCIES, SUPPORT_FIAT_CURRENCIES
+from common.constants import SUPPORT_CURRENCIES, SUPPORT_FIAT_CURRENCIES, DIRECTION
 
 
 class FiatAmountField(serializers.DecimalField):
@@ -28,10 +28,6 @@ class CryptoAmountField(serializers.DecimalField):
 
 
 class CryptoCurrencyField(serializers.CharField):
-    custom_error_messages = {
-        'invalid_value': 'Currency is not supported.',
-    }
-
     def __init__(self, **kwargs):
         super(CryptoCurrencyField, self).__init__(**kwargs)
 
@@ -39,17 +35,12 @@ class CryptoCurrencyField(serializers.CharField):
         value = super(CryptoCurrencyField, self).run_validation(data)
 
         if value not in SUPPORT_CURRENCIES:
-            code = 'invalid_value'
-            raise ValidationError(self.custom_error_messages[code], code=code)
+            raise ValidationError
 
         return value
 
 
 class FiatCurrencyField(serializers.CharField):
-    custom_error_messages = {
-        'invalid_value': 'Currency is not supported.',
-    }
-
     def __init__(self, **kwargs):
         super(FiatCurrencyField, self).__init__(**kwargs)
 
@@ -57,7 +48,19 @@ class FiatCurrencyField(serializers.CharField):
         value = super(FiatCurrencyField, self).run_validation(data)
 
         if value not in SUPPORT_FIAT_CURRENCIES:
-            code = 'invalid_value'
-            raise ValidationError(self.custom_error_messages[code], code=code)
+            raise ValidationError
+
+        return value
+
+
+class DirectionField(serializers.CharField):
+    def __init__(self, **kwargs):
+        super(DirectionField, self).__init__(**kwargs)
+
+    def run_validation(self, data=empty):
+        value = super(DirectionField, self).run_validation(data)
+
+        if value not in DIRECTION:
+            raise ValidationError
 
         return value

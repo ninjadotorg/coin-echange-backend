@@ -9,7 +9,7 @@ from integration.bitstamp import get_buy_price, get_sell_price
 from integration.openexchangerates import get_rates
 
 
-class CoinPrice(object):
+class CryptoPrice(object):
     def __init__(self, currency: str, buy: Decimal, sell: Decimal):
         self.currency = currency
         self.buy = buy
@@ -22,13 +22,13 @@ class PriceManagement(object):
         buy_price = get_buy_price(currency)
         sell_price = get_sell_price(currency)
 
-        coin_price = CoinPrice(currency, Decimal(buy_price), Decimal(sell_price))
+        coin_price = CryptoPrice(currency, Decimal(buy_price), Decimal(sell_price))
 
         cache.set(CACHE_KEY_CRYPTO_RATE_CURRENCY_BY_EXCHANGE.format(currency, EXCHANGE_SITE.coinbase),
                   coin_price, timeout=None)
 
     @staticmethod
-    def get_cache_price(currency: str):
+    def get_cache_price(currency: str) -> CryptoPrice:
         data = cache.get(CACHE_KEY_CRYPTO_RATE_CURRENCY_BY_EXCHANGE.format(currency, EXCHANGE_SITE.coinbase))
         if not data:
             raise InvalidDataException
@@ -61,6 +61,6 @@ class RateManagement(object):
         return amount / rate
 
 
-def view_serializer_fields(fields: List[str], serializer_data: dict) -> List[dict]:
-    data = [{key: serializer_data[key] for key in fields}]
+def view_serializer_fields(fields: List[str], serializer_data: dict) -> dict:
+    data = {key: serializer_data[key] for key in fields}
     return data

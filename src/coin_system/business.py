@@ -39,5 +39,17 @@ def markup_fee(amount: Decimal, fee_key: str) -> (Decimal, Decimal):
     raise InvalidDataException
 
 
+def remove_markup_fee(amount: Decimal, fee_key: str) -> (Decimal, Decimal):
+    fee = get_fee(fee_key)
+    value = fee.value
+    if fee.fee_type == FEE_TYPE.fixed:
+        return amount - value, value
+    elif fee.fee_type == FEE_TYPE.percentage:
+        removed_fee = amount / (Decimal(1) + value / Decimal('100'))
+        return removed_fee, amount - removed_fee
+
+    raise InvalidDataException
+
+
 def round_currency(amount: Decimal) -> Decimal:
     return amount.quantize(Decimal('.01'), ROUND_CEILING)
