@@ -9,7 +9,7 @@ from coin_exchange.models import UserLimit, Pool
 from coin_exchange.serializers import QuoteSerializer, QuoteInputSerializer, QuoteReverseInputSerializer, \
     QuoteReverseSerializer
 from coin_system.business import markup_fee, round_currency, remove_markup_fee
-from common.business import PriceManagement, RateManagement, view_serializer_fields
+from common.business import PriceManagement, RateManagement
 from common.constants import FIAT_CURRENCY, DIRECTION
 from common.exceptions import InvalidDataException
 

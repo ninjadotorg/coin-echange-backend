@@ -4,7 +4,7 @@ from django.db import models
 
 from coin_system.constants import FEE_TYPE
 from common import model_fields
-from common.constants import VALUE_TYPE, COUNTRY, FIAT_CURRENCY, LANGUAGE
+from common.constants import VALUE_TYPE
 
 
 class Config(models.Model):

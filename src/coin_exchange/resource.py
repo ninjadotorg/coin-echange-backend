@@ -13,11 +13,11 @@ class ReviewViewSet(mixins.CreateModelMixin,
                     mixins.ListModelMixin,
                     GenericViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly, )
-    queryset = Review.objects.filter(visible=True)
+    queryset = Review.objects.filter(visible=True).order_by('-created_at')
     serializer_class = ReviewSerializer
     pagination_class = StandardPagination
 
-    filter_fields = (
+    filterset_fields = (
         'country',
         'direction'
     )

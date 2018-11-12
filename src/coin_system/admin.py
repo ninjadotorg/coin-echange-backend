@@ -19,7 +19,7 @@ class BankAdmin(admin.ModelAdmin):
 
 
 @admin.register(CountryCurrency)
-class BankAdmin(admin.ModelAdmin):
+class CountryCurrencyAdmin(admin.ModelAdmin):
     list_display = ['country', 'currency', 'active']
 
 

@@ -9,7 +9,7 @@ from coin_system.serializers import BankSerializer, PopularPlaceSerializer, Coun
 class BankViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Bank.objects.filter(active=True)
     serializer_class = BankSerializer
-    filter_fields = (
+    filterset_fields = (
         'country',
         'currency'
     )
@@ -22,7 +22,7 @@ class BankViewSet(viewsets.ReadOnlyModelViewSet):
 class CountryCurrencyViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = CountryCurrency.objects.filter(active=True)
     serializer_class = CountryCurrencySerializer
-    filter_fields = (
+    filterset_fields = (
         'country',
     )
 
@@ -34,7 +34,7 @@ class CountryCurrencyViewSet(viewsets.ReadOnlyModelViewSet):
 class PopularPlaceViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = PopularPlace.objects.filter(active=True)
     serializer_class = PopularPlaceSerializer
-    filter_fields = (
+    filterset_fields = (
         'country',
     )
 

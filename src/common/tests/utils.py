@@ -2,11 +2,11 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from rest_framework.test import APIClient
 
-from coin_user.factories import DjangoUserFactory, ExchangeUserFactory
+from coin_user.factories import ExchangeUserFactory
 
 
 class AuthenticationUtils(object):
-    def __init__(self, client: APIClient, username: str = 'test_username', password: str ='test_password'):
+    def __init__(self, client: APIClient, username: str = 'test_username', password: str = 'test_password'):
         self.client = client
         self.username = username
         self.password = password

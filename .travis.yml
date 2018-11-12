@@ -18,7 +18,8 @@ install:
   - pipenv install --system --deploy
 
 script:
-  - ./src/manage.py test --settings=conf.settings.test
+  - ./src/manage.py makemigrations --check --dry-run --settings=conf.settings.test > /dev/null || "Missing migrations."
+  - pytest ./src
 
 deploy:
 - provider: script

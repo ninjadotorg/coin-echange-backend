@@ -2,7 +2,6 @@ from django.contrib import admin
 
 from coin_exchange.constants import ORDER_TYPE
 from coin_exchange.models import Order, Review
-from coin_user.models import AdminUser, ExchangeUser
 from common.constants import DIRECTION
 
 

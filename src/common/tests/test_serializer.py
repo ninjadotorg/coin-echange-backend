@@ -6,7 +6,7 @@ from common import serializer_fields
 from common.constants import CURRENCY, FIAT_CURRENCY, DIRECTION
 
 
-class TestSerializer(serializers.Serializer):
+class SampleSerializer(serializers.Serializer):
     currency = serializer_fields.CryptoCurrencyField()
     fiat_currency = serializer_fields.FiatCurrencyField()
     direction = serializer_fields.DirectionField()
@@ -15,7 +15,7 @@ class TestSerializer(serializers.Serializer):
 class QuoteValidationTests(TestCase):
     def test_invalid(self):
         for field in ['currency', 'fiat_currency', 'direction']:
-            serializer = TestSerializer(data={
+            serializer = SampleSerializer(data={
                 field: 'AAA',
             })
             with self.assertRaises(ValidationError):
@@ -29,7 +29,7 @@ class QuoteValidationTests(TestCase):
                 self.assertEqual(full_details[field][0]['code'], 'invalid')
 
     def test_valid(self):
-        serializer = TestSerializer(data={
+        serializer = SampleSerializer(data={
             'currency': CURRENCY.ETH,
             'fiat_currency': FIAT_CURRENCY.USD,
             'direction': DIRECTION.buy,

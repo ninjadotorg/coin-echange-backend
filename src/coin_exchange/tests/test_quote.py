@@ -1,5 +1,5 @@
 from decimal import Decimal
-from unittest.mock import patch, Mock, MagicMock
+from unittest.mock import MagicMock
 
 from django.contrib.auth.models import User
 from django.urls import reverse
@@ -19,7 +19,7 @@ from common.tests.utils import AuthenticationUtils
 class BuyingQuoteTests(APITestCase):
     def setUp(self):
         self.auth_utils = AuthenticationUtils(self.client)
-        
+
         PriceManagement.get_cache_price = MagicMock(return_value=CryptoPrice(
             CURRENCY.ETH,
             Decimal('100'),
@@ -266,7 +266,7 @@ class SellingQuoteTests(APITestCase):
             'direction': DIRECTION.sell
         }, format='json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-        
+
 
 class BuyingQuoteReverseTests(APITestCase):
     def setUp(self):
