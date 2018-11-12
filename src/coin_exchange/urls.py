@@ -1,11 +1,12 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
-from coin_exchange.resource import ReviewViewSet
+from coin_exchange.resource import ReviewViewSet, OrderViewSet
 from coin_exchange.views import QuoteView, QuoteReverseView, AddressView
 
 router = DefaultRouter()
 router.register('reviews', ReviewViewSet)
+router.register('orders', OrderViewSet)
 
 patterns = ([
     path('', include(router.urls)),

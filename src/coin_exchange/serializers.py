@@ -56,12 +56,19 @@ class QuoteReverseSerializer(serializers.Serializer):
 class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
-        fields = '__all__'
+        exclude = ('user', 'direction', 'raw_fiat_amount', 'price', 'fee', 'provider_data')
+        read_only_fields = ('user_info', 'fiat_amount', 'fiat_currency', 'ref_code', 'reviewed')
+
+
+class SellingOrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        exclude = ('user', 'direction', 'raw_fiat_amount', 'price', 'fee', 'receipt_url', 'provider_data')
+        read_only_fields = ('fiat_amount', 'fiat_currency', 'ref_code', 'reviewed')
 
 
 class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
         fields = ('review', 'order')
-
-    order = serializers.IntegerField(write_only=True)
+        extra_kwargs = {'order': {'write_only': True}}
