@@ -1,7 +1,6 @@
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
-from rest_framework import mixins, viewsets
-from rest_framework.decorators import action
+from rest_framework import mixins, viewsets, status
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
@@ -51,8 +50,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         'order_type'
     )
 
-    @action(detail=False, methods=['post'])
-    def add_order(self, request, format=None):
+    def create(self, request, *args, **kwargs):
         direction = request.data.get('direction')
         if direction == DIRECTION.sell:
             serializer = SellingOrderSerializer(data=request.data)
@@ -65,7 +63,7 @@ class OrderViewSet(viewsets.ModelViewSet):
 
             OrderManagement.add_order(self.request.user.exchange_user, serializer)
 
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     def get_queryset(self):
         qs = Order.objects.filter(user__user=self.request.user).order_by('-created_at')

@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from model_utils import Choices
 
 
@@ -34,3 +36,6 @@ TRACKING_ADDRESS_STATUS = Choices(
 FEE_COIN_ORDER_COD = "FEE_COIN_ORDER_COD"
 FEE_COIN_ORDER_BANK = "FEE_COIN_ORDER_BANK"
 FEE_COIN_SELLING_ORDER_BANK = "FEE_COIN_SELLING_ORDER_BANK"
+
+MIN_ETH_AMOUNT = Decimal('0.01')
+MIN_BTC_AMOUNT = Decimal('0.001')
