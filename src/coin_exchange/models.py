@@ -1,7 +1,7 @@
 from django.db import models
 
 from coin_base.models import TimestampedModel
-from coin_exchange.constants import ORDER_STATUS, ORDER_TYPE, PAYMENT_STATUS
+from coin_exchange.constants import ORDER_STATUS, ORDER_TYPE, PAYMENT_STATUS, TRACKING_ADDRESS_STATUS
 from coin_user.models import ExchangeUser
 from common import model_fields
 
@@ -62,10 +62,12 @@ class SellingPaymentDetail(TimestampedModel):
 
 class TrackingAddress(TimestampedModel):
     class Meta:
-        unique_together = ('address', 'currency')
+        unique_together = ('user', 'address', 'currency')
 
+    user = models.ForeignKey(ExchangeUser, related_name='user_addresses', on_delete=models.PROTECT)
     address = model_fields.CryptoHashField()
     currency = model_fields.CurrencyField()
+    status = models.CharField(max_length=20, choices=TRACKING_ADDRESS_STATUS, default=TRACKING_ADDRESS_STATUS.created)
 
 
 class Review(TimestampedModel):

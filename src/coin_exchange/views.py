@@ -1,13 +1,16 @@
-from rest_framework import mixins
+from rest_framework import mixins, status
+from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 
-from coin_exchange.business import QuoteManagement
+from coin_exchange.business.crypto import AddressManagement
+from coin_exchange.business.quote import QuoteManagement
 from coin_exchange.models import Order
 from coin_exchange.serializers import OrderSerializer
 from common.business import view_serializer_fields
+from common.constants import CURRENCY
 
 
 class OrderView(mixins.CreateModelMixin,
@@ -32,6 +35,18 @@ class OrderView(mixins.CreateModelMixin,
         qs = Order.objects.filter(user__user=self.request.user)
 
         return qs
+
+
+class AddressView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request, format=None):
+        currency = request.query_params.get('currency')
+        if currency not in CURRENCY:
+            raise ValidationError
+
+        address, exists = AddressManagement.create_address(request.user.exchange_user, currency)
+        return Response(address, status=status.HTTP_200_OK if exists else status.HTTP_201_CREATED)
 
 
 class QuoteView(APIView):

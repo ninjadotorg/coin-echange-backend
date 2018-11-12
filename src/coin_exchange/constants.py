@@ -24,6 +24,13 @@ PAYMENT_STATUS = Choices(
     ('over', 'Over'),
 )
 
+TRACKING_ADDRESS_STATUS = Choices(
+    ('created', 'Created'),
+    ('has_order', 'Has Order'),
+    ('has_payment', 'Has Payment'),
+    ('completed', 'Completed'),
+)
+
 FEE_COIN_ORDER_COD = "FEE_COIN_ORDER_COD"
 FEE_COIN_ORDER_BANK = "FEE_COIN_ORDER_BANK"
 FEE_COIN_SELLING_ORDER_BANK = "FEE_COIN_SELLING_ORDER_BANK"

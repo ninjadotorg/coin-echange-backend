@@ -2,7 +2,7 @@ from decimal import Decimal
 
 import factory
 
-from coin_exchange.constants import ORDER_TYPE
+from coin_exchange.constants import ORDER_TYPE, TRACKING_ADDRESS_STATUS
 from coin_user.factories import ExchangeUserFactory
 from common.constants import CURRENCY, DIRECTION, COUNTRY, FIAT_CURRENCY
 
@@ -39,6 +39,21 @@ class OrderFactory(factory.django.DjangoModelFactory):
     fee = factory.LazyAttribute(lambda o: o.raw_fiat_amount * o.fiat_amount)
     address = 'SomeAddress'
     ref_code = 'SomeRefCode'
+
+
+class TrackingAddressFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = 'coin_exchange.TrackingAddress'
+
+    user = factory.SubFactory(ExchangeUserFactory)
+    currency = factory.Iterator([CURRENCY.ETH, CURRENCY.BTC])
+    address = factory.Sequence(lambda n: "CryptoAddress%03d" % n)
+    status = factory.Iterator([
+        TRACKING_ADDRESS_STATUS.created,
+        TRACKING_ADDRESS_STATUS.has_order,
+        TRACKING_ADDRESS_STATUS.has_payment,
+        TRACKING_ADDRESS_STATUS.completed,
+    ])
 
 
 class ReviewFactory(factory.django.DjangoModelFactory):

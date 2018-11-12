@@ -48,6 +48,7 @@ THIRD_PARTY_APPS = [
 
 LOCAL_APPS = [
     'coin_base',
+    'coin_crypto',
     'coin_system',
     'coin_exchange',
     'coin_user'
@@ -173,8 +174,8 @@ EMAIL_FROM_ADDRESS = "cash@shake.ninja"
 FRONTEND_HOST = 'https://staging.ninja.org'
 
 COINBASE = {
-    'API_KEY': '',
-    'API_SECRET': '',
+    'API_KEY': 'SomeKey',
+    'API_SECRET': 'SomeSecret',
     'ACCOUNTS': {
         'LTC': '',
         'ETH': '',
