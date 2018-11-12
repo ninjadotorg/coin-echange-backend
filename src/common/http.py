@@ -1,6 +1,12 @@
 from rest_framework import status
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import exception_handler
+
+
+class StandardPagination(PageNumberPagination):
+    page_size = 100
+    max_page_size = 1000
 
 
 class SuccessResponse(Response):

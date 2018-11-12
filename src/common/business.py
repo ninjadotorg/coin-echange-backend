@@ -18,7 +18,7 @@ class CryptoPrice(object):
 
 class PriceManagement(object):
     @staticmethod
-    def save_cache_price(currency: str):
+    def save_cache_price(currency: str) -> CryptoPrice:
         buy_price = get_buy_price(currency)
         sell_price = get_sell_price(currency)
 
@@ -26,6 +26,8 @@ class PriceManagement(object):
 
         cache.set(CACHE_KEY_CRYPTO_RATE_CURRENCY_BY_EXCHANGE.format(currency, EXCHANGE_SITE.coinbase),
                   coin_price, timeout=None)
+
+        return coin_price
 
     @staticmethod
     def get_cache_price(currency: str) -> CryptoPrice:

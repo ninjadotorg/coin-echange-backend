@@ -4,7 +4,6 @@ from coin_base.models import TimestampedModel
 from coin_exchange.constants import ORDER_STATUS, ORDER_TYPE, PAYMENT_STATUS
 from coin_user.models import ExchangeUser
 from common import model_fields
-from common.constants import COUNTRY, CURRENCY, FIAT_CURRENCY, DIRECTION
 
 
 class Order(TimestampedModel):
@@ -24,11 +23,10 @@ class Order(TimestampedModel):
     duration = models.IntegerField(null=True)
     fee = model_fields.FiatAmountField()
     address = model_fields.CryptoHashField()
-    tx_hash = model_fields.CryptoHashField(null=True)
+    tx_hash = model_fields.CryptoHashField(null=True, blank=True)
     provider_data = models.TextField(null=True)
-    receipt_url = models.CharField(max_length=500)
+    receipt_url = models.CharField(max_length=500, null=True, blank=True)
     ref_code = models.CharField(max_length=10)
-    center = models.CharField(max_length=10)
     reviewed = models.BooleanField(default=False)
 
 
@@ -71,9 +69,6 @@ class TrackingAddress(TimestampedModel):
 
 
 class Review(TimestampedModel):
-    class Meta:
-        unique_together = ('user', 'order')
-
     user = models.ForeignKey(ExchangeUser, related_name='user_reviews', on_delete=models.SET_NULL,
                              null=True, blank=True)
     direction = model_fields.DirectionField()

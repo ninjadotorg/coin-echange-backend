@@ -13,10 +13,13 @@ from coin_system.factories import FeeFactory
 from coin_user.factories import ExchangeUserFactory
 from common.business import PriceManagement, RateManagement, CryptoPrice
 from common.constants import CURRENCY, FIAT_CURRENCY, DIRECTION
+from common.tests.utils import AuthenticationUtils
 
 
 class BuyingQuoteTests(APITestCase):
     def setUp(self):
+        self.auth_utils = AuthenticationUtils(self.client)
+        
         PriceManagement.get_cache_price = MagicMock(return_value=CryptoPrice(
             CURRENCY.ETH,
             Decimal('100'),
@@ -29,11 +32,9 @@ class BuyingQuoteTests(APITestCase):
 
         PoolFactory(currency=CURRENCY.ETH, direction=DIRECTION.buy, usage=1, limit=2)
 
-        self.password = 'test_password'
-        self.username = 'test_username'
-        user = self._create_user(self.username)
-
+        user = self.auth_utils.create_user()
         exchange_user = ExchangeUserFactory(user=user)
+
         UserLimitFactory(fiat_currency=FIAT_CURRENCY.VND, direction=DIRECTION.buy, usage=2300000, limit=3000000,
                          user=exchange_user)
 
@@ -83,7 +84,8 @@ class BuyingQuoteTests(APITestCase):
         self.assertEqual(data['code'], 'coin_over_limit')
 
     def test_check_user_limit_success(self):
-        self._login(self.username)
+        self.auth_utils.login()
+
         url = reverse('exchange:quote-detail')
 
         response = self.client.get(url, data={
@@ -95,7 +97,7 @@ class BuyingQuoteTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_check_user_over_limit(self):
-        self._login(self.username)
+        self.auth_utils.login()
         url = reverse('exchange:quote-detail')
 
         response = self.client.get(url, data={
@@ -112,8 +114,8 @@ class BuyingQuoteTests(APITestCase):
     def test_check_user_without_limit_setup(self):
         url = reverse('exchange:quote-detail')
         username = 'another_username'
-        self._create_user(username)
-        self._login(username)
+        self.auth_utils.create_user(username)
+        self.auth_utils.login(username)
 
         response = self.client.get(url, data={
             'amount': '1',
@@ -137,25 +139,11 @@ class BuyingQuoteTests(APITestCase):
         }, format='json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    def _create_user(self, username):
-        user = User.objects.create_user(
-            username=username,
-            password=self.password,
-        )
-        return user
-
-    def _login(self, username):
-        url = reverse('token:token_obtain_pair')
-        token_resp = self.client.post(url, data={
-            User.USERNAME_FIELD: username,
-            'password': self.password,
-        })
-        token = token_resp.json()['access']
-        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + token)
-
 
 class SellingQuoteTests(APITestCase):
     def setUp(self):
+        self.auth_utils = AuthenticationUtils(self.client)
+
         PriceManagement.get_cache_price = MagicMock(return_value=CryptoPrice(
             CURRENCY.ETH,
             Decimal('100'),
@@ -166,10 +154,7 @@ class SellingQuoteTests(APITestCase):
         FeeFactory(key=FEE_COIN_SELLING_ORDER_BANK, value=Decimal('1'), fee_type=FEE_TYPE.percentage)
         PoolFactory(currency=CURRENCY.ETH, direction=DIRECTION.sell, usage=1, limit=2)
 
-        self.password = 'test_password'
-        self.username = 'test_username'
-        user = self._create_user(self.username)
-
+        user = self.auth_utils.create_user()
         exchange_user = ExchangeUserFactory(user=user)
         UserLimitFactory(fiat_currency=FIAT_CURRENCY.VND, direction=DIRECTION.sell, usage=2300000, limit=3000000,
                          user=exchange_user)
@@ -224,7 +209,7 @@ class SellingQuoteTests(APITestCase):
         self.assertEqual(data['code'], 'coin_over_limit')
 
     def test_check_user_limit_success(self):
-        self._login(self.username)
+        self.auth_utils.login()
         url = reverse('exchange:quote-detail')
 
         response = self.client.get(url, data={
@@ -237,7 +222,7 @@ class SellingQuoteTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_check_user_over_limit(self):
-        self._login(self.username)
+        self.auth_utils.login()
         url = reverse('exchange:quote-detail')
 
         response = self.client.get(url, data={
@@ -255,8 +240,8 @@ class SellingQuoteTests(APITestCase):
     def test_check_user_without_limit_setup(self):
         url = reverse('exchange:quote-detail')
         username = 'another_username'
-        self._create_user(username)
-        self._login(username)
+        self.auth_utils.create_user(username)
+        self.auth_utils.login(username)
 
         response = self.client.get(url, data={
             'amount': '1',
@@ -281,23 +266,7 @@ class SellingQuoteTests(APITestCase):
             'direction': DIRECTION.sell
         }, format='json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-
-    def _create_user(self, username):
-        user = User.objects.create_user(
-            username=username,
-            password=self.password,
-        )
-        return user
-
-    def _login(self, username):
-        url = reverse('token:token_obtain_pair')
-        token_resp = self.client.post(url, data={
-            User.USERNAME_FIELD: username,
-            'password': self.password,
-        })
-        token = token_resp.json()['access']
-        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + token)
-
+        
 
 class BuyingQuoteReverseTests(APITestCase):
     def setUp(self):

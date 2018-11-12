@@ -7,8 +7,8 @@ VALUE_TYPE = Choices(
 )
 
 LANGUAGE = Choices(
-    ('en-US', 'English'),
-    ('vi', 'Vietnamese'),
+    ('en-US', 'en_us', 'English'),
+    ('vi', 'vi', 'Vietnamese'),
 )
 
 COUNTRY = Choices(

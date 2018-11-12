@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from coin_exchange.models import Order
+from coin_exchange.models import Order, Review
 from common import serializer_fields
 
 
@@ -57,3 +57,11 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = '__all__'
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = ('review', 'order')
+
+    order = serializers.IntegerField(write_only=True)

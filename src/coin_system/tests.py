@@ -1,4 +1,5 @@
 from decimal import Decimal
+from unittest.mock import MagicMock
 
 from django.test import TestCase
 from django.urls import reverse
@@ -9,7 +10,8 @@ from coin_system.business import get_config, get_fee, get_country_default
 from coin_system.factories import ConfigFactory, FeeFactory, BankFactory, PopularPlaceFactory, CountryCurrencyFactory, \
     CountryDefaultConfigFactory
 from coin_system.models import Config
-from common.constants import VALUE_TYPE, COUNTRY, FIAT_CURRENCY
+from common.business import PriceManagement, CryptoPrice, RateManagement
+from common.constants import VALUE_TYPE, COUNTRY, FIAT_CURRENCY, CURRENCY
 
 
 class ConfigValueTypeTest(TestCase):
@@ -151,3 +153,25 @@ class PopularPlaceTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.json()), 2)
+
+
+class SetupData(APITestCase):
+    def setUp(self):
+        PriceManagement.save_cache_price = MagicMock(return_value=CryptoPrice(
+            CURRENCY.ETH,
+            Decimal('100'),
+            Decimal('100'),
+        ))
+        RateManagement.save_rates = MagicMock(return_value=None)
+
+    def test_save_rates(self):
+        url = reverse('system:currency-rates')
+        response = self.client.post(url, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_save_cache_price(self):
+        url = reverse('system:crypto-rates')
+        response = self.client.post(url, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
