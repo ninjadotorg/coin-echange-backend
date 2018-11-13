@@ -1,20 +1,30 @@
 from decimal import Decimal
 
 from django.contrib.auth.models import User
+from django.db import transaction
+from django.db.models import F
 
 from coin_exchange.business.quote import QuoteManagement
-from coin_exchange.constants import MIN_ETH_AMOUNT, MIN_BTC_AMOUNT, ORDER_TYPE, ORDER_EXPIRATION_DURATION, \
-    DIFFERENT_THRESHOLD
+from coin_exchange.constants import (
+    MIN_ETH_AMOUNT,
+    MIN_BTC_AMOUNT,
+    ORDER_TYPE,
+    ORDER_EXPIRATION_DURATION,
+    DIFFERENT_THRESHOLD,
+    REF_CODE_LENGTH,
+)
 from coin_exchange.exceptions import AmountIsTooSmallException, PriceChangeException
+from coin_exchange.models import UserLimit, Pool
 from coin_exchange.serializers import OrderSerializer, SellingOrderSerializer
 from coin_system.business import round_crypto_currency
-from common.business import validate_crypto_address
+from common.business import validate_crypto_address, get_now, generate_random_code
 from common.constants import DIRECTION, CURRENCY, FIAT_CURRENCY
 from common.exceptions import InvalidAddress
 
 
 class OrderManagement(object):
     @staticmethod
+    @transaction.atomic
     def add_order(user: User, serializer: OrderSerializer):
         safe_data = serializer.validated_data
         amount = safe_data['amount']
@@ -38,12 +48,13 @@ class OrderManagement(object):
             direction=direction,
             duration=ORDER_EXPIRATION_DURATION,
             fee=check_fee,
-            ref_code='aaaaa',  # TODO Create ref code
+            ref_code=generate_random_code(REF_CODE_LENGTH),  # TODO Create ref code
         )
 
-        # TODO Update pool and user limit
+        OrderManagement.increase_limit(user, amount, currency, direction, fiat_local_amount, fiat_local_currency)
 
     @staticmethod
+    @transaction.atomic
     def add_selling_order(user: User, serializer: SellingOrderSerializer):
         safe_data = serializer.validated_data
         amount = safe_data['amount']
@@ -67,9 +78,21 @@ class OrderManagement(object):
             order_type=ORDER_TYPE.bank,
             direction=DIRECTION.sell,
             fee=check_fee,
+            ref_code=generate_random_code(REF_CODE_LENGTH)
         )
 
-        # TODO Update pool and user limit
+        OrderManagement.increase_limit(user, amount, currency, direction, fiat_local_amount, fiat_local_currency)
+
+    @staticmethod
+    def increase_limit(user, amount, currency, direction, fiat_local_amount, fiat_local_currency):
+        UserLimit.objects.filter(user__user=user,
+                                 direction=direction,
+                                 fiat_currency=fiat_local_currency) \
+            .update(usage=F('usage') + fiat_local_amount,
+                    updated_at=get_now())
+        Pool.objects.filter(direction=direction,
+                            currency=currency).update(usage=F('usage') + amount,
+                                                      updated_at=get_now())
 
     @staticmethod
     def check_minimum_amount(amount: Decimal, currency: str):

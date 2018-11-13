@@ -11,7 +11,6 @@ from common.exceptions import InvalidDataException
 
 
 class SignUpView(APIView):
-
     @transaction.atomic
     def post(self, request, format=None):
         serializer = SignUpSerializer(data=request.data)

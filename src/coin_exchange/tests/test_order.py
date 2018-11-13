@@ -80,7 +80,7 @@ class AddOrderTest(APITestCase):
             'direction': DIRECTION.buy,
             'address': '0x6d86cf435978cb75aecc43d0a4e3a379af7667d8',
         }, format='json')
-        print(response.json())
+
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_add_bank_order(self):
@@ -129,7 +129,6 @@ class AddSellingOrderTest(APITestCase):
             'address': '0x6d86cf435978cb75aecc43d0a4e3a379af7667d8',
         }, format='json')
 
-        print(response.json())
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 

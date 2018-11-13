@@ -1,8 +1,11 @@
+import random
+import string
 from decimal import Decimal
 from typing import List
 
 import coinaddr
 from django.core.cache import cache
+from django.utils import timezone
 
 from common.constants import CACHE_KEY_CRYPTO_RATE_CURRENCY_BY_EXCHANGE, CACHE_KEY_CURRENCY_RATE, EXCHANGE_SITE
 from common.exceptions import InvalidDataException
@@ -72,3 +75,15 @@ def view_serializer_fields(fields: List[str], serializer_data: dict) -> dict:
 def validate_crypto_address(currency: str, address: str) -> bool:
     result = coinaddr.validate(currency.lower(), address)
     return result.valid
+
+
+def get_now():
+    now = timezone.now()
+    # if not timezone.is_naive(now):
+    #     now = timezone.make_naive(now, timezone.utc)
+
+    return now
+
+
+def generate_random_code(n: int):
+    return ''.join(random.choices(string.ascii_lowercase + string.digits, k=n))
