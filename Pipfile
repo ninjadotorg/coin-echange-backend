@@ -28,6 +28,8 @@ django-redis = "==4.9.0"
 bitstampclient = "==2.2.5"
 python-memcached = "*"
 coinaddr = "*"
+sendgrid = "*"
+slackclient = "*"
 
 [dev-packages]
 "flake8" = "*"

@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "50970ddeee409e9a51ae18e989cdda9ae5e7bb041a8d4404c05e9168eddf8d20"
+            "sha256": "e5fd4124d6ec9542cd27a4c922fdfd9747de0f117c4ee603ab7d21fa67b9eb6d"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -423,11 +423,11 @@
         },
         "pytest-django": {
             "hashes": [
-                "sha256:49e9ffc856bc6a1bec1c26c5c7b7213dff7cc8bc6b64d624c4d143d04aff0bcf",
-                "sha256:b379282feaf89069cb790775ab6bbbd2bd2038a68c7ef9b84a41898e0b551081"
+                "sha256:deffd9d65827c582bd0a85638a0fe52f0eb65a764872ddcee9ce51cdf6ae9f55",
+                "sha256:fe1f71a0171f6b7edac37654da0904c9bd5ffba5221ab5a76779ab870611f41f"
             ],
             "index": "pypi",
-            "version": "==3.4.3"
+            "version": "==3.4.4"
         },
         "pytest-flake8": {
             "hashes": [
@@ -443,6 +443,12 @@
                 "sha256:88f9287c0174266bb0d8cedd395cfba9c58e87e5ad86b2ce58859bc11be3cf02"
             ],
             "version": "==2.7.5"
+        },
+        "python-http-client": {
+            "hashes": [
+                "sha256:7e430f4b9dd2b621b0051f6a362f103447ea8e267594c602a5c502a0c694ee38"
+            ],
+            "version": "==3.1.0"
         },
         "python-memcached": {
             "hashes": [
@@ -475,6 +481,14 @@
             "index": "pypi",
             "version": "==2.18.4"
         },
+        "sendgrid": {
+            "hashes": [
+                "sha256:97eb356ea44a18a03e6fe99f02b7942445be306a50f73a7dd35471fe15cc0094",
+                "sha256:9e9d3d75602b8853f174ec959d1af1ac168cd361cbcafc81285fa8c183f7a505"
+            ],
+            "index": "pypi",
+            "version": "==5.6.0"
+        },
         "sentry-sdk": {
             "hashes": [
                 "sha256:3918c1fcbd0e95cc45ee6facb21af0b6198cf1f53c1aa37db64595f0c48c829c",
@@ -490,6 +504,14 @@
             ],
             "version": "==1.11.0"
         },
+        "slackclient": {
+            "hashes": [
+                "sha256:4d5f2d5b05a8fa717b745efa934d0a4240dfc8442f169fb2a8af4e5adb8297ad",
+                "sha256:d06b2105a1044651a7dcefe77c24cade6ae7c98ff53422e970634e62862e7bf3"
+            ],
+            "index": "pypi",
+            "version": "==1.3.0"
+        },
         "text-unidecode": {
             "hashes": [
                 "sha256:5a1375bb2ba7968740508ae38d92e1f889a0832913cb1c447d5e2046061a396d",
@@ -503,6 +525,13 @@
                 "sha256:cc44da8e1145637334317feebd728bd869a35285b93cbb4cca2577da7e62db4f"
             ],
             "version": "==1.22"
+        },
+        "websocket-client": {
+            "hashes": [
+                "sha256:8c8bf2d4f800c3ed952df206b18c28f7070d9e3dcbd6ca6291127574f57ee786",
+                "sha256:e51562c91ddb8148e791f0155fdb01325d99bb52c4cdbb291aee7a3563fd0849"
+            ],
+            "version": "==0.54.0"
         },
         "zope.interface": {
             "hashes": [

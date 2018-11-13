@@ -48,7 +48,7 @@ class OrderManagement(object):
             direction=direction,
             duration=ORDER_EXPIRATION_DURATION,
             fee=check_fee,
-            ref_code=generate_random_code(REF_CODE_LENGTH),  # TODO Create ref code
+            ref_code=generate_random_code(REF_CODE_LENGTH),
         )
 
         OrderManagement.increase_limit(user, amount, currency, direction, fiat_local_amount, fiat_local_currency)

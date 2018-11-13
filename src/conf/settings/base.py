@@ -206,3 +206,7 @@ FROM_PHONE_NUMBER = ''
 SLACK = {
     'TOKEN': '',
 }
+
+SENDGRID = {
+    'API_KEY': ''
+}
