@@ -27,6 +27,7 @@ coinbase = "==2.1.0"
 django-redis = "==4.9.0"
 bitstampclient = "==2.2.5"
 python-memcached = "*"
+coinaddr = "*"
 
 [dev-packages]
 "flake8" = "*"

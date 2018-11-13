@@ -1,55 +1,92 @@
 from decimal import Decimal
 
-from coin_exchange.constants import MIN_ETH_AMOUNT, MIN_BTC_AMOUNT, ORDER_TYPE
-from coin_exchange.exceptions import AmountIsTooSmallException
+from django.contrib.auth.models import User
+
+from coin_exchange.business.quote import QuoteManagement
+from coin_exchange.constants import MIN_ETH_AMOUNT, MIN_BTC_AMOUNT, ORDER_TYPE, ORDER_EXPIRATION_DURATION, \
+    DIFFERENT_THRESHOLD
+from coin_exchange.exceptions import AmountIsTooSmallException, PriceChangeException
 from coin_exchange.serializers import OrderSerializer, SellingOrderSerializer
-from coin_user.models import ExchangeUser
-from common.constants import DIRECTION, CURRENCY
+from coin_system.business import round_crypto_currency
+from common.business import validate_crypto_address
+from common.constants import DIRECTION, CURRENCY, FIAT_CURRENCY
+from common.exceptions import InvalidAddress
 
 
 class OrderManagement(object):
     @staticmethod
-    def add_order(user: ExchangeUser, serializer: OrderSerializer):
+    def add_order(user: User, serializer: OrderSerializer):
         safe_data = serializer.validated_data
         amount = safe_data['amount']
         currency = safe_data['currency']
+        address = safe_data['address']
+        fiat_local_amount = safe_data['fiat_local_amount']
+        fiat_local_currency = safe_data['fiat_local_currency']
+        direction = DIRECTION.buy
 
-        OrderManagement.check_minimum_amount(amount, currency)
+        check_fiat_amount, check_fee, quote_data = OrderManagement.validate_data(address, amount, currency, direction,
+                                                                                 fiat_local_amount, fiat_local_currency,
+                                                                                 safe_data, user)
 
         serializer.save(
-            user=user,
-            fiat_amount=Decimal('0'),
-            fiat_currency='',
-            raw_fiat_amount=Decimal('0'),
-            price=Decimal('0'),
-            direction=DIRECTION.buy,
-            duration=30,
-            fee=Decimal('0'),
-            tx_hash='',
-            provider_data='',
-            ref_code='',
+            user=user.exchange_user,
+            fiat_amount=check_fiat_amount,
+            fiat_currency=FIAT_CURRENCY.USD,
+            raw_fiat_amount=quote_data['raw_fiat_amount'],
+            price=quote_data['price'],
+            direction=direction,
+            duration=ORDER_EXPIRATION_DURATION,
+            fee=check_fee,
+            ref_code='aaaaa',
         )
 
     @staticmethod
-    def add_selling_order(user: ExchangeUser, serializer: SellingOrderSerializer):
+    def validate_data(address, amount, currency, direction, fiat_local_amount, fiat_local_currency, safe_data, user):
+        OrderManagement.check_minimum_amount(amount, currency)
+        if not validate_crypto_address(currency, address):
+            raise InvalidAddress
+
+        quote_data = QuoteManagement.get_quote(user, {
+            'amount': round_crypto_currency(amount),
+            'currency': currency,
+            'fiat_currency': fiat_local_currency,
+            'check': True,
+            'user_check': True,
+            'direction': direction,
+        }).data
+        check_fiat_amount = Decimal(quote_data['fiat_amount'])
+        check_fiat_local_amount = Decimal(quote_data['fiat_local_amount'])
+        check_fee = Decimal(quote_data['fee'])
+        if direction == DIRECTION.buy and safe_data['order_type'] == ORDER_TYPE.cod:
+            check_fiat_amount = Decimal(quote_data['fiat_amount_cod'])
+            check_fiat_local_amount = Decimal(quote_data['fiat_local_amount_cod'])
+            check_fee = Decimal(quote_data['fee_cod'])
+        OrderManagement.check_different_in_threshold(fiat_local_amount, check_fiat_local_amount)
+        return check_fiat_amount, check_fee, quote_data
+
+    @staticmethod
+    def add_selling_order(user: User, serializer: SellingOrderSerializer):
         safe_data = serializer.validated_data
         amount = safe_data['amount']
         currency = safe_data['currency']
+        address = safe_data['address']
+        fiat_local_amount = safe_data['fiat_local_amount']
+        fiat_local_currency = safe_data['fiat_local_currency']
+        direction = DIRECTION.sell
 
-        OrderManagement.check_minimum_amount(amount, currency)
+        check_fiat_amount, check_fee, quote_data = OrderManagement.validate_data(address, amount, currency, direction,
+                                                                                 fiat_local_amount, fiat_local_currency,
+                                                                                 safe_data, user)
 
         serializer.save(
-            user=user,
-            fiat_amount=Decimal('0'),
-            fiat_currency='',
-            raw_fiat_amount=Decimal('0'),
-            price=Decimal('0'),
+            user=user.exchange_user,
+            fiat_amount=check_fiat_amount,
+            fiat_currency=FIAT_CURRENCY.USD,
+            raw_fiat_amount=quote_data['raw_fiat_amount'],
+            price=quote_data['price'],
             order_type=ORDER_TYPE.bank,
             direction=DIRECTION.sell,
-            duration=30,
-            fee=Decimal('0'),
-            tx_hash='',
-            provider_data='',
+            fee=check_fee,
         )
 
     @staticmethod
@@ -58,3 +95,9 @@ class OrderManagement(object):
             raise AmountIsTooSmallException
         if currency == CURRENCY.BTC and amount < MIN_BTC_AMOUNT:
             raise AmountIsTooSmallException
+
+    @staticmethod
+    def check_different_in_threshold(amount1: Decimal, amount2: Decimal):
+        delta = abs(amount1 - amount2)
+        if (delta / max(amount1, amount2)) * Decimal('100') > DIFFERENT_THRESHOLD:
+            raise PriceChangeException

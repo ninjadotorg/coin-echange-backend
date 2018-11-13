@@ -1,6 +1,7 @@
 from decimal import Decimal
 from typing import List
 
+import coinaddr
 from django.core.cache import cache
 
 from common.constants import CACHE_KEY_CRYPTO_RATE_CURRENCY_BY_EXCHANGE, CACHE_KEY_CURRENCY_RATE, EXCHANGE_SITE
@@ -66,3 +67,8 @@ class RateManagement(object):
 def view_serializer_fields(fields: List[str], serializer_data: dict) -> dict:
     data = {key: serializer_data[key] for key in fields}
     return data
+
+
+def validate_crypto_address(currency: str, address: str) -> bool:
+    result = coinaddr.validate(currency.lower(), address)
+    return result.valid

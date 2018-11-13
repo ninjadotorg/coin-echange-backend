@@ -56,12 +56,12 @@ class OrderViewSet(viewsets.ModelViewSet):
             serializer = SellingOrderSerializer(data=request.data)
             serializer.is_valid(True)
 
-            OrderManagement.add_selling_order(self.request.user.exchange_user, serializer)
+            OrderManagement.add_selling_order(self.request.user, serializer)
         else:
             serializer = OrderSerializer(data=request.data)
             serializer.is_valid(True)
 
-            OrderManagement.add_order(self.request.user.exchange_user, serializer)
+            OrderManagement.add_order(self.request.user, serializer)
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 

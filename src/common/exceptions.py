@@ -12,3 +12,9 @@ class InvalidDataException(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
     default_detail = 'Invalid data'
     default_code = 'invalid_data'
+
+
+class InvalidAddress(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = 'Invalid address'
+    default_code = 'invalid_address'

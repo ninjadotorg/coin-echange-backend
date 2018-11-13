@@ -46,5 +46,4 @@ class ReviewTests(APITestCase):
             'order': order.pk,
         }, format='json')
 
-        print(response.json())
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)

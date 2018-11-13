@@ -53,3 +53,7 @@ def remove_markup_fee(amount: Decimal, fee_key: str) -> (Decimal, Decimal):
 
 def round_currency(amount: Decimal) -> Decimal:
     return amount.quantize(Decimal('.01'), ROUND_CEILING)
+
+
+def round_crypto_currency(amount: Decimal) -> Decimal:
+    return amount.quantize(Decimal('.000001'), ROUND_CEILING)

@@ -24,3 +24,9 @@ class AmountIsTooSmallException(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
     default_detail = 'Amount is too small'
     default_code = 'amount_is_too_small'
+
+
+class PriceChangeException(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = 'Price changed'
+    default_code = 'price_changed'
