@@ -7,13 +7,15 @@ VALUE_TYPE = Choices(
 )
 
 LANGUAGE = Choices(
-    ('en-US', 'en_us', 'English'),
-    ('vi', 'vi', 'Vietnamese'),
+    ('km', 'km', 'Cambodian'),
+    ('en-PH', 'en_ph', 'English'),
+    ('id', 'id', 'Indonesian'),
 )
 
 COUNTRY = Choices(
-    ('HK', 'Hong Kong'),
-    ('VN', 'Viet Nam'),
+    ('KH', 'Cambodia'),
+    ('ID', 'Indonesia'),
+    ('PH', 'Philippines'),
 )
 
 DIRECTION = Choices(
@@ -22,8 +24,8 @@ DIRECTION = Choices(
 )
 
 FIAT_CURRENCY = Choices(
-    ('VND', 'VND'),
-    ('HKD', 'HKD'),
+    ('IDR', 'IDR'),
+    ('PHP', 'PHP'),
     ('USD', 'USD'),
 )
 
@@ -38,9 +40,9 @@ SUPPORT_CURRENCIES = [
 ]
 
 SUPPORT_FIAT_CURRENCIES = [
-    FIAT_CURRENCY.HKD,
+    FIAT_CURRENCY.IDR,
+    FIAT_CURRENCY.PHP,
     FIAT_CURRENCY.USD,
-    FIAT_CURRENCY.VND,
 ]
 
 EXCHANGE_SITE = Choices(

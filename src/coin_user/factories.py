@@ -16,5 +16,5 @@ class ExchangeUserFactory(factory.django.DjangoModelFactory):
         model = 'coin_user.ExchangeUser'
 
     user = factory.SubFactory(DjangoUserFactory)
-    country = factory.Iterator([COUNTRY.VN, COUNTRY.HK])
-    language = factory.Iterator([LANGUAGE.vi, LANGUAGE.en_us])
+    country = factory.Iterator([COUNTRY.KH, COUNTRY.ID])
+    language = factory.Iterator([LANGUAGE.km, LANGUAGE.en_ph])

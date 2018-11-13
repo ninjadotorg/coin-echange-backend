@@ -30,7 +30,7 @@ class OrderFactory(factory.django.DjangoModelFactory):
     fiat_amount = factory.LazyAttribute(lambda o: o.raw_fiat_amount * Decimal('1.01'))
     fiat_currency = FIAT_CURRENCY.USD
     fiat_local_amount = factory.LazyAttribute(lambda o: o.fiat_amount * Decimal('23000'))
-    fiat_local_currency = FIAT_CURRENCY.VND
+    fiat_local_currency = FIAT_CURRENCY.PHP
     raw_fiat_amount = factory.LazyAttribute(lambda o: o.amount * o.price)
     price = Decimal('100')
     order_type = factory.Iterator([ORDER_TYPE.bank, ORDER_TYPE.cod])
@@ -62,6 +62,6 @@ class ReviewFactory(factory.django.DjangoModelFactory):
 
     user = factory.SubFactory(ExchangeUserFactory)
     order = factory.SubFactory(OrderFactory)
-    country = factory.Iterator([COUNTRY.VN, COUNTRY.HK])
+    country = factory.Iterator([COUNTRY.KH, COUNTRY.PH])
     direction = factory.Iterator([DIRECTION.buy, DIRECTION.sell])
     review = factory.Sequence(lambda n: "Review %03d" % n)

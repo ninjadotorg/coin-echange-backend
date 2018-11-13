@@ -4,7 +4,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from rest_framework.fields import empty
 
-from common.constants import SUPPORT_CURRENCIES, SUPPORT_FIAT_CURRENCIES, DIRECTION
+from common.constants import SUPPORT_CURRENCIES, SUPPORT_FIAT_CURRENCIES, DIRECTION, COUNTRY
 
 
 class FiatAmountField(serializers.DecimalField):
@@ -62,5 +62,18 @@ class DirectionField(serializers.CharField):
 
         if value not in DIRECTION:
             raise ValidationError
+
+        return value
+
+
+class CountryField(serializers.CharField):
+    def __init__(self, **kwargs):
+        super(CountryField, self).__init__(**kwargs)
+
+    def run_validation(self, data=empty):
+        value = super(CountryField, self).run_validation(data)
+
+        if value not in COUNTRY:
+            raise ValidationError(detail='Country is not supported', code='country_not_support')
 
         return value

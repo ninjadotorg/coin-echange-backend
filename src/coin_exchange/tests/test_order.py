@@ -66,7 +66,7 @@ class AddOrderTest(APITestCase):
         self.user = self.auth_utils.create_exchange_user()
         self.auth_utils.login()
 
-        UserLimitFactory(fiat_currency=FIAT_CURRENCY.VND, direction=DIRECTION.buy, usage=0, limit=3000000,
+        UserLimitFactory(fiat_currency=FIAT_CURRENCY.PHP, direction=DIRECTION.buy, usage=0, limit=3000000,
                          user=self.user)
 
     def test_add_cod_order(self):
@@ -75,7 +75,7 @@ class AddOrderTest(APITestCase):
             'amount': '1',
             'currency': CURRENCY.ETH,
             'fiat_local_amount': '2530000',
-            'fiat_local_currency': FIAT_CURRENCY.VND,
+            'fiat_local_currency': FIAT_CURRENCY.PHP,
             'order_type': ORDER_TYPE.cod,
             'direction': DIRECTION.buy,
             'address': '0x6d86cf435978cb75aecc43d0a4e3a379af7667d8',
@@ -89,7 +89,7 @@ class AddOrderTest(APITestCase):
             'amount': '1',
             'currency': CURRENCY.ETH,
             'fiat_local_amount': '2323000',
-            'fiat_local_currency': FIAT_CURRENCY.VND,
+            'fiat_local_currency': FIAT_CURRENCY.PHP,
             'order_type': ORDER_TYPE.bank,
             'direction': DIRECTION.buy,
             'address': '0x6d86cf435978cb75aecc43d0a4e3a379af7667d8',
@@ -115,7 +115,7 @@ class AddSellingOrderTest(APITestCase):
         self.user = self.auth_utils.create_exchange_user()
         self.auth_utils.login()
 
-        UserLimitFactory(fiat_currency=FIAT_CURRENCY.VND, direction=DIRECTION.sell, usage=0, limit=3000000,
+        UserLimitFactory(fiat_currency=FIAT_CURRENCY.PHP, direction=DIRECTION.sell, usage=0, limit=3000000,
                          user=self.user)
 
     def test_add_order(self):
@@ -124,7 +124,7 @@ class AddSellingOrderTest(APITestCase):
             'amount': '1',
             'currency': CURRENCY.ETH,
             'fiat_local_amount': '2323000',
-            'fiat_local_currency': FIAT_CURRENCY.VND,
+            'fiat_local_currency': FIAT_CURRENCY.PHP,
             'direction': DIRECTION.sell,
             'address': '0x6d86cf435978cb75aecc43d0a4e3a379af7667d8',
         }, format='json')

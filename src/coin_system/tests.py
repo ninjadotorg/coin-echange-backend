@@ -72,21 +72,21 @@ class GetterTests(TestCase):
         self.assertEqual(value, fee2.value)
 
     def test_get_country_default(self):
-        CountryDefaultConfigFactory(country=COUNTRY.VN, currency=FIAT_CURRENCY.VND, language='vi')
+        CountryDefaultConfigFactory(country=COUNTRY.PH, currency=FIAT_CURRENCY.PHP, language='en_ph')
 
-        config1 = get_country_default(COUNTRY.VN)
-        self.assertEqual(FIAT_CURRENCY.VND, config1.currency)
+        config1 = get_country_default(COUNTRY.PH)
+        self.assertEqual(FIAT_CURRENCY.PHP, config1.currency)
 
-        config2 = get_country_default(COUNTRY.VN)
-        self.assertEqual(FIAT_CURRENCY.VND, config2.currency)
+        config2 = get_country_default(COUNTRY.PH)
+        self.assertEqual(FIAT_CURRENCY.PHP, config2.currency)
 
 
 class BankTests(APITestCase):
     def setUp(self):
         BankFactory(active=True, country='US', currency='USD')
-        BankFactory(active=True, country=COUNTRY.VN, currency=FIAT_CURRENCY.VND)
-        BankFactory(active=True, country=COUNTRY.HK, currency=FIAT_CURRENCY.HKD)
-        BankFactory(active=True, country=COUNTRY.HK, currency=FIAT_CURRENCY.USD)
+        BankFactory(active=True, country=COUNTRY.PH, currency=FIAT_CURRENCY.PHP)
+        BankFactory(active=True, country=COUNTRY.KH, currency=FIAT_CURRENCY.IDR)
+        BankFactory(active=True, country=COUNTRY.KH, currency=FIAT_CURRENCY.USD)
         BankFactory(active=False, country='FR', currency='EUR')
 
     def test_get_1(self):
@@ -98,14 +98,14 @@ class BankTests(APITestCase):
 
     def test_get_2(self):
         url = reverse('system:bank-list')
-        response = self.client.get(url, data={'country': COUNTRY.HK}, format='json')
+        response = self.client.get(url, data={'country': COUNTRY.KH}, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.json()), 2)
 
     def test_get_3(self):
         url = reverse('system:bank-list')
-        response = self.client.get(url, data={'country': COUNTRY.HK, 'currency': FIAT_CURRENCY.HKD}, format='json')
+        response = self.client.get(url, data={'country': COUNTRY.KH, 'currency': FIAT_CURRENCY.USD}, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.json()), 1)
@@ -113,10 +113,10 @@ class BankTests(APITestCase):
 
 class CountryCurrencyTests(APITestCase):
     def setUp(self):
-        CountryCurrencyFactory(active=True, country=COUNTRY.VN, currency=FIAT_CURRENCY.VND)
-        CountryCurrencyFactory(active=True, country=COUNTRY.HK, currency=FIAT_CURRENCY.USD)
-        CountryCurrencyFactory(active=True, country=COUNTRY.HK, currency=FIAT_CURRENCY.HKD)
-        CountryCurrencyFactory(active=False, country=COUNTRY.HK)
+        CountryCurrencyFactory(active=True, country=COUNTRY.PH, currency=FIAT_CURRENCY.PHP)
+        CountryCurrencyFactory(active=True, country=COUNTRY.KH, currency=FIAT_CURRENCY.IDR)
+        CountryCurrencyFactory(active=True, country=COUNTRY.KH, currency=FIAT_CURRENCY.USD)
+        CountryCurrencyFactory(active=False, country=COUNTRY.KH)
 
     def test_get_1(self):
         url = reverse('system:countrycurrency-list')
@@ -127,7 +127,7 @@ class CountryCurrencyTests(APITestCase):
 
     def test_get_2(self):
         url = reverse('system:countrycurrency-list')
-        response = self.client.get(url, data={'country': COUNTRY.HK}, format='json')
+        response = self.client.get(url, data={'country': COUNTRY.KH}, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.json()), 2)
@@ -135,10 +135,10 @@ class CountryCurrencyTests(APITestCase):
 
 class PopularPlaceTests(APITestCase):
     def setUp(self):
-        PopularPlaceFactory(active=True, country=COUNTRY.VN)
-        PopularPlaceFactory(active=True, country=COUNTRY.VN)
-        PopularPlaceFactory(active=True, country=COUNTRY.HK)
-        PopularPlaceFactory(active=False, country=COUNTRY.HK)
+        PopularPlaceFactory(active=True, country=COUNTRY.PH)
+        PopularPlaceFactory(active=True, country=COUNTRY.PH)
+        PopularPlaceFactory(active=True, country=COUNTRY.KH)
+        PopularPlaceFactory(active=False, country=COUNTRY.KH)
 
     def test_get_1(self):
         url = reverse('system:popularplace-list')
@@ -149,7 +149,7 @@ class PopularPlaceTests(APITestCase):
 
     def test_get_2(self):
         url = reverse('system:popularplace-list')
-        response = self.client.get(url, data={'country': COUNTRY.VN}, format='json')
+        response = self.client.get(url, data={'country': COUNTRY.PH}, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.json()), 2)

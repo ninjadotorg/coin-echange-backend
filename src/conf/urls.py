@@ -23,6 +23,7 @@ admin.site.index_title = "Welcome to Coin Exchange Admin"
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('coin_auth.urls')),
+    path('api/', include('coin_user.urls')),
     path('api/', include('coin_system.urls')),
     path('api/', include('coin_exchange.urls')),
     path('api/', include('misc_check.urls')),

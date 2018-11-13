@@ -23,7 +23,7 @@ class ReviewTests(APITestCase):
 
     def test_filter(self):
         url = reverse('exchange:review-list')
-        response = self.client.get(url, data={'country': COUNTRY.VN}, format='json')
+        response = self.client.get(url, data={'country': COUNTRY.PH}, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.json()['results']), 5)

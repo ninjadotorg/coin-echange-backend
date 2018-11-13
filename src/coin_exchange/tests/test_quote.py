@@ -35,7 +35,7 @@ class BuyingQuoteTests(APITestCase):
         user = self.auth_utils.create_user()
         exchange_user = ExchangeUserFactory(user=user)
 
-        UserLimitFactory(fiat_currency=FIAT_CURRENCY.VND, direction=DIRECTION.buy, usage=2300000, limit=3000000,
+        UserLimitFactory(fiat_currency=FIAT_CURRENCY.PHP, direction=DIRECTION.buy, usage=2300000, limit=3000000,
                          user=exchange_user)
 
     def test_invalid(self):
@@ -50,7 +50,7 @@ class BuyingQuoteTests(APITestCase):
         response = self.client.get(url, data={
             'amount': '1',
             'currency': CURRENCY.ETH,
-            'fiat_currency': FIAT_CURRENCY.VND,
+            'fiat_currency': FIAT_CURRENCY.PHP,
         }, format='json')
 
         data = response.json()
@@ -65,7 +65,7 @@ class BuyingQuoteTests(APITestCase):
         response = self.client.get(url, data={
             'amount': '1',
             'currency': CURRENCY.ETH,
-            'fiat_currency': FIAT_CURRENCY.VND,
+            'fiat_currency': FIAT_CURRENCY.PHP,
             'check': True,
         }, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -75,7 +75,7 @@ class BuyingQuoteTests(APITestCase):
         response = self.client.get(url, data={
             'amount': '2',
             'currency': CURRENCY.ETH,
-            'fiat_currency': FIAT_CURRENCY.VND,
+            'fiat_currency': FIAT_CURRENCY.PHP,
             'check': True,
         }, format='json')
 
@@ -91,7 +91,7 @@ class BuyingQuoteTests(APITestCase):
         response = self.client.get(url, data={
             'amount': '0.1',
             'currency': CURRENCY.ETH,
-            'fiat_currency': FIAT_CURRENCY.VND,
+            'fiat_currency': FIAT_CURRENCY.PHP,
             'user_check': True,
         }, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -103,7 +103,7 @@ class BuyingQuoteTests(APITestCase):
         response = self.client.get(url, data={
             'amount': '1',
             'currency': CURRENCY.ETH,
-            'fiat_currency': FIAT_CURRENCY.VND,
+            'fiat_currency': FIAT_CURRENCY.PHP,
             'user_check': True,
         }, format='json')
 
@@ -120,7 +120,7 @@ class BuyingQuoteTests(APITestCase):
         response = self.client.get(url, data={
             'amount': '1',
             'currency': CURRENCY.ETH,
-            'fiat_currency': FIAT_CURRENCY.VND,
+            'fiat_currency': FIAT_CURRENCY.PHP,
             'user_check': True,
         }, format='json')
 
@@ -134,7 +134,7 @@ class BuyingQuoteTests(APITestCase):
         response = self.client.get(url, data={
             'amount': '1',
             'currency': CURRENCY.ETH,
-            'fiat_currency': FIAT_CURRENCY.VND,
+            'fiat_currency': FIAT_CURRENCY.PHP,
             'user_check': True,
         }, format='json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
@@ -156,7 +156,7 @@ class SellingQuoteTests(APITestCase):
 
         user = self.auth_utils.create_user()
         exchange_user = ExchangeUserFactory(user=user)
-        UserLimitFactory(fiat_currency=FIAT_CURRENCY.VND, direction=DIRECTION.sell, usage=2300000, limit=3000000,
+        UserLimitFactory(fiat_currency=FIAT_CURRENCY.PHP, direction=DIRECTION.sell, usage=2300000, limit=3000000,
                          user=exchange_user)
 
     def test_invalid(self):
@@ -171,7 +171,7 @@ class SellingQuoteTests(APITestCase):
         response = self.client.get(url, data={
             'amount': '1',
             'currency': CURRENCY.ETH,
-            'fiat_currency': FIAT_CURRENCY.VND,
+            'fiat_currency': FIAT_CURRENCY.PHP,
             'direction': DIRECTION.sell
         }, format='json')
 
@@ -187,7 +187,7 @@ class SellingQuoteTests(APITestCase):
         response = self.client.get(url, data={
             'amount': '1',
             'currency': CURRENCY.ETH,
-            'fiat_currency': FIAT_CURRENCY.VND,
+            'fiat_currency': FIAT_CURRENCY.PHP,
             'check': True,
             'direction': DIRECTION.sell
         }, format='json')
@@ -199,7 +199,7 @@ class SellingQuoteTests(APITestCase):
         response = self.client.get(url, data={
             'amount': '2',
             'currency': CURRENCY.ETH,
-            'fiat_currency': FIAT_CURRENCY.VND,
+            'fiat_currency': FIAT_CURRENCY.PHP,
             'check': True,
             'direction': DIRECTION.sell
         }, format='json')
@@ -215,7 +215,7 @@ class SellingQuoteTests(APITestCase):
         response = self.client.get(url, data={
             'amount': '0.1',
             'currency': CURRENCY.ETH,
-            'fiat_currency': FIAT_CURRENCY.VND,
+            'fiat_currency': FIAT_CURRENCY.PHP,
             'user_check': True,
             'direction': DIRECTION.sell
         }, format='json')
@@ -228,7 +228,7 @@ class SellingQuoteTests(APITestCase):
         response = self.client.get(url, data={
             'amount': '1',
             'currency': CURRENCY.ETH,
-            'fiat_currency': FIAT_CURRENCY.VND,
+            'fiat_currency': FIAT_CURRENCY.PHP,
             'user_check': True,
             'direction': DIRECTION.sell
         }, format='json')
@@ -246,7 +246,7 @@ class SellingQuoteTests(APITestCase):
         response = self.client.get(url, data={
             'amount': '1',
             'currency': CURRENCY.ETH,
-            'fiat_currency': FIAT_CURRENCY.VND,
+            'fiat_currency': FIAT_CURRENCY.PHP,
             'user_check': True,
             'direction': DIRECTION.sell
         }, format='json')
@@ -261,7 +261,7 @@ class SellingQuoteTests(APITestCase):
         response = self.client.get(url, data={
             'amount': '1',
             'currency': CURRENCY.ETH,
-            'fiat_currency': FIAT_CURRENCY.VND,
+            'fiat_currency': FIAT_CURRENCY.PHP,
             'user_check': True,
             'direction': DIRECTION.sell
         }, format='json')
@@ -287,7 +287,7 @@ class BuyingQuoteReverseTests(APITestCase):
         user = self._create_user(self.username)
 
         exchange_user = ExchangeUserFactory(user=user)
-        UserLimitFactory(fiat_currency=FIAT_CURRENCY.VND, direction=DIRECTION.buy, usage=2300000, limit=3000000,
+        UserLimitFactory(fiat_currency=FIAT_CURRENCY.PHP, direction=DIRECTION.buy, usage=2300000, limit=3000000,
                          user=exchange_user)
 
     def test_invalid(self):
@@ -302,7 +302,7 @@ class BuyingQuoteReverseTests(APITestCase):
         response = self.client.get(url, data={
             'currency': CURRENCY.ETH,
             'fiat_amount': '2323000',
-            'fiat_currency': FIAT_CURRENCY.VND,
+            'fiat_currency': FIAT_CURRENCY.PHP,
         }, format='json')
 
         data = response.json()
@@ -314,7 +314,7 @@ class BuyingQuoteReverseTests(APITestCase):
         response = self.client.get(url, data={
             'currency': CURRENCY.ETH,
             'fiat_amount': '2323000',
-            'fiat_currency': FIAT_CURRENCY.VND,
+            'fiat_currency': FIAT_CURRENCY.PHP,
             'check': True,
         }, format='json')
 
@@ -325,7 +325,7 @@ class BuyingQuoteReverseTests(APITestCase):
         response = self.client.get(url, data={
             'currency': CURRENCY.ETH,
             'fiat_amount': '4646000',  # 2 ETH
-            'fiat_currency': FIAT_CURRENCY.VND,
+            'fiat_currency': FIAT_CURRENCY.PHP,
             'check': True,
         }, format='json')
 
@@ -340,7 +340,7 @@ class BuyingQuoteReverseTests(APITestCase):
         response = self.client.get(url, data={
             'currency': CURRENCY.ETH,
             'fiat_amount': '232300',  # 0.1 ETH
-            'fiat_currency': FIAT_CURRENCY.VND,
+            'fiat_currency': FIAT_CURRENCY.PHP,
             'user_check': True,
         }, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -352,7 +352,7 @@ class BuyingQuoteReverseTests(APITestCase):
         response = self.client.get(url, data={
             'currency': CURRENCY.ETH,
             'fiat_amount': '2323000',
-            'fiat_currency': FIAT_CURRENCY.VND,
+            'fiat_currency': FIAT_CURRENCY.PHP,
             'user_check': True,
         }, format='json')
 
@@ -369,7 +369,7 @@ class BuyingQuoteReverseTests(APITestCase):
         response = self.client.get(url, data={
             'currency': CURRENCY.ETH,
             'fiat_amount': '2323000',
-            'fiat_currency': FIAT_CURRENCY.VND,
+            'fiat_currency': FIAT_CURRENCY.PHP,
             'user_check': True,
         }, format='json')
 
@@ -383,7 +383,7 @@ class BuyingQuoteReverseTests(APITestCase):
         response = self.client.get(url, data={
             'currency': CURRENCY.ETH,
             'fiat_amount': '2323000',
-            'fiat_currency': FIAT_CURRENCY.VND,
+            'fiat_currency': FIAT_CURRENCY.PHP,
             'user_check': True,
         }, format='json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
@@ -422,7 +422,7 @@ class SellingQuoteReverseTests(APITestCase):
         user = self._create_user(self.username)
 
         exchange_user = ExchangeUserFactory(user=user)
-        UserLimitFactory(fiat_currency=FIAT_CURRENCY.VND, direction=DIRECTION.sell, usage=2300000, limit=3000000,
+        UserLimitFactory(fiat_currency=FIAT_CURRENCY.PHP, direction=DIRECTION.sell, usage=2300000, limit=3000000,
                          user=exchange_user)
 
     def test_invalid(self):
@@ -437,7 +437,7 @@ class SellingQuoteReverseTests(APITestCase):
         response = self.client.get(url, data={
             'currency': CURRENCY.ETH,
             'fiat_amount': '2323000',
-            'fiat_currency': FIAT_CURRENCY.VND,
+            'fiat_currency': FIAT_CURRENCY.PHP,
             'direction': DIRECTION.sell
         }, format='json')
 
@@ -451,7 +451,7 @@ class SellingQuoteReverseTests(APITestCase):
         response = self.client.get(url, data={
             'currency': CURRENCY.ETH,
             'fiat_amount': '2323000',
-            'fiat_currency': FIAT_CURRENCY.VND,
+            'fiat_currency': FIAT_CURRENCY.PHP,
             'check': True,
             'direction': DIRECTION.sell
         }, format='json')
@@ -463,7 +463,7 @@ class SellingQuoteReverseTests(APITestCase):
         response = self.client.get(url, data={
             'currency': CURRENCY.ETH,
             'fiat_amount': '4646000',
-            'fiat_currency': FIAT_CURRENCY.VND,
+            'fiat_currency': FIAT_CURRENCY.PHP,
             'check': True,
             'direction': DIRECTION.sell
         }, format='json')
@@ -479,7 +479,7 @@ class SellingQuoteReverseTests(APITestCase):
         response = self.client.get(url, data={
             'currency': CURRENCY.ETH,
             'fiat_amount': '232300',
-            'fiat_currency': FIAT_CURRENCY.VND,
+            'fiat_currency': FIAT_CURRENCY.PHP,
             'user_check': True,
             'direction': DIRECTION.sell
         }, format='json')
@@ -492,7 +492,7 @@ class SellingQuoteReverseTests(APITestCase):
         response = self.client.get(url, data={
             'currency': CURRENCY.ETH,
             'fiat_amount': '2323000',
-            'fiat_currency': FIAT_CURRENCY.VND,
+            'fiat_currency': FIAT_CURRENCY.PHP,
             'user_check': True,
             'direction': DIRECTION.sell
         }, format='json')
@@ -510,7 +510,7 @@ class SellingQuoteReverseTests(APITestCase):
         response = self.client.get(url, data={
             'currency': CURRENCY.ETH,
             'fiat_amount': '2323000',
-            'fiat_currency': FIAT_CURRENCY.VND,
+            'fiat_currency': FIAT_CURRENCY.PHP,
             'user_check': True,
             'direction': DIRECTION.sell
         }, format='json')
@@ -525,7 +525,7 @@ class SellingQuoteReverseTests(APITestCase):
         response = self.client.get(url, data={
             'currency': CURRENCY.ETH,
             'fiat_amount': '2323000',
-            'fiat_currency': FIAT_CURRENCY.VND,
+            'fiat_currency': FIAT_CURRENCY.PHP,
             'user_check': True,
             'direction': DIRECTION.sell
         }, format='json')
