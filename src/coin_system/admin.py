@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from coin_system.models import Config, Fee, Bank, CountryCurrency, PopularPlace
+from coin_system.models import Config, Fee, Bank, CountryCurrency, PopularPlace, CountryDefaultConfig
 
 
 @admin.register(Config)
@@ -26,3 +26,8 @@ class CountryCurrencyAdmin(admin.ModelAdmin):
 @admin.register(PopularPlace)
 class PopularPlaceAdmin(admin.ModelAdmin):
     list_display = ['country', 'name', 'address', 'active']
+
+
+@admin.register(CountryDefaultConfig)
+class CountryDefaultConfigAdmin(admin.ModelAdmin):
+    list_display = ['country', 'language', 'currency', 'active']
