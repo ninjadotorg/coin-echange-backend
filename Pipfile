@@ -30,6 +30,7 @@ python-memcached = "*"
 coinaddr = "*"
 sendgrid = "*"
 slackclient = "*"
+django-tinymce = "==2.7.0"
 
 [dev-packages]
 "flake8" = "*"

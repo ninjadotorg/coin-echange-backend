@@ -8,9 +8,10 @@ from rest_framework.test import APITestCase
 
 from coin_exchange.business.order import OrderManagement
 from coin_exchange.constants import ORDER_TYPE, MIN_ETH_AMOUNT, MIN_BTC_AMOUNT, \
-    FEE_COIN_ORDER_BANK, FEE_COIN_ORDER_COD, FEE_COIN_SELLING_ORDER_BANK
+    FEE_COIN_ORDER_BANK, FEE_COIN_ORDER_COD, FEE_COIN_SELLING_ORDER_BANK, ORDER_STATUS
 from coin_exchange.exceptions import AmountIsTooSmallException, PriceChangeException
 from coin_exchange.factories import OrderFactory, PoolFactory, UserLimitFactory
+from coin_exchange.models import Order
 from coin_system.constants import FEE_TYPE
 from coin_system.factories import FeeFactory
 from common.business import PriceManagement, CryptoPrice, RateManagement
@@ -130,6 +131,29 @@ class AddSellingOrderTest(APITestCase):
         }, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+
+class OrderUpdateTest(APITestCase):
+    def setUp(self):
+        self.auth_utils = AuthenticationUtils(self.client)
+        self.user = self.auth_utils.create_exchange_user()
+        self.auth_utils.login()
+
+        self.order = OrderFactory(user=self.user, order_type=ORDER_TYPE.cod, status=ORDER_STATUS.pending)
+
+    def test_update_receipt(self):
+        order = Order.objects.get(pk=self.order.pk)
+        test_receipt = 'SomeReceipt'
+        self.assertEqual(order.receipt_url, None)
+
+        url = reverse('exchange:order-receipt', args=[self.order.pk, ])
+        response = self.client.put(url, data={
+            'receipt_url': test_receipt,
+        }, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        order = Order.objects.get(pk=self.order.pk)
+        self.assertEqual(order.receipt_url, test_receipt)
 
 
 class OrderSupportFunctionTest(TestCase):

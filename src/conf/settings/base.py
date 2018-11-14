@@ -10,12 +10,17 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 import logging
-import os
 import sys
+from os.path import abspath, basename, dirname, join, normpath
 from sentry_sdk.integrations.logging import LoggingIntegration
 
+DJANGO_ROOT = dirname(dirname(abspath(__file__)))
+SITE_ROOT = dirname(DJANGO_ROOT)
+SITE_NAME = basename(DJANGO_ROOT)
+sys.path.append(DJANGO_ROOT)
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = dirname(DJANGO_ROOT)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
@@ -43,7 +48,8 @@ THIRD_PARTY_APPS = [
     'django_extensions',
     'rest_framework',
     'corsheaders',
-    'django_filters'
+    'django_filters',
+    'tinymce',
 ]
 
 LOCAL_APPS = [
@@ -51,7 +57,8 @@ LOCAL_APPS = [
     'coin_crypto',
     'coin_system',
     'coin_exchange',
-    'coin_user'
+    'coin_user',
+    'content'
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -141,7 +148,15 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
+MEDIA_ROOT = normpath(join(SITE_ROOT, 'media'))
+MEDIA_URL = '/media/'
+STATIC_ROOT = normpath(join(SITE_ROOT, 'assets'))
 STATIC_URL = '/static/'
+
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+)
 
 CACHES = {
     "default": {
@@ -162,6 +177,12 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
 }
+
+TINYMCE_JS_URL = STATIC_URL + "coin_system/js/libs/tinymce-v4/tinymce.min.js"
+TINYMCE_DEFAULT_CONFIG = {
+    'plugins': "table,link",
+}
+
 
 # All of this is already happening by default!
 sentry_logging = LoggingIntegration(

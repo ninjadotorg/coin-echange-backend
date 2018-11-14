@@ -11,6 +11,15 @@ SYSTEM_FEE = Choices(
     ('coin_selling_order_bank', 'coin_selling_order_bank'),
 )
 
+EMAIL_PURPOSE = Choices(
+    ('email_verification', 'Email verification'),
+)
+
+EMAIL_TARGET = Choices(
+    ('user', 'User'),
+    ('system', 'System'),
+)
+
 CACHE_KEY_CONFIG = 'system_config.{}'
 CACHE_KEY_FEE = 'system_fee.{}'
 CACHE_KEY_COUNTRY_DEFAULT = 'system_country_default.{}'

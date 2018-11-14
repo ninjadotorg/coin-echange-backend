@@ -8,7 +8,7 @@ class ViewTests(APITestCase):
     def test_public_view(self):
         url = reverse('misc_check:public-view')
         response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.json()['code'], 'unexpected_error', "It should be 'unexpected_error'")
 
     def test_protected_view(self):

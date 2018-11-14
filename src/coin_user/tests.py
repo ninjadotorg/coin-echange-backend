@@ -21,5 +21,4 @@ class SignUpTests(APITestCase):
             'country': COUNTRY.PH,
         }, format='json')
 
-        print(response.json())
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
