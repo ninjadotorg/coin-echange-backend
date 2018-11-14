@@ -74,7 +74,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         order = Order.objects.get(pk=pk)
         serializer = OrderSerializer(order, data={'receipt_url': request.data.get('receipt_url')}, partial=True)
         serializer.is_valid(True)
-        if order.order_type == ORDER_TYPE.cod and order.status == ORDER_STATUS.pending \
+        if order.order_type == ORDER_TYPE.bank and order.status == ORDER_STATUS.pending \
                 and order.user.user == request.user:
             serializer.save(status=ORDER_STATUS.fiat_transferring)
         else:

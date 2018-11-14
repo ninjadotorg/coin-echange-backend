@@ -139,7 +139,7 @@ class OrderUpdateTest(APITestCase):
         self.user = self.auth_utils.create_exchange_user()
         self.auth_utils.login()
 
-        self.order = OrderFactory(user=self.user, order_type=ORDER_TYPE.cod, status=ORDER_STATUS.pending)
+        self.order = OrderFactory(user=self.user, order_type=ORDER_TYPE.bank, status=ORDER_STATUS.pending)
 
     def test_update_receipt(self):
         order = Order.objects.get(pk=self.order.pk)
@@ -154,6 +154,24 @@ class OrderUpdateTest(APITestCase):
 
         order = Order.objects.get(pk=self.order.pk)
         self.assertEqual(order.receipt_url, test_receipt)
+
+    def test_update_receipt_wrong_status(self):
+        order_test = OrderFactory(user=self.user, order_type=ORDER_TYPE.bank, status=ORDER_STATUS.processing)
+        test_receipt = 'SomeReceipt'
+        url = reverse('exchange:order-receipt', args=[order_test.pk, ])
+        response = self.client.put(url, data={
+            'receipt_url': test_receipt,
+        }, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_receipt_wrong_type(self):
+        order_test = OrderFactory(user=self.user, order_type=ORDER_TYPE.cod, status=ORDER_STATUS.processing)
+        test_receipt = 'SomeReceipt'
+        url = reverse('exchange:order-receipt', args=[order_test.pk, ])
+        response = self.client.put(url, data={
+            'receipt_url': test_receipt,
+        }, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
 class OrderSupportFunctionTest(TestCase):
