@@ -8,7 +8,7 @@ VALUE_TYPE = Choices(
 
 LANGUAGE = Choices(
     ('km', 'km', 'Cambodian'),
-    ('en-PH', 'en_ph', 'English'),
+    ('en', 'en', 'English'),
     ('id', 'id', 'Indonesian'),
 )
 

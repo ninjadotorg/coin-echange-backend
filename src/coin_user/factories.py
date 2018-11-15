@@ -17,4 +17,4 @@ class ExchangeUserFactory(factory.django.DjangoModelFactory):
 
     user = factory.SubFactory(DjangoUserFactory)
     country = factory.Iterator([COUNTRY.KH, COUNTRY.ID])
-    language = factory.Iterator([LANGUAGE.km, LANGUAGE.en_ph])
+    language = factory.Iterator([LANGUAGE.km, LANGUAGE.en])

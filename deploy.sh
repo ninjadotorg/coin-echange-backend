@@ -30,24 +30,24 @@ docker build \
     -t gcr.io/$PROJECT/$BACKEND_IMAGE:$buildNumber .
 docker tag gcr.io/$PROJECT/$BACKEND_IMAGE:$buildNumber gcr.io/$PROJECT/$BACKEND_IMAGE:$buildNumber
 
-#gcloud auth activate-service-account --key-file ./credentials/deploy.cred.json
-#gcloud container clusters get-credentials server-cluster1 --zone us-west1-a --project coin-exchange-221604
-#gcloud docker -- push gcr.io/$PROJECT/$BACKEND_IMAGE:$buildNumber
+gcloud auth activate-service-account --key-file ./credentials/deploy.cred.json
+gcloud container clusters get-credentials server-cluster1 --zone us-west1-a --project coin-exchange-221604
+gcloud docker -- push gcr.io/$PROJECT/$BACKEND_IMAGE:$buildNumber
 
-#result=$(echo $?)
-#if [ $result != 0 ] ; then
-#    echo "$FAIL failed gcloud docker -- push gcr.io/$PROJECT/$BACKEND_IMAGE:buildNumber $V $ENDC";
-#    exit;
-#else
-#    echo "$OKGREEN gcloud docker -- push gcr.io/$PROJECT/$BACKEND_IMAGE:buildNumber $V $ENDC"
-#fi
-#
-#kubectl --namespace=$NAMESPACE set image deployment/backend-service backend-service=gcr.io/$PROJECT/$BACKEND_IMAGE:$buildNumber
-#
-#result=$(echo $?)
-#if [ $result != 0 ] ; then
-#    echo "$FAIL failed kubectl --namespace=$NAME_SPACE set image deployment/backend-service backend-service=gcr.io/$PROJECT/$BACKEND_IMAGE:$buildNumber $ENDC";
-#    exit;
-#else
-#    echo "$OKGREEN DEPLOY SUCESSFULL gcr.io/$PROJECT/$BACKEND_IMAGE:$buildNumber $ENDC"
-#fi
+result=$(echo $?)
+if [ $result != 0 ] ; then
+    echo "$FAIL failed gcloud docker -- push gcr.io/$PROJECT/$BACKEND_IMAGE:buildNumber $V $ENDC";
+    exit;
+else
+    echo "$OKGREEN gcloud docker -- push gcr.io/$PROJECT/$BACKEND_IMAGE:buildNumber $V $ENDC"
+fi
+
+kubectl --namespace=$NAMESPACE set image deployment/backend-service backend-service=gcr.io/$PROJECT/$BACKEND_IMAGE:$buildNumber
+
+result=$(echo $?)
+if [ $result != 0 ] ; then
+    echo "$FAIL failed kubectl --namespace=$NAMESPACE set image deployment/backend-service backend-service=gcr.io/$PROJECT/$BACKEND_IMAGE:$buildNumber $ENDC";
+    exit;
+else
+    echo "$OKGREEN DEPLOY SUCESSFULL gcr.io/$PROJECT/$BACKEND_IMAGE:$buildNumber $ENDC"
+fi

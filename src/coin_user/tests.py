@@ -8,7 +8,7 @@ from common.constants import COUNTRY, FIAT_CURRENCY, LANGUAGE
 
 class SignUpTests(APITestCase):
     def setUp(self):
-        CountryDefaultConfigFactory(country=COUNTRY.PH, currency=FIAT_CURRENCY.PHP, language=LANGUAGE.en_ph)
+        CountryDefaultConfigFactory(country=COUNTRY.PH, currency=FIAT_CURRENCY.PHP, language=LANGUAGE.en)
 
     def test_sign_up(self):
         url = reverse('user:sign-up')
