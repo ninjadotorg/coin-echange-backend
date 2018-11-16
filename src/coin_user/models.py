@@ -21,6 +21,7 @@ class ExchangeUser(models.Model):
     language = models.CharField(max_length=10, choices=LANGUAGE, null=True)
     country = models.CharField(max_length=3, choices=COUNTRY, null=True)
     currency = models.CharField(max_length=5, choices=FIAT_CURRENCY, null=True)
+    wallet = models.TextField(null=True, blank=True)
 
     def __str__(self):
         return '%s' % self.user.username

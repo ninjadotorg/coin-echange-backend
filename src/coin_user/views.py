@@ -26,6 +26,21 @@ class ProfileView(APIView):
         return Response(ExchangeUserSerializer(instance=obj).data)
 
 
+class WalletView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        obj = ExchangeUser.objects.get(user=request.user)
+        return Response({'wallet': obj.wallet})
+
+    def put(self, request):
+        obj = ExchangeUser.objects.get(user=request.user)
+        serializer = SignUpSerializer(instance=obj, data=request.data, partial=True)
+        serializer.save()
+
+        return Response({'wallet': obj.wallet})
+
+
 class SignUpView(APIView):
     @transaction.atomic
     def post(self, request, format=None):
