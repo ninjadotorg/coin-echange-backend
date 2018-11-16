@@ -23,7 +23,7 @@ class AboutUs(TimestampedModel):
 
 
 class FAQ(TimestampedModel):
-    language = model_fields.LanguageField(primary_key=True)
+    language = model_fields.LanguageField()
     question = models.CharField(max_length=500)
     answer = HTMLField()
     order = models.IntegerField(default=1)
