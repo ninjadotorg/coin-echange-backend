@@ -178,9 +178,10 @@ REST_FRAMEWORK = {
     ),
 }
 
-TINYMCE_JS_URL = STATIC_URL + "coin_system/js/libs/tinymce-v4/tinymce.min.js"
 TINYMCE_DEFAULT_CONFIG = {
-    'plugins': "table,link",
+    'plugins': "table",
+    'width': '80%',
+    'height': '300px'
 }
 
 

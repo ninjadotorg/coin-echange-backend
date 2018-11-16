@@ -30,8 +30,8 @@ docker build \
     -t gcr.io/$PROJECT/$BACKEND_IMAGE:$buildNumber .
 docker tag gcr.io/$PROJECT/$BACKEND_IMAGE:$buildNumber gcr.io/$PROJECT/$BACKEND_IMAGE:$buildNumber
 
-gcloud auth activate-service-account --key-file ./credentials/deploy.cred.json
-gcloud container clusters get-credentials server-cluster1 --zone us-west1-a --project coin-exchange-221604
+gcloud auth activate-service-account --key-file ./deployments/deploy.cred.json
+gcloud container clusters get-credentials service-cluster-1 --zone asia-southeast1-a --project coin-exchange-221604
 gcloud docker -- push gcr.io/$PROJECT/$BACKEND_IMAGE:$buildNumber
 
 result=$(echo $?)
