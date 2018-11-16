@@ -1,9 +1,10 @@
-from django.utils.decorators import method_decorator
-from django.views.decorators.cache import cache_page
+# from django.utils.decorators import method_decorator
+# from django.views.decorators.cache import cache_page
 from rest_framework import viewsets
 
-from coin_system.models import Bank, PopularPlace, CountryCurrency
-from coin_system.serializers import BankSerializer, PopularPlaceSerializer, CountryCurrencySerializer
+from coin_system.models import Bank, PopularPlace, CountryCurrency, CountryDefaultConfig
+from coin_system.serializers import BankSerializer, PopularPlaceSerializer, CountryCurrencySerializer, \
+    CountryDefaultConfigSerializer
 
 
 class BankViewSet(viewsets.ReadOnlyModelViewSet):
@@ -14,7 +15,7 @@ class BankViewSet(viewsets.ReadOnlyModelViewSet):
         'currency'
     )
 
-    @method_decorator(cache_page(5*60))
+    # @method_decorator(cache_page(5*60))
     def dispatch(self, *args, **kwargs):
         return super(BankViewSet, self).dispatch(*args, **kwargs)
 
@@ -26,7 +27,7 @@ class CountryCurrencyViewSet(viewsets.ReadOnlyModelViewSet):
         'country',
     )
 
-    @method_decorator(cache_page(5*60))
+    # @method_decorator(cache_page(5*60))
     def dispatch(self, *args, **kwargs):
         return super(CountryCurrencyViewSet, self).dispatch(*args, **kwargs)
 
@@ -38,6 +39,15 @@ class PopularPlaceViewSet(viewsets.ReadOnlyModelViewSet):
         'country',
     )
 
-    @method_decorator(cache_page(5*60))
+    # @method_decorator(cache_page(5*60))
     def dispatch(self, *args, **kwargs):
         return super(PopularPlaceViewSet, self).dispatch(*args, **kwargs)
+
+
+class CountryDefaultConfigViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = CountryDefaultConfig.objects.filter(active=True)
+    serializer_class = CountryDefaultConfigSerializer
+
+    # @method_decorator(cache_page(5*60))
+    def dispatch(self, *args, **kwargs):
+        return super(CountryDefaultConfigViewSet, self).dispatch(*args, **kwargs)

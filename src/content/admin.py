@@ -10,9 +10,9 @@ class EmailContentAdmin(admin.ModelAdmin):
 
 @admin.register(AboutUs)
 class AboutUsAdmin(admin.ModelAdmin):
-    list_display = ['language', 'content']
+    list_display = ['language', ]
 
 
 @admin.register(FAQ)
 class FAQAdmin(admin.ModelAdmin):
-    list_display = ['language', 'question', 'answer', 'order', 'active', 'updated_at']
+    list_display = ['language', 'question', 'order', 'active', 'updated_at']
