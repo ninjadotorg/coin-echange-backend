@@ -18,6 +18,10 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 
+from rest_framework_swagger.views import get_swagger_view
+
+schema_view = get_swagger_view(title='Coin Bowl API')
+
 admin.site.site_header = "Coin Exchange Admin"
 admin.site.site_title = "Coin Exchange Admin"
 admin.site.index_title = "Welcome to Coin Exchange Admin"
@@ -29,4 +33,5 @@ urlpatterns = [
     path('api/', include('coin_system.urls')),
     path('api/', include('coin_exchange.urls')),
     path('api/', include('misc_check.urls')),
+    path('swagger/', schema_view),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
