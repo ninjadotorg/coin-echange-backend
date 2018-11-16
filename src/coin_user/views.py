@@ -7,15 +7,17 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from coin_system.constants import EMAIL_PURPOSE
+from coin_system.constants import EMAIL_PURPOSE, SMS_PURPOSE
 from coin_system.models import CountryDefaultConfig
 from coin_user.constants import VERIFICATION_LEVEL, VERIFICATION_STATUS
 from coin_user.exceptions import InvalidVerificationException, AlreadyVerifiedException
 from coin_user.models import ExchangeUser
-from coin_user.serializers import SignUpSerializer, ExchangeUserSerializer
+from coin_user.serializers import SignUpSerializer, ExchangeUserSerializer, ExchangeUserProfileSerializer, \
+    ExchangeUserIDVerificationSerializer, ExchangeUserSelfieVerificationSerializer
 from common.business import generate_random_code
 from common.exceptions import InvalidDataException
 from notification.email import EmailNotification
+from notification.sms import SmsNotification
 
 
 class ProfileView(APIView):
@@ -23,6 +25,44 @@ class ProfileView(APIView):
 
     def get(self, request):
         obj = ExchangeUser.objects.get(user=request.user)
+        return Response(ExchangeUserSerializer(instance=obj).data)
+
+    def put(self, request):
+        obj = ExchangeUser.objects.get(user=request.user)
+        serializer = ExchangeUserProfileSerializer(instance=obj, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        obj = serializer.save()
+        User.objects.filter(pk=obj.user).update(first_name=serializer.validated_data['first_name'],
+                                                last_name=serializer.validated_data['last_name'])
+
+        return Response(ExchangeUserSerializer(instance=obj).data)
+
+
+class VerifyIDView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def put(self, request):
+        obj = ExchangeUser.objects.get(user=request.user)
+        serializer = ExchangeUserIDVerificationSerializer(instance=obj, data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        obj = serializer.save(verification_level=VERIFICATION_LEVEL.level_3,
+                              verification_status=VERIFICATION_STATUS.pending)
+
+        return Response(ExchangeUserSerializer(instance=obj).data)
+
+
+class VerifySelfieView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def put(self, request):
+        obj = ExchangeUser.objects.get(user=request.user)
+        serializer = ExchangeUserSelfieVerificationSerializer(instance=obj, data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        obj = serializer.save(verification_level=VERIFICATION_LEVEL.level_4,
+                              verification_status=VERIFICATION_STATUS.pending)
+
         return Response(ExchangeUserSerializer(instance=obj).data)
 
 
@@ -86,19 +126,22 @@ class VerifyEmailView(APIView):
     def put(self, request, format=None):
         verification_code = request.query_params.get('code')
         obj = ExchangeUser.objects.get(user=request.user)
+
+        if obj.verification_level != VERIFICATION_LEVEL.level_1:
+            raise InvalidDataException
+
         if obj.email_verification_code != verification_code:
             raise InvalidVerificationException
 
-        obj.verification_level = VERIFICATION_LEVEL.level_1
         obj.verification_status = VERIFICATION_STATUS.approved
         obj.save()
+
+        # TODO Increase user limit
 
         return Response(ExchangeUserSerializer(instance=obj).data)
 
     def post(self, request, format=None):
         obj = ExchangeUser.objects.get(user=request.user)
-
-        self.check_email_verified(obj)
 
         VerifyEmailView.send_verification_email(obj)
 
@@ -106,7 +149,9 @@ class VerifyEmailView(APIView):
 
     @staticmethod
     def check_email_verified(user: ExchangeUser):
-        if user.verification_level > VERIFICATION_LEVEL.level_1:
+        if (user.verification_level > VERIFICATION_LEVEL.level_1) or \
+                (user.verification_level == VERIFICATION_LEVEL.level_1 and
+                 user.verification_status == VERIFICATION_STATUS.approved):
             raise AlreadyVerifiedException
 
     @staticmethod
@@ -116,9 +161,65 @@ class VerifyEmailView(APIView):
         VerifyEmailView.check_email_verified(user)
 
         user.email_verification_code = verification_code
+        user.verification_level = VERIFICATION_LEVEL.level_1
+        user.verification_status = VERIFICATION_STATUS.pending
         user.save()
 
         EmailNotification.send_email_template(user.user.email,
                                               EMAIL_PURPOSE.email_verification,
                                               user.language,
                                               {'code': user.email_verification_code})
+
+
+class VerifyPhoneView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def put(self, request, format=None):
+        verification_code = request.query_params.get('code')
+        obj = ExchangeUser.objects.get(user=request.user)
+
+        if obj.verification_level != VERIFICATION_LEVEL.level_2:
+            raise InvalidDataException
+
+        if obj.email_verification_code != verification_code:
+            raise InvalidVerificationException
+
+        # TODO Increase user limit
+
+        obj.verification_status = VERIFICATION_STATUS.approved
+        obj.save()
+
+        return Response(ExchangeUserSerializer(instance=obj).data)
+
+    def post(self, request, format=None):
+        obj = ExchangeUser.objects.get(user=request.user)
+
+        self.check_phone_verified(obj)
+
+        if obj.phone_number:
+            VerifyPhoneView.send_verification_phone(obj)
+
+        return Response(ExchangeUserSerializer(instance=obj).data)
+
+    @staticmethod
+    def check_phone_verified(user: ExchangeUser):
+        if (user.verification_level > VERIFICATION_LEVEL.level_2) or \
+                (user.verification_level == VERIFICATION_LEVEL.level_2 and
+                 user.verification_status == VERIFICATION_STATUS.approved):
+            raise AlreadyVerifiedException
+
+    @staticmethod
+    def send_verification_phone(user: ExchangeUser):
+        verification_code = generate_random_code(16)
+
+        VerifyPhoneView.check_phone_verified(user)
+
+        user.phone_verification_code = verification_code
+        user.verification_level = VERIFICATION_LEVEL.level_1
+        user.verification_status = VERIFICATION_STATUS.pending
+        user.save()
+
+        SmsNotification.send_sms_template(user.phone_number,
+                                          SMS_PURPOSE.phone_verification,
+                                          user.language,
+                                          {'code': user.phone_verification_code})

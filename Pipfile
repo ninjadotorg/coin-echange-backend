@@ -32,6 +32,7 @@ sendgrid = "*"
 slackclient = "*"
 django-tinymce = "==2.7.0"
 django-rest-swagger = "*"
+twilio = "*"
 
 [dev-packages]
 "flake8" = "*"

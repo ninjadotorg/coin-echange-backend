@@ -17,3 +17,34 @@ class ExchangeUserSerializer(serializers.ModelSerializer):
         model = ExchangeUser
         exclude = ('id', 'user', 'email_verification_code', 'phone_verification_code')
         read_only_fields = ('verification_level', 'verification_status')
+
+
+class ExchangeUserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ExchangeUser
+        fields = ('phone_number', 'language', 'country', 'currency',
+                  'first_name', 'last_name')
+
+    first_name = serializers.CharField()
+    last_name = serializers.CharField()
+
+
+class ExchangeUserIDVerificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ExchangeUser
+        fields = ('id_number', 'id_type', 'front_image', 'back_image')
+        extra_kwargs = {
+            'id_number': {'required': True},
+            'id_type': {'required': True},
+            'front_image': {'required': True},
+            'back_image': {'required': True},
+        }
+
+
+class ExchangeUserSelfieVerificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ExchangeUser
+        fields = ('selfie_image', )
+        extra_kwargs = {
+            'selfie_image': {'required': True},
+        }

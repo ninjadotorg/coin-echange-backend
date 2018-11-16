@@ -76,6 +76,7 @@ class PopularPlace(models.Model):
 class CountryDefaultConfig(models.Model):
     country = model_fields.CountryField(primary_key=True)
     country_name = models.CharField(max_length=50, blank=True)
+    phone_country_code = models.CharField(max_length=5, blank=True)
     language = model_fields.LanguageField()
     currency = model_fields.FiatCurrencyField()
     active = models.BooleanField(default=True)

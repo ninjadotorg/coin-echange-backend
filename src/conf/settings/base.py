@@ -223,8 +223,8 @@ OPENEXCHANGERATES = {
 
 TWILIO = {
     'URL': '',
-    'API_SID': '',
-    'API_AUTH_TOKEN': '',
+    'API_SID': 'something',
+    'API_AUTH_TOKEN': 'something',
 }
 FROM_PHONE_NUMBER = ''
 
