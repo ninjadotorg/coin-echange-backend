@@ -179,6 +179,8 @@ REST_FRAMEWORK = {
     ),
 }
 
+CORS_ORIGIN_ALLOW_ALL = True
+
 TINYMCE_DEFAULT_CONFIG = {
     'width': '80%',
     'height': '300px'

@@ -1,8 +1,11 @@
+from unittest.mock import MagicMock
+
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
 from coin_system.factories import CountryDefaultConfigFactory
+from coin_user.views import VerifyEmailView
 from common.constants import COUNTRY, FIAT_CURRENCY, LANGUAGE
 from common.tests.utils import AuthenticationUtils
 
@@ -13,7 +16,7 @@ class ProfileTests(APITestCase):
         self.user = self.auth_utils.create_exchange_user()
         self.auth_utils.login()
 
-    def test_sign_up(self):
+    def test_profile(self):
         url = reverse('user:profile')
         response = self.client.get(url)
         print(response.json())
@@ -23,6 +26,7 @@ class ProfileTests(APITestCase):
 class SignUpTests(APITestCase):
     def setUp(self):
         CountryDefaultConfigFactory(country=COUNTRY.PH, currency=FIAT_CURRENCY.PHP, language=LANGUAGE.en)
+        VerifyEmailView.send_verification_email = MagicMock(return_value=None)
 
     def test_sign_up(self):
         url = reverse('user:sign-up')

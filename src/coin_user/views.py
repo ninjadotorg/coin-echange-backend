@@ -1,3 +1,5 @@
+import logging
+
 from django.contrib.auth.models import User
 from django.db import transaction
 from rest_framework import status
@@ -6,6 +8,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from coin_system.models import CountryDefaultConfig
+from coin_user.constants import VERIFICATION_LEVEL, VERIFICATION_STATUS
+from coin_user.exceptions import InvalidVerificationException
 from coin_user.models import ExchangeUser
 from coin_user.serializers import SignUpSerializer, ExchangeUserSerializer
 from common.exceptions import InvalidDataException
@@ -35,7 +39,7 @@ class SignUpView(APIView):
             email=username,
             first_name=first_name,
             last_name=last_name,
-            is_active=False,
+            is_active=True,
         )
 
         country_config = CountryDefaultConfig.objects.filter(country=country).first()
@@ -48,6 +52,34 @@ class SignUpView(APIView):
                                           country=country_config.country,
                                           currency=country_config.currency)
 
-        # TODO: Send email verification
+        try:
+            VerifyEmailView.send_verification_email(user)
+        except Exception as ex:
+            logging.exception(ex)
 
         return Response(ExchangeUserSerializer(instance=obj).data, status=status.HTTP_201_CREATED)
+
+
+class VerifyEmailView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def put(self, request, format=None):
+        verification_code = request.query_params.get('code')
+        obj = ExchangeUser.objects.get(user=request.user)
+        if obj.email_verification_code != verification_code:
+            raise InvalidVerificationException
+
+        obj.verification_level = VERIFICATION_LEVEL.level_1
+        obj.verification_status = VERIFICATION_STATUS.approved
+        obj.save()
+
+        return Response(ExchangeUserSerializer(instance=obj).data)
+
+    def post(self, request, format=None):
+        obj = ExchangeUser.objects.get(user=request.user)
+
+        return Response(ExchangeUserSerializer(instance=obj).data)
+
+    @staticmethod
+    def send_verification_email(user: User):
+        pass
