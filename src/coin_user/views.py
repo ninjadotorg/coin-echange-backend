@@ -35,7 +35,7 @@ class WalletView(APIView):
 
     def put(self, request):
         obj = ExchangeUser.objects.get(user=request.user)
-        serializer = SignUpSerializer(instance=obj, data=request.data, partial=True)
+        serializer = ExchangeUserSerializer(instance=obj, data=request.data, partial=True)
 
         serializer.is_valid(raise_exception=True)
         obj = serializer.save()
