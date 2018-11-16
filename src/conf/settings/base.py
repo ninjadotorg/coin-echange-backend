@@ -179,7 +179,8 @@ REST_FRAMEWORK = {
 }
 
 TINYMCE_DEFAULT_CONFIG = {
-    'plugins': "table",
+    'theme': 'advanced',
+    'plugins': "table,style",
     'width': '80%',
     'height': '300px'
 }
