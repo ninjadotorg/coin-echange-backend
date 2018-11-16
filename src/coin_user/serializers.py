@@ -15,5 +15,5 @@ class SignUpSerializer(serializers.Serializer):
 class ExchangeUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExchangeUser
-        exclude = ('id', 'user')
+        exclude = ('id', 'user', 'email_verification_code', 'phone_verification_code')
         read_only_fields = ('verification_level', 'verification_status')

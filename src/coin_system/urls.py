@@ -12,8 +12,8 @@ router.register('country-default-configs', CountryDefaultConfigViewSet)
 
 patterns = ([
     path('', include(router.urls)),
-    path('currency-rates', CurrencyRateView.as_view(), name='currency-rates'),
-    path('crypto-rates', CryptoRateView.as_view(), name='crypto-rates'),
+    path('currency-rates/', CurrencyRateView.as_view(), name='currency-rates'),
+    path('crypto-rates/', CryptoRateView.as_view(), name='crypto-rates'),
 ], 'system')
 
 urlpatterns = [
