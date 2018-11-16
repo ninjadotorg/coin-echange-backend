@@ -15,7 +15,11 @@ EMAIL_PURPOSE = Choices(
     ('email_verification', 'Email verification'),
 )
 
-EMAIL_TARGET = Choices(
+SMS_PURPOSE = Choices(
+    ('phone_verification', 'Phone verification'),
+)
+
+NOTIFICATION_TARGET = Choices(
     ('user', 'User'),
     ('system', 'System'),
 )

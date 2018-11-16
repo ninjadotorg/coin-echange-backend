@@ -7,12 +7,15 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from coin_system.constants import EMAIL_PURPOSE
 from coin_system.models import CountryDefaultConfig
 from coin_user.constants import VERIFICATION_LEVEL, VERIFICATION_STATUS
-from coin_user.exceptions import InvalidVerificationException
+from coin_user.exceptions import InvalidVerificationException, AlreadyVerifiedException
 from coin_user.models import ExchangeUser
 from coin_user.serializers import SignUpSerializer, ExchangeUserSerializer
+from common.business import generate_random_code
 from common.exceptions import InvalidDataException
+from notification.email import EmailNotification
 
 
 class ProfileView(APIView):
@@ -53,7 +56,7 @@ class SignUpView(APIView):
                                           currency=country_config.currency)
 
         try:
-            VerifyEmailView.send_verification_email(user)
+            VerifyEmailView.send_verification_email(obj)
         except Exception as ex:
             logging.exception(ex)
 
@@ -78,8 +81,21 @@ class VerifyEmailView(APIView):
     def post(self, request, format=None):
         obj = ExchangeUser.objects.get(user=request.user)
 
+        if obj.verification_level > VERIFICATION_LEVEL.level_1:
+            raise AlreadyVerifiedException
+
+        VerifyEmailView.send_verification_email(obj)
+
         return Response(ExchangeUserSerializer(instance=obj).data)
 
     @staticmethod
-    def send_verification_email(user: User):
-        pass
+    def send_verification_email(user: ExchangeUser):
+        verification_code = generate_random_code(16)
+
+        user.email_verification_code = verification_code
+        user.save()
+
+        EmailNotification.send_email_template(user.user.email,
+                                              EMAIL_PURPOSE.email_verification,
+                                              user.language,
+                                              {'code': user.email_verification_code})

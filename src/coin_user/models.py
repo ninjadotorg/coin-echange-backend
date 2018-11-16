@@ -16,6 +16,8 @@ class ExchangeUser(models.Model):
     verification_level = models.CharField(max_length=30, choices=VERIFICATION_LEVEL, default=VERIFICATION_LEVEL.level_0)
     verification_status = models.CharField(max_length=30, choices=VERIFICATION_STATUS,
                                            default=VERIFICATION_STATUS.not_yet)
+    email_verification_code = models.CharField(max_length=20, blank=True)
+    phone_verification_code = models.CharField(max_length=10, blank=True)
     language = models.CharField(max_length=10, choices=LANGUAGE, null=True)
     country = models.CharField(max_length=3, choices=COUNTRY, null=True)
     currency = models.CharField(max_length=5, choices=FIAT_CURRENCY, null=True)
