@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import transaction
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -8,6 +9,14 @@ from coin_system.models import CountryDefaultConfig
 from coin_user.models import ExchangeUser
 from coin_user.serializers import SignUpSerializer, ExchangeUserSerializer
 from common.exceptions import InvalidDataException
+
+
+class ProfileView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        obj = ExchangeUser.objects.get(user=request.user)
+        return Response(ExchangeUserSerializer(instance=obj).data)
 
 
 class SignUpView(APIView):

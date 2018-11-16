@@ -4,6 +4,20 @@ from rest_framework.test import APITestCase
 
 from coin_system.factories import CountryDefaultConfigFactory
 from common.constants import COUNTRY, FIAT_CURRENCY, LANGUAGE
+from common.tests.utils import AuthenticationUtils
+
+
+class ProfileTests(APITestCase):
+    def setUp(self):
+        self.auth_utils = AuthenticationUtils(self.client)
+        self.user = self.auth_utils.create_exchange_user()
+        self.auth_utils.login()
+
+    def test_sign_up(self):
+        url = reverse('user:profile')
+        response = self.client.get(url)
+        print(response.json())
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class SignUpTests(APITestCase):
