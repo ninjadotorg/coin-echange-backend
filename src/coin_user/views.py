@@ -36,7 +36,9 @@ class WalletView(APIView):
     def put(self, request):
         obj = ExchangeUser.objects.get(user=request.user)
         serializer = SignUpSerializer(instance=obj, data=request.data, partial=True)
-        serializer.save()
+
+        serializer.is_valid(raise_exception=True)
+        obj = serializer.save()
 
         return Response({'wallet': obj.wallet})
 
@@ -96,16 +98,22 @@ class VerifyEmailView(APIView):
     def post(self, request, format=None):
         obj = ExchangeUser.objects.get(user=request.user)
 
-        if obj.verification_level > VERIFICATION_LEVEL.level_1:
-            raise AlreadyVerifiedException
+        self.check_email_verified(obj)
 
         VerifyEmailView.send_verification_email(obj)
 
         return Response(ExchangeUserSerializer(instance=obj).data)
 
     @staticmethod
+    def check_email_verified(user: ExchangeUser):
+        if user.verification_level > VERIFICATION_LEVEL.level_1:
+            raise AlreadyVerifiedException
+
+    @staticmethod
     def send_verification_email(user: ExchangeUser):
         verification_code = generate_random_code(16)
+
+        VerifyEmailView.check_email_verified(user)
 
         user.email_verification_code = verification_code
         user.save()
