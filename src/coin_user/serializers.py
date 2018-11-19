@@ -39,8 +39,9 @@ class ExchangeUserProfileSerializer(serializers.ModelSerializer):
 class ExchangeUserIDVerificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExchangeUser
-        fields = ('id_number', 'id_type', 'front_image', 'back_image')
+        fields = ('id_name', 'id_number', 'id_type', 'front_image', 'back_image')
         extra_kwargs = {
+            'id_name': {'required': True},
             'id_number': {'required': True},
             'id_type': {'required': True},
             'front_image': {'required': True},

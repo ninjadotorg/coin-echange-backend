@@ -10,6 +10,7 @@ class ExchangeUser(models.Model):
     user = models.OneToOneField(User, related_name='exchange_user', on_delete=models.CASCADE)
     name = models.CharField(max_length=255, blank=True)
     phone_number = models.CharField(max_length=20, blank=True)
+    id_name = models.CharField(max_length=100, blank=True)
     id_number = models.CharField(max_length=100, blank=True)
     id_type = models.CharField(max_length=30, choices=ID_TYPE, null=True)
     front_image = models.CharField(max_length=500, blank=True)
