@@ -18,6 +18,10 @@ class ExchangeUserSerializer(serializers.ModelSerializer):
         exclude = ('id', 'user', 'email_verification_code', 'phone_verification_code')
         read_only_fields = ('verification_level', 'verification_status')
 
+    email = serializers.CharField(source='user.email')
+    first_name = serializers.CharField(source='user.first_name')
+    last_name = serializers.CharField(source='user.last_name')
+
 
 class ExchangeUserProfileSerializer(serializers.ModelSerializer):
     class Meta:
