@@ -41,7 +41,7 @@ class Contact(TimestampedModel):
     name = models.CharField(max_length=255)
     phone_number = models.CharField(max_length=20, blank=True)
     email = models.EmailField(blank=True)
-    description = models.TextField(max_length=500, blank=True)
+    description = models.CharField(max_length=500, blank=True)
 
     def __str__(self):
         return '%s' % self.name

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from coin_system.models import Bank, PopularPlace, CountryCurrency, CountryDefaultConfig
+from coin_system.models import Bank, PopularPlace, CountryCurrency, CountryDefaultConfig, LandingPageContact
 
 
 class BankSerializer(serializers.ModelSerializer):
@@ -24,4 +24,10 @@ class PopularPlaceSerializer(serializers.ModelSerializer):
 class CountryDefaultConfigSerializer(serializers.ModelSerializer):
     class Meta:
         model = CountryDefaultConfig
+        fields = '__all__'
+
+
+class ContactSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LandingPageContact
         fields = '__all__'

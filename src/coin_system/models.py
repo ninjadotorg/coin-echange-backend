@@ -80,3 +80,13 @@ class CountryDefaultConfig(models.Model):
     language = model_fields.LanguageField()
     currency = model_fields.FiatCurrencyField()
     active = models.BooleanField(default=True)
+
+
+class LandingPageContact(models.Model):
+    name = models.CharField(max_length=255)
+    phone_number = models.CharField(max_length=20, blank=True)
+    email = models.EmailField()
+    description = models.TextField(blank=True)
+
+    def __str__(self):
+        return '%s' % self.name

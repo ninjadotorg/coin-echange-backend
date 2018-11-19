@@ -1,8 +1,9 @@
 # from django.utils.decorators import method_decorator
 # from django.views.decorators.cache import cache_page
-from rest_framework import viewsets
+from rest_framework import viewsets, mixins
+from rest_framework.viewsets import GenericViewSet
 
-from coin_system.models import Bank, PopularPlace, CountryCurrency, CountryDefaultConfig
+from coin_system.models import Bank, PopularPlace, CountryCurrency, CountryDefaultConfig, LandingPageContact
 from coin_system.serializers import BankSerializer, PopularPlaceSerializer, CountryCurrencySerializer, \
     CountryDefaultConfigSerializer
 
@@ -51,3 +52,9 @@ class CountryDefaultConfigViewSet(viewsets.ReadOnlyModelViewSet):
     # @method_decorator(cache_page(5*60))
     def dispatch(self, *args, **kwargs):
         return super(CountryDefaultConfigViewSet, self).dispatch(*args, **kwargs)
+
+
+class ContactViewSet(mixins.CreateModelMixin,
+                     GenericViewSet):
+    serializer_class = LandingPageContact
+    queryset = LandingPageContact.objects.none()
