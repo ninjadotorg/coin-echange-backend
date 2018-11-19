@@ -33,6 +33,7 @@ slackclient = "*"
 django-tinymce = "==2.7.0"
 django-rest-swagger = "*"
 twilio = "*"
+redis = "==2.10.6"
 
 [dev-packages]
 "flake8" = "*"

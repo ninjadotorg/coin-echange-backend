@@ -13,6 +13,7 @@ SYSTEM_FEE = Choices(
 
 EMAIL_PURPOSE = Choices(
     ('email_verification', 'Email verification'),
+    ('forgot_password', 'Forgot password'),
     ('successful_email_verification', 'Successful email verification'),
     ('successful_phone_verification', 'Successful phone verification'),
     ('successful_id_verification', 'Successful ID verification'),

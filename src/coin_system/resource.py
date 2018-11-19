@@ -1,5 +1,5 @@
-# from django.utils.decorators import method_decorator
-# from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from rest_framework import viewsets, mixins
 from rest_framework.viewsets import GenericViewSet
 
@@ -40,7 +40,7 @@ class PopularPlaceViewSet(viewsets.ReadOnlyModelViewSet):
         'country',
     )
 
-    # @method_decorator(cache_page(5*60))
+    @method_decorator(cache_page(5*60))
     def dispatch(self, *args, **kwargs):
         return super(PopularPlaceViewSet, self).dispatch(*args, **kwargs)
 
@@ -49,7 +49,7 @@ class CountryDefaultConfigViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = CountryDefaultConfig.objects.filter(active=True)
     serializer_class = CountryDefaultConfigSerializer
 
-    # @method_decorator(cache_page(5*60))
+    @method_decorator(cache_page(5*60))
     def dispatch(self, *args, **kwargs):
         return super(CountryDefaultConfigViewSet, self).dispatch(*args, **kwargs)
 
