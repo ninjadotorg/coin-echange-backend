@@ -38,9 +38,6 @@ class OrderManagement(object):
                                                                                  address, amount, currency,
                                                                                  fiat_local_amount, fiat_local_currency,
                                                                                  safe_data)
-
-        # TODO Increase user usage, pool usage
-
         serializer.save(
             user=user.exchange_user,
             fiat_amount=check_fiat_amount,
@@ -71,8 +68,6 @@ class OrderManagement(object):
                                                                                  fiat_local_amount, fiat_local_currency,
                                                                                  safe_data)
 
-        # TODO Increase user usage, pool usage
-
         serializer.save(
             user=user.exchange_user,
             fiat_amount=check_fiat_amount,
@@ -92,10 +87,11 @@ class OrderManagement(object):
     def cancel_order(user: User, order: Order):
         if order.status == ORDER_STATUS.pending and order.direction == DIRECTION.buy \
                 and order.user.user == user:
-            # TODO Decrease user usage, pool usage
-
             order.status = ORDER_STATUS.cancelled
             order.save()
+
+            OrderManagement.decrease_limit(user, order.amount, order.currency, order.direction,
+                                           order.fiat_local_amount, order.fiat_local_currency)
         else:
             raise InvalidOrderStatusException
 
@@ -109,6 +105,25 @@ class OrderManagement(object):
         Pool.objects.filter(direction=direction,
                             currency=currency).update(usage=F('usage') + amount,
                                                       updated_at=get_now())
+
+    @staticmethod
+    def decrease_limit(user, amount, currency, direction, fiat_local_amount, fiat_local_currency):
+        user_limit = UserLimit.objects.get(user__user=user,
+                                           direction=direction,
+                                           fiat_currency=fiat_local_currency)
+        if user_limit.usage < fiat_local_amount:
+            user_limit.usage = 0
+        else:
+            user_limit.usage = F('usage') - fiat_local_amount
+        user_limit.save()
+
+        pool = Pool.objects.get(direction=direction,
+                                currency=currency)
+        if pool.usage < amount:
+            pool.usage = 0
+        else:
+            pool.usage = F('usage') - amount
+        pool.save()
 
     @staticmethod
     def check_minimum_amount(amount: Decimal, currency: str):

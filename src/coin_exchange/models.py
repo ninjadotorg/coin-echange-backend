@@ -4,6 +4,7 @@ from coin_base.models import TimestampedModel
 from coin_exchange.constants import ORDER_STATUS, ORDER_TYPE, PAYMENT_STATUS, TRACKING_ADDRESS_STATUS
 from coin_user.models import ExchangeUser
 from common import model_fields
+from common.constants import DIRECTION
 
 
 class Order(TimestampedModel):
@@ -95,8 +96,11 @@ class Pool(TimestampedModel):
 
     currency = model_fields.CurrencyField()
     direction = model_fields.DirectionField()
-    limit = models.DecimalField(max_digits=30, decimal_places=18)
-    usage = models.DecimalField(max_digits=30, decimal_places=18)
+    limit = model_fields.CryptoAmountField()
+    usage = model_fields.CryptoAmountField()
+
+    def __str__(self):
+        return '%s - %s' % (DIRECTION[self.direction], self.currency)
 
 
 class UserLimit(TimestampedModel):
@@ -105,6 +109,9 @@ class UserLimit(TimestampedModel):
 
     user = models.ForeignKey(ExchangeUser, related_name='user_limit', on_delete=models.CASCADE)
     direction = model_fields.DirectionField()
-    limit = models.DecimalField(max_digits=20, decimal_places=4)
-    usage = models.DecimalField(max_digits=20, decimal_places=4)
+    limit = model_fields.FiatAmountField()
+    usage = model_fields.FiatAmountField()
     fiat_currency = model_fields.FiatCurrencyField()
+
+    def __str__(self):
+        return '%s - %s' % (DIRECTION[self.direction], self.fiat_currency)

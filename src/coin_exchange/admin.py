@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from coin_exchange.constants import ORDER_TYPE
-from coin_exchange.models import Order, Review
+from coin_exchange.models import Order, Review, Pool
 from common.constants import DIRECTION
 
 
@@ -42,3 +42,8 @@ class SellingOrderAdmin(admin.ModelAdmin):
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
     list_display = ['user', 'country', 'direction', 'review']
+
+
+@admin.register(Pool)
+class PoolAdmin(admin.ModelAdmin):
+    list_display = ['direction', 'currency', 'limit', 'usage']
