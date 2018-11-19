@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from coin_user.models import ExchangeUser
+from coin_user.models import ExchangeUser, Contact
 from common import serializer_fields
 
 
@@ -55,3 +55,9 @@ class ExchangeUserSelfieVerificationSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'selfie_image': {'required': True},
         }
+
+
+class ContactSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Contact
+        exclude = ('user', )
