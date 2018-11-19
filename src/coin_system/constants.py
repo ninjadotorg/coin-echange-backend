@@ -13,6 +13,15 @@ SYSTEM_FEE = Choices(
 
 EMAIL_PURPOSE = Choices(
     ('email_verification', 'Email verification'),
+    ('successful_email_verification', 'Successful email verification'),
+    ('successful_phone_verification', 'Successful phone verification'),
+    ('successful_id_verification', 'Successful ID verification'),
+    ('failed_id_verification', 'Failed ID verification'),
+    ('successful_selfie_verification', 'Successful selfie verification'),
+    ('gift_promotion', 'Gift promotion'),
+    ('coin_price', 'Coin price'),
+    ('successful_buying', 'Successful buying'),
+    ('successful_selling', 'Successful selling'),
 )
 
 SMS_PURPOSE = Choices(
