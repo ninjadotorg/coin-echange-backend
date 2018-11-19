@@ -7,10 +7,13 @@ from common.constants import DIRECTION
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ['user', 'amount', 'currency', 'fiat_local_amount', 'fiat_local_currency', 'status']
+    list_display = ['id', 'user', 'format_amount', 'currency', 'fiat_local_amount', 'fiat_local_currency', 'status']
 
     def get_queryset(self, request):
-        return self.model.objects.filter(direction=DIRECTION.buy, order_type=ORDER_TYPE.bank)
+        return self.model.objects.filter(direction=DIRECTION.buy, order_type=ORDER_TYPE.bank).order_by('-id')
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 class CODOrder(Order):
@@ -20,10 +23,13 @@ class CODOrder(Order):
 
 @admin.register(CODOrder)
 class CODOrderAdmin(admin.ModelAdmin):
-    list_display = ['user', 'amount', 'currency', 'fiat_local_amount', 'fiat_local_currency', 'status']
+    list_display = ['id', 'user', 'format_amount', 'currency', 'fiat_local_amount', 'fiat_local_currency', 'status']
 
     def get_queryset(self, request):
-        return self.model.objects.filter(direction=DIRECTION.buy, order_type=ORDER_TYPE.cod)
+        return self.model.objects.filter(direction=DIRECTION.buy, order_type=ORDER_TYPE.cod).order_by('-id')
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 class SellingOrder(Order):
@@ -33,17 +39,29 @@ class SellingOrder(Order):
 
 @admin.register(SellingOrder)
 class SellingOrderAdmin(admin.ModelAdmin):
-    list_display = ['user', 'amount', 'currency', 'fiat_local_amount', 'fiat_local_currency', 'status']
+    list_display = ['id', 'user', 'format_amount', 'currency', 'fiat_local_amount', 'fiat_local_currency', 'status']
 
     def get_queryset(self, request):
-        return self.model.objects.filter(direction=DIRECTION.sell)
+        return self.model.objects.filter(direction=DIRECTION.sell).order_by('-id')
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
-    list_display = ['user', 'country', 'direction', 'review']
+    list_display = ['id', 'user', 'country', 'direction', 'review']
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 @admin.register(Pool)
 class PoolAdmin(admin.ModelAdmin):
     list_display = ['direction', 'currency', 'limit', 'usage']
+
+    def get_queryset(self, request):
+        return self.model.objects.all().order_by('-id')
+
+    def has_delete_permission(self, request, obj=None):
+        return False

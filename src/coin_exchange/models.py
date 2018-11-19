@@ -30,6 +30,13 @@ class Order(TimestampedModel):
     ref_code = models.CharField(max_length=10)
     reviewed = models.BooleanField(default=False)
 
+    def __str__(self):
+        return 'Order #{} for {}ing {:.6f} {}'.format(self.id, self.direction, self.amount, self.currency)
+
+    def format_amount(self):
+        return '{:.6f}'.format(self.amount)
+    format_amount.short_description = 'Amount'
+
 
 class Payment(TimestampedModel):
     order = models.ForeignKey(Order, related_name='order_payments', on_delete=models.PROTECT)

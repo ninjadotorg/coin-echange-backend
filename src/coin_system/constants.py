@@ -18,6 +18,7 @@ EMAIL_PURPOSE = Choices(
     ('successful_id_verification', 'Successful ID verification'),
     ('failed_id_verification', 'Failed ID verification'),
     ('successful_selfie_verification', 'Successful selfie verification'),
+    ('failed_selfie_verification', 'Failed selfie verification'),
     ('gift_promotion', 'Gift promotion'),
     ('coin_price', 'Coin price'),
     ('successful_buying', 'Successful buying'),
