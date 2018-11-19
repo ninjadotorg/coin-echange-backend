@@ -27,7 +27,8 @@ class UserLimitInline(admin.StackedInline):
 
 @admin.register(ExchangeUser)
 class ExchangeUserAdmin(admin.ModelAdmin):
-    list_display = ['user', 'name', 'id_name', 'id_number', 'id_type', 'front_image', 'back_image', 'selfie_image',
+    list_display = ['user', 'name', 'id_name', 'id_number', 'id_type',
+                    'display_front_image', 'display_back_image', 'display_selfie_image',
                     'display_level', 'display_status', 'country', 'user_actions']
     inlines = (UserLimitInline,)
     list_filter = ('country', 'verification_level', 'verification_status')
@@ -48,6 +49,21 @@ class ExchangeUserAdmin(admin.ModelAdmin):
         return VERIFICATION_STATUS[obj.verification_status]
 
     display_status.short_description = 'Status'
+
+    def display_front_image(self, obj):
+        return self._get_image_tag(obj.front_image)
+
+    display_front_image.short_description = 'Front Image'
+
+    def display_back_image(self, obj):
+        return self._get_image_tag(obj.back_image)
+
+    display_back_image.short_description = 'Front Image'
+
+    def display_selfie_image(self, obj):
+        return self._get_image_tag(obj.selfie_image)
+
+    display_selfie_image.short_description = 'Selfie Image'
 
     def get_urls(self):
         urls = super().get_urls()
@@ -101,7 +117,7 @@ class ExchangeUserAdmin(admin.ModelAdmin):
 
     def _get_process_button(self, obj):
         return format_html(
-            '''<a class="button" href="{}?{}">Process</a>''',
+            '<a class="button" href="{}?{}">Process</a>',
             reverse('admin:user-verify-process', args=[obj.pk]),
             self.get_preserved_filters(self.request),
         )
@@ -119,6 +135,13 @@ class ExchangeUserAdmin(admin.ModelAdmin):
             reverse('admin:user-verify-reject', args=[obj.pk]),
             self.get_preserved_filters(self.request),
         )
+
+    def _get_image_tag(self, image_url: str):
+        return format_html('''<a href="{}"
+        onclick="return !window.open(this.href, 'Google', 'width=500, height=500, top=200, left=500')" target="_blank">
+            <img src="{}" width="75" height="75" />
+        </a>
+        ''', image_url, image_url) if image_url else ''
 
     user_actions.short_description = 'Actions'
     user_actions.allow_tags = True
