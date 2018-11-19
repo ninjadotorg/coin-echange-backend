@@ -174,6 +174,15 @@ class OrderUpdateTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
+class OrderCancelTest(APITestCase):
+    def setUp(self):
+        self.auth_utils = AuthenticationUtils(self.client)
+        self.user = self.auth_utils.create_exchange_user()
+        self.auth_utils.login()
+
+        self.order = OrderFactory(user=self.user, order_type=ORDER_TYPE.bank, status=ORDER_STATUS.pending)
+
+
 class OrderSupportFunctionTest(TestCase):
     def test_amount_too_small(self):
         with self.assertRaises(AmountIsTooSmallException):

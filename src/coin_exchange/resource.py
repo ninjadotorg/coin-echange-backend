@@ -1,4 +1,4 @@
-from rest_framework import mixins, viewsets, status
+from rest_framework import mixins, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.response import Response
@@ -6,17 +6,17 @@ from rest_framework.viewsets import GenericViewSet
 
 from coin_exchange.business.order import OrderManagement
 from coin_exchange.constants import ORDER_STATUS, ORDER_TYPE
+from coin_exchange.exceptions import InvalidOrderStatusException
 from coin_exchange.models import Review, Order
 from coin_exchange.serializers import ReviewSerializer, OrderSerializer, SellingOrderSerializer
 from common.constants import DIRECTION
-from common.exceptions import InvalidDataException
 from common.http import StandardPagination
 
 
 class ReviewViewSet(mixins.CreateModelMixin,
                     mixins.ListModelMixin,
                     GenericViewSet):
-    permission_classes = (IsAuthenticatedOrReadOnly, )
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     serializer_class = ReviewSerializer
     pagination_class = StandardPagination
     queryset = Review.objects.filter(visible=True).order_by('-created_at')
@@ -40,7 +40,11 @@ class ReviewViewSet(mixins.CreateModelMixin,
         order.save()
 
 
-class OrderViewSet(viewsets.ModelViewSet):
+class OrderViewSet(mixins.CreateModelMixin,
+                   mixins.RetrieveModelMixin,
+                   mixins.DestroyModelMixin,
+                   mixins.ListModelMixin,
+                   GenericViewSet):
     permission_classes = (IsAuthenticated,)
     serializer_class = OrderSerializer
     pagination_class = StandardPagination
@@ -76,9 +80,15 @@ class OrderViewSet(viewsets.ModelViewSet):
                 and order.user.user == request.user:
             serializer.save(status=ORDER_STATUS.fiat_transferring)
         else:
-            raise InvalidDataException
+            raise InvalidOrderStatusException
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def destroy(self, request, *args, **kwargs):
+        order = self.get_object()
+        OrderManagement.cancel_order(request.user, order)
+
+        return Response(status=status.HTTP_200_OK)
 
     def get_queryset(self):
         qs = Order.objects.filter(user__user=self.request.user).order_by('-created_at')

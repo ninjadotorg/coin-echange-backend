@@ -2,6 +2,7 @@ from decimal import Decimal
 
 from django.db import models
 
+from coin_base.models import TimestampedModel
 from coin_system.constants import FEE_TYPE
 from common import model_fields
 from common.constants import VALUE_TYPE
@@ -82,7 +83,7 @@ class CountryDefaultConfig(models.Model):
     active = models.BooleanField(default=True)
 
 
-class LandingPageContact(models.Model):
+class LandingPageContact(TimestampedModel):
     name = models.CharField(max_length=255)
     phone_number = models.CharField(max_length=20, blank=True)
     email = models.EmailField()

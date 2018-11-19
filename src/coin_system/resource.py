@@ -5,7 +5,7 @@ from rest_framework.viewsets import GenericViewSet
 
 from coin_system.models import Bank, PopularPlace, CountryCurrency, CountryDefaultConfig, LandingPageContact
 from coin_system.serializers import BankSerializer, PopularPlaceSerializer, CountryCurrencySerializer, \
-    CountryDefaultConfigSerializer
+    CountryDefaultConfigSerializer, ContactSerializer
 
 
 class BankViewSet(viewsets.ReadOnlyModelViewSet):
@@ -56,5 +56,5 @@ class CountryDefaultConfigViewSet(viewsets.ReadOnlyModelViewSet):
 
 class ContactViewSet(mixins.CreateModelMixin,
                      GenericViewSet):
-    serializer_class = LandingPageContact
+    serializer_class = ContactSerializer
     queryset = LandingPageContact.objects.none()

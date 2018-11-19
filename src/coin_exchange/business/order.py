@@ -12,9 +12,9 @@ from coin_exchange.constants import (
     ORDER_EXPIRATION_DURATION,
     DIFFERENT_THRESHOLD,
     REF_CODE_LENGTH,
-)
-from coin_exchange.exceptions import AmountIsTooSmallException, PriceChangeException
-from coin_exchange.models import UserLimit, Pool
+    ORDER_STATUS)
+from coin_exchange.exceptions import AmountIsTooSmallException, PriceChangeException, InvalidOrderStatusException
+from coin_exchange.models import UserLimit, Pool, Order
 from coin_exchange.serializers import OrderSerializer, SellingOrderSerializer
 from coin_system.business import round_crypto_currency
 from common.business import validate_crypto_address, get_now, generate_random_code
@@ -38,6 +38,8 @@ class OrderManagement(object):
                                                                                  address, amount, currency,
                                                                                  fiat_local_amount, fiat_local_currency,
                                                                                  safe_data)
+
+        # TODO Increase user usage, pool usage
 
         serializer.save(
             user=user.exchange_user,
@@ -69,6 +71,8 @@ class OrderManagement(object):
                                                                                  fiat_local_amount, fiat_local_currency,
                                                                                  safe_data)
 
+        # TODO Increase user usage, pool usage
+
         serializer.save(
             user=user.exchange_user,
             fiat_amount=check_fiat_amount,
@@ -82,6 +86,18 @@ class OrderManagement(object):
         )
 
         OrderManagement.increase_limit(user, amount, currency, direction, fiat_local_amount, fiat_local_currency)
+
+    @staticmethod
+    @transaction.atomic
+    def cancel_order(user: User, order: Order):
+        if order.status == ORDER_STATUS.pending and order.direction == DIRECTION.buy \
+                and order.user.user == user:
+            # TODO Decrease user usage, pool usage
+
+            order.status = ORDER_STATUS.cancelled
+            order.save()
+        else:
+            raise InvalidOrderStatusException
 
     @staticmethod
     def increase_limit(user, amount, currency, direction, fiat_local_amount, fiat_local_currency):
