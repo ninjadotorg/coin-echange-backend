@@ -7,6 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from coin_exchange.models import UserLimit
 from coin_system.constants import EMAIL_PURPOSE, SMS_PURPOSE
 from coin_system.models import CountryDefaultConfig
 from coin_user.constants import VERIFICATION_LEVEL, VERIFICATION_STATUS
@@ -15,6 +16,7 @@ from coin_user.models import ExchangeUser
 from coin_user.serializers import SignUpSerializer, ExchangeUserSerializer, ExchangeUserProfileSerializer, \
     ExchangeUserIDVerificationSerializer, ExchangeUserSelfieVerificationSerializer
 from common.business import generate_random_code, generate_random_digit
+from common.constants import DIRECTION
 from common.exceptions import InvalidDataException
 from notification.email import EmailNotification
 from notification.sms import SmsNotification
@@ -137,6 +139,12 @@ class SignUpView(APIView):
                                           language=country_config.language,
                                           country=country_config.country,
                                           currency=country_config.currency)
+
+        # Create user limit
+        UserLimit.objects.create(user=obj, usage=0, limit=0,
+                                 direction=DIRECTION.buy, fiat_currency=country_config.currency)
+        UserLimit.objects.create(user=obj, usage=0, limit=0,
+                                 direction=DIRECTION.sell, fiat_currency=country_config.currency)
 
         try:
             VerifyEmailView.send_verification_email(obj)
