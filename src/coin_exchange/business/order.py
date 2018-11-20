@@ -87,7 +87,7 @@ class OrderManagement(object):
                                                                                   fiat_local_currency,
                                                                                   safe_data)
 
-        serializer.save(
+        order = serializer.save(
             user=user.exchange_user,
             fiat_amount=check_fiat_amount,
             fiat_currency=FIAT_CURRENCY.USD,
@@ -102,7 +102,7 @@ class OrderManagement(object):
 
         OrderManagement._increase_limit(user, amount, currency, direction, fiat_local_amount, fiat_local_currency)
 
-        CryptoTransactionManagement.create_tracking_address(serializer.data)
+        CryptoTransactionManagement.create_tracking_address(order)
 
     @staticmethod
     @transaction.atomic
