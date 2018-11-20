@@ -5,7 +5,7 @@ from coin_exchange.constants import ORDER_STATUS, ORDER_TYPE, PAYMENT_STATUS, TR
     TRACKING_TRANSACTION_STATUS, TRACKING_TRANSACTION_DIRECTION
 from coin_user.models import ExchangeUser
 from common import model_fields
-from common.constants import DIRECTION
+from common.constants import DIRECTION, DIRECTION_ALL
 
 
 class Order(TimestampedModel):
@@ -135,4 +135,4 @@ class UserLimit(TimestampedModel):
     fiat_currency = model_fields.FiatCurrencyField()
 
     def __str__(self):
-        return '%s - %s' % (DIRECTION[self.direction], self.fiat_currency)
+        return '%s - %s' % (DIRECTION[self.direction] if self.direction != DIRECTION_ALL else 'All', self.fiat_currency)

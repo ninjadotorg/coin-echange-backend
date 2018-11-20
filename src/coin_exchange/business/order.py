@@ -102,6 +102,8 @@ class OrderManagement(object):
 
         OrderManagement._increase_limit(user, amount, currency, direction, fiat_local_amount, fiat_local_currency)
 
+        CryptoTransactionManagement.create_tracking_address(serializer.data)
+
     @staticmethod
     @transaction.atomic
     def cancel_order(user: User, order: Order):

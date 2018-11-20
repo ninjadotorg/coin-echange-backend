@@ -1,3 +1,5 @@
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -23,6 +25,7 @@ class CryptoRateView(APIView):
 
 
 class CurrencyLevelLimitView(APIView):
+    @method_decorator(cache_page(5 * 60))
     def get(self, request, format=None):
         currency = request.query_params.get('currency', '')
         keys = Config.objects.filter(key__istartswith=currency).order_by('key')
