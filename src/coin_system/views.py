@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 from coin_exchange.constants import CONFIG_USER_LIMIT
 from coin_system.models import Config
 from common.business import PriceManagement, RateManagement
-from common.constants import CURRENCY, FIAT_CURRENCY
+from common.constants import CURRENCY
 
 
 class CurrencyRateView(APIView):
