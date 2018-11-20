@@ -40,7 +40,7 @@ class ExchangeUser(models.Model):
 
     def _change_verificaiton_status(self, status):
         self.verification_status = status
-        self.save(update_fields='verification_status')
+        self.save(update_fields=['verification_status', ])
 
 
 class AdminUser(models.Model):
