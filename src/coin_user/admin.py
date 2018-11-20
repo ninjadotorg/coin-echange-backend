@@ -12,7 +12,7 @@ from coin_user.models import ExchangeUser
 class UserLimitInline(admin.StackedInline):
     model = UserLimit
     fields = ('limit', 'usage')
-    readonly_fields = ('limit', 'usage')
+    # readonly_fields = ('limit', 'usage')
     can_delete = False
 
     def has_add_permission(self, request, obj=None):
@@ -21,8 +21,8 @@ class UserLimitInline(admin.StackedInline):
     def has_delete_permission(self, request, obj=None):
         return False
 
-    def has_change_permission(self, request, obj=None):
-        return False
+    # def has_change_permission(self, request, obj=None):
+    #    return False
 
 
 @admin.register(ExchangeUser)
