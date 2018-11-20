@@ -95,7 +95,7 @@ class ExchangeUserAdmin(admin.ModelAdmin):
 
         # Get it back
         changelist_filters = request.GET.get('_changelist_filters')
-        return HttpResponseRedirect('../?{}'.format(urlunquote(changelist_filters)))
+        return HttpResponseRedirect('../?{}'.format(urlunquote(changelist_filters) if changelist_filters else ''))
 
     def _do_change_verify_process(self, user):
         user.process_verification()
