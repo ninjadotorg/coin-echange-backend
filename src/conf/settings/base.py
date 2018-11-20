@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/2.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.1/ref/settings/
 """
+import datetime
 import logging
 import sys
 from os.path import abspath, basename, dirname, join, normpath
@@ -178,6 +179,10 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+}
+
+JWT_AUTH = {
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=60*60)
 }
 
 CORS_ORIGIN_ALLOW_ALL = True

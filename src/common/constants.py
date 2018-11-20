@@ -16,6 +16,7 @@ COUNTRY = Choices(
     ('KH', 'Cambodia'),
     ('ID', 'Indonesia'),
     ('PH', 'Philippines'),
+    ('HK', 'Hong Kong'),
 )
 
 # For now user limit only has 1 record
@@ -26,9 +27,10 @@ DIRECTION = Choices(
 )
 
 FIAT_CURRENCY = Choices(
+    ('USD', 'USD'),
+    ('HKD', 'HKD'),
     ('IDR', 'IDR'),
     ('PHP', 'PHP'),
-    ('USD', 'USD'),
 )
 
 CURRENCY = Choices(

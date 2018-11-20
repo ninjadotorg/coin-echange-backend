@@ -41,8 +41,8 @@ TRACKING_TRANSACTION_STATUS = Choices(
 )
 
 TRACKING_TRANSACTION_DIRECTION = Choices(
-    ('in', 'Transfer In'),
-    ('out', 'Transfer Out'),
+    ('transfer_in', 'Transfer In'),
+    ('transfer_out', 'Transfer Out'),
 )
 
 FEE_COIN_ORDER_COD = "FEE_COIN_ORDER_COD"

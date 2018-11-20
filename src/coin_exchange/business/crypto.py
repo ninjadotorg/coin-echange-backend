@@ -3,11 +3,11 @@ from decimal import Decimal
 from django.conf import settings
 
 from coin_exchange.constants import TRACKING_ADDRESS_STATUS
-from coin_exchange.models import TrackingAddress
+from coin_exchange.models import TrackingAddress, Order, TrackingTransaction
 from coin_user.models import ExchangeUser
 from common.provider_data import BitstampTxData
 from integration import coinbase
-from integration.bitstamp import send_transaction
+from integration.bitstamp import send_transaction, list_withdrawal_requests
 
 
 class AddressManagement(object):
@@ -43,6 +43,31 @@ class CryptoTransactionManagement(object):
             provider_data['tx_id'] = 'TestProviderTransactionId'
         else:
             tx_id = send_transaction(address, currency, amount)
+            # Get transaction in 1 minutes to find this one
+            list_tx = list_withdrawal_requests(1*60)
+            for tx in list_tx:
+                if tx['id'] == tx_id:
+                    tx_hash = tx['transaction_id']
+                    break
+
             provider_data['tx_id'] = tx_id
 
         return tx_hash, BitstampTxData(provider_data).to_json()
+
+    @staticmethod
+    def create_tracking_tx(order: Order, direction: str):
+        TrackingTransaction.objects.create(
+            order=order,
+            tx_hash=order.tx_hash,
+            currency=order.currency,
+            direction=direction
+        )
+
+    @staticmethod
+    def create_tracking_address(order: Order):
+        TrackingAddress.objects.create(
+            user=order.user,
+            order=order,
+            currency=order.currency,
+            status=TRACKING_ADDRESS_STATUS.has_order
+        )

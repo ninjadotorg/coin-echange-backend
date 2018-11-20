@@ -14,7 +14,7 @@ from coin_exchange.constants import (
     ORDER_EXPIRATION_DURATION,
     DIFFERENT_THRESHOLD,
     REF_CODE_LENGTH,
-    ORDER_STATUS)
+    ORDER_STATUS, TRACKING_TRANSACTION_DIRECTION)
 from coin_exchange.exceptions import AmountIsTooSmallException, PriceChangeException, InvalidOrderStatusException
 from coin_exchange.models import UserLimit, Pool, Order
 from coin_exchange.serializers import OrderSerializer, SellingOrderSerializer
@@ -143,9 +143,13 @@ class OrderManagement(object):
                 order.save()
 
                 tx_hash, provider_data = CryptoTransactionManagement.transfer(order.address,
-                                                                              order.currency, order.amount)
+                                                                              order.currency,
+                                                                              order.amount)
                 order.tx_hash = tx_hash
                 order.provider_data = provider_data
+
+                CryptoTransactionManagement.create_tracking_tx(order,
+                                                               TRACKING_TRANSACTION_DIRECTION.transfer_out)
             else:
                 order.status = ORDER_STATUS.success
 
