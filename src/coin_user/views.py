@@ -157,6 +157,7 @@ class SignUpView(APIView):
 class VerifyEmailView(APIView):
     permission_classes = (IsAuthenticated,)
 
+    @transaction.atomic
     def put(self, request, format=None):
         verification_code = request.query_params.get('code')
         obj = ExchangeUser.objects.get(user=request.user)
@@ -167,10 +168,7 @@ class VerifyEmailView(APIView):
         if obj.email_verification_code != verification_code:
             raise InvalidVerificationException
 
-        obj.verification_status = VERIFICATION_STATUS.approved
-        obj.save()
-
-        # TODO Increase user limit
+        obj.approve_verification()
 
         return Response(ExchangeUserSerializer(instance=obj).data)
 
@@ -218,10 +216,7 @@ class VerifyPhoneView(APIView):
         if obj.phone_verification_code != verification_code:
             raise InvalidVerificationException
 
-        # TODO Increase user limit
-
-        obj.verification_status = VERIFICATION_STATUS.approved
-        obj.save()
+        obj.approve_verification()
 
         return Response(ExchangeUserSerializer(instance=obj).data)
 

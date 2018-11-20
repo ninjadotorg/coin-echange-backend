@@ -98,16 +98,13 @@ class ExchangeUserAdmin(admin.ModelAdmin):
         return HttpResponseRedirect('../?{}'.format(urlunquote(changelist_filters)))
 
     def _do_change_verify_process(self, user):
-        user.verification_status = VERIFICATION_STATUS.processing
-        user.save()
+        user.process_verification()
 
     def _do_change_verify_approve(self, user):
-        user.verification_status = VERIFICATION_STATUS.approved
-        user.save()
+        user.approve_verification()
 
     def _do_change_verify_reject(self, user):
-        user.verification_status = VERIFICATION_STATUS.rejected
-        user.save()
+        user.reject_verification()
 
     def user_actions(self, obj):
         if obj.verification_status == VERIFICATION_STATUS.pending:

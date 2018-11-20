@@ -12,9 +12,7 @@ SYSTEM_FEE = Choices(
 )
 
 SYSTEM_CONFIG = Choices(
-    ('usd_user_limit', 'User limit USD'),
-    ('php_user_limit', 'User limit USD'),
-    ('idr_user_limit', 'User limit IDR'),
+    ('user_limit', 'User limit'),
 )
 
 EMAIL_PURPOSE = Choices(

@@ -29,6 +29,19 @@ class ExchangeUser(models.Model):
     def __str__(self):
         return '%s' % self.user.username
 
+    def approve_verification(self):
+        self._change_verificaiton_status(VERIFICATION_STATUS.approved)
+
+    def reject_verification(self):
+        self._change_verificaiton_status(VERIFICATION_STATUS.rejected)
+
+    def process_verification(self):
+        self._change_verificaiton_status(VERIFICATION_STATUS.processing)
+
+    def _change_verificaiton_status(self, status):
+        self.verification_status = status
+        self.save(update_fields='verification_status')
+
 
 class AdminUser(models.Model):
     user = models.OneToOneField(User, related_name='admin_user', on_delete=models.CASCADE)
