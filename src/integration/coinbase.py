@@ -9,7 +9,7 @@ client = Client(settings.COINBASE['API_KEY'], settings.COINBASE['API_SECRET'])
 
 @raise_api_exception(ExternalAPIException)
 def generate_address(currency: str) -> str:
-    return client.create_address(settings.COINBASE['ACCOUNTS'][currency])
+    return client.create_address(settings.COINBASE['ACCOUNTS'][currency]).address
 
 
 @raise_api_exception(ExternalAPIException)

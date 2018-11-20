@@ -49,7 +49,7 @@ class QuoteManagement(object):
             fee_local = RateManagement.convert_to_local_currency(fiat_amount_fee, fiat_local_currency)
 
             if direction == DIRECTION.buy:
-                fiat_amount_cod, fiat_amount_fee_cod = markup_fee(price, FEE_COIN_ORDER_COD)
+                fiat_amount_cod, fiat_amount_fee_cod = markup_fee(raw_fiat_amount, FEE_COIN_ORDER_COD)
                 fiat_local_amount_cod = RateManagement.convert_to_local_currency(fiat_amount_cod, fiat_local_currency)
                 fee_local_cod = RateManagement.convert_to_local_currency(fiat_amount_fee_cod, fiat_local_currency)
             else:
