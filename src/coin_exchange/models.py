@@ -1,7 +1,8 @@
 from django.db import models
 
 from coin_base.models import TimestampedModel
-from coin_exchange.constants import ORDER_STATUS, ORDER_TYPE, PAYMENT_STATUS, TRACKING_ADDRESS_STATUS
+from coin_exchange.constants import ORDER_STATUS, ORDER_TYPE, PAYMENT_STATUS, TRACKING_ADDRESS_STATUS, \
+    TRACKING_TRANSACTION_STATUS, TRACKING_TRANSACTION_DIRECTION
 from coin_user.models import ExchangeUser
 from common import model_fields
 from common.constants import DIRECTION
@@ -73,9 +74,22 @@ class TrackingAddress(TimestampedModel):
         unique_together = ('user', 'address', 'currency')
 
     user = models.ForeignKey(ExchangeUser, related_name='user_addresses', on_delete=models.PROTECT)
+    order = models.OneToOneField(Order, related_name='order_address', on_delete=models.PROTECT, null=True, blank=True)
     address = model_fields.CryptoHashField()
     currency = model_fields.CurrencyField()
     status = models.CharField(max_length=20, choices=TRACKING_ADDRESS_STATUS, default=TRACKING_ADDRESS_STATUS.created)
+
+
+class TrackingTransaction(TimestampedModel):
+    class Meta:
+        unique_together = ('tx_hash', 'currency')
+
+    tx_hash = model_fields.CryptoHashField()
+    currency = model_fields.CurrencyField()
+    order = models.OneToOneField(Order, related_name='order_tx_hashes', on_delete=models.PROTECT, null=True, blank=True)
+    status = models.CharField(max_length=20, choices=TRACKING_TRANSACTION_STATUS,
+                              default=TRACKING_TRANSACTION_STATUS.pending)
+    direction = models.CharField(max_length=5, choices=TRACKING_TRANSACTION_DIRECTION)
 
 
 class Review(TimestampedModel):

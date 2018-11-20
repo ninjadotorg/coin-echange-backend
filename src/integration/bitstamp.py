@@ -34,3 +34,8 @@ def send_transaction(address: str, currency: str, amount: Decimal):
         raise Exception('Bitstamp: Something wrong when transfer')
 
     return resp
+
+
+@raise_api_exception(ExternalAPIException)
+def list_withdrawal_requests(timedelta=86400):
+    return trading_client.withdrawal_requests(timedelta)

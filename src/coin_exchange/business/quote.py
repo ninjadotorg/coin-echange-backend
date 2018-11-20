@@ -8,7 +8,7 @@ from coin_exchange.exceptions import CoinUserOverLimitException, CoinOverLimitEx
 from coin_exchange.models import UserLimit, Pool
 from coin_exchange.serializers import QuoteSerializer, QuoteInputSerializer, QuoteReverseInputSerializer, \
     QuoteReverseSerializer
-from coin_system.business import markup_fee, round_currency, remove_markup_fee
+from coin_system.business import markup_fee, round_currency, remove_markup_fee, round_crypto_currency
 from common.business import PriceManagement, RateManagement
 from common.constants import FIAT_CURRENCY, DIRECTION, DIRECTION_ALL
 from common.exceptions import InvalidDataException
@@ -69,7 +69,7 @@ class QuoteManagement(object):
                 'fee_local_cod': round_currency(fee_local_cod),
                 'raw_fiat_amount': round_currency(raw_fiat_amount),
                 'price': round_currency(price),
-                'amount': amount,
+                'amount': round_crypto_currency(amount),
                 'currency': safe_data['currency'],
                 'direction': safe_data['direction']
             })
@@ -122,7 +122,7 @@ class QuoteManagement(object):
                 'fiat_local_currency': fiat_local_currency,
                 'raw_fiat_amount': round_currency(raw_fiat_amount),
                 'price': round_currency(price),
-                'amount': amount,
+                'amount': round_crypto_currency(amount),
                 'currency': safe_data['currency'],
                 'direction': safe_data['direction']
             })

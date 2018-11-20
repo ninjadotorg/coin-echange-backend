@@ -34,6 +34,17 @@ TRACKING_ADDRESS_STATUS = Choices(
     ('completed', 'Completed'),
 )
 
+TRACKING_TRANSACTION_STATUS = Choices(
+    ('pending', 'Pending'),
+    ('success', 'Success'),
+    ('failed', 'Failed'),
+)
+
+TRACKING_TRANSACTION_DIRECTION = Choices(
+    ('in', 'Transfer In'),
+    ('out', 'Transfer Out'),
+)
+
 FEE_COIN_ORDER_COD = "FEE_COIN_ORDER_COD"
 FEE_COIN_ORDER_BANK = "FEE_COIN_ORDER_BANK"
 FEE_COIN_SELLING_ORDER_BANK = "FEE_COIN_SELLING_ORDER_BANK"
