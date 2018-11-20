@@ -18,6 +18,8 @@ COUNTRY = Choices(
     ('PH', 'Philippines'),
 )
 
+# For now user limit only has 1 record
+DIRECTION_ALL = 'all'
 DIRECTION = Choices(
     ('buy', 'Buy'),
     ('sell', 'Sell'),

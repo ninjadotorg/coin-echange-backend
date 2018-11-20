@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from coin_exchange.business.crypto import AddressManagement
+from coin_exchange.business.order import OrderManagement
 from coin_exchange.business.quote import QuoteManagement
 from common.business import view_serializer_fields
 from common.constants import CURRENCY
@@ -40,3 +41,9 @@ class QuoteReverseView(APIView):
                        ]
 
         return Response(view_serializer_fields(view_fields, serializer.validated_data))
+
+
+class ExpireOrderView(APIView):
+    def post(self, request, format=None):
+        OrderManagement.expire_order()
+        return Response()

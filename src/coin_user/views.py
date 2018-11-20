@@ -16,7 +16,7 @@ from coin_user.models import ExchangeUser
 from coin_user.serializers import SignUpSerializer, ExchangeUserSerializer, ExchangeUserProfileSerializer, \
     ExchangeUserIDVerificationSerializer, ExchangeUserSelfieVerificationSerializer
 from common.business import generate_random_code, generate_random_digit
-from common.constants import DIRECTION
+from common.constants import DIRECTION_ALL
 from common.exceptions import InvalidDataException
 from notification.email import EmailNotification
 from notification.sms import SmsNotification
@@ -142,9 +142,7 @@ class SignUpView(APIView):
 
         # Create user limit
         UserLimit.objects.create(user=obj, usage=0, limit=0,
-                                 direction=DIRECTION.buy, fiat_currency=country_config.currency)
-        UserLimit.objects.create(user=obj, usage=0, limit=0,
-                                 direction=DIRECTION.sell, fiat_currency=country_config.currency)
+                                 direction=DIRECTION_ALL, fiat_currency=country_config.currency)
 
         try:
             VerifyEmailView.send_verification_email(obj)

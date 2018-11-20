@@ -12,7 +12,7 @@ from coin_system.constants import FEE_TYPE
 from coin_system.factories import FeeFactory
 from coin_user.factories import ExchangeUserFactory
 from common.business import PriceManagement, RateManagement, CryptoPrice
-from common.constants import CURRENCY, FIAT_CURRENCY, DIRECTION
+from common.constants import CURRENCY, FIAT_CURRENCY, DIRECTION, DIRECTION_ALL
 from common.tests.utils import AuthenticationUtils
 
 
@@ -35,7 +35,7 @@ class BuyingQuoteTests(APITestCase):
         user = self.auth_utils.create_user()
         exchange_user = ExchangeUserFactory(user=user)
 
-        UserLimitFactory(fiat_currency=FIAT_CURRENCY.PHP, direction=DIRECTION.buy, usage=2300000, limit=3000000,
+        UserLimitFactory(fiat_currency=FIAT_CURRENCY.PHP, direction=DIRECTION_ALL, usage=2300000, limit=3000000,
                          user=exchange_user)
 
     def test_invalid(self):
@@ -156,7 +156,7 @@ class SellingQuoteTests(APITestCase):
 
         user = self.auth_utils.create_user()
         exchange_user = ExchangeUserFactory(user=user)
-        UserLimitFactory(fiat_currency=FIAT_CURRENCY.PHP, direction=DIRECTION.sell, usage=2300000, limit=3000000,
+        UserLimitFactory(fiat_currency=FIAT_CURRENCY.PHP, direction=DIRECTION_ALL, usage=2300000, limit=3000000,
                          user=exchange_user)
 
     def test_invalid(self):
@@ -287,7 +287,7 @@ class BuyingQuoteReverseTests(APITestCase):
         user = self._create_user(self.username)
 
         exchange_user = ExchangeUserFactory(user=user)
-        UserLimitFactory(fiat_currency=FIAT_CURRENCY.PHP, direction=DIRECTION.buy, usage=2300000, limit=3000000,
+        UserLimitFactory(fiat_currency=FIAT_CURRENCY.PHP, direction=DIRECTION_ALL, usage=2300000, limit=3000000,
                          user=exchange_user)
 
     def test_invalid(self):
@@ -422,7 +422,7 @@ class SellingQuoteReverseTests(APITestCase):
         user = self._create_user(self.username)
 
         exchange_user = ExchangeUserFactory(user=user)
-        UserLimitFactory(fiat_currency=FIAT_CURRENCY.PHP, direction=DIRECTION.sell, usage=2300000, limit=3000000,
+        UserLimitFactory(fiat_currency=FIAT_CURRENCY.PHP, direction=DIRECTION_ALL, usage=2300000, limit=3000000,
                          user=exchange_user)
 
     def test_invalid(self):

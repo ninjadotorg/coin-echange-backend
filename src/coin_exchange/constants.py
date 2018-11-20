@@ -8,6 +8,7 @@ ORDER_STATUS = Choices(
     ('processing', 'Processing'),
     ('fiat_transferring', 'Fiat Transferring'),
     ('transferring', 'Transferring'),
+    ('transferred', 'Transferred'),
     ('success', 'Success'),
     ('transfer_failed', 'Transfer Failed'),
     ('cancelled', 'Cancelled'),
@@ -36,6 +37,8 @@ TRACKING_ADDRESS_STATUS = Choices(
 FEE_COIN_ORDER_COD = "FEE_COIN_ORDER_COD"
 FEE_COIN_ORDER_BANK = "FEE_COIN_ORDER_BANK"
 FEE_COIN_SELLING_ORDER_BANK = "FEE_COIN_SELLING_ORDER_BANK"
+
+CONFIG_USER_LIMIT = "{}_USER_LIMIT_{}"
 
 MIN_ETH_AMOUNT = Decimal('0.01')
 MIN_BTC_AMOUNT = Decimal('0.001')

@@ -15,7 +15,7 @@ from coin_exchange.models import Order
 from coin_system.constants import FEE_TYPE
 from coin_system.factories import FeeFactory
 from common.business import PriceManagement, CryptoPrice, RateManagement
-from common.constants import DIRECTION, CURRENCY, FIAT_CURRENCY
+from common.constants import DIRECTION, CURRENCY, FIAT_CURRENCY, DIRECTION_ALL
 from common.tests.utils import AuthenticationUtils
 
 
@@ -67,7 +67,7 @@ class AddOrderTest(APITestCase):
         self.user = self.auth_utils.create_exchange_user()
         self.auth_utils.login()
 
-        UserLimitFactory(fiat_currency=FIAT_CURRENCY.PHP, direction=DIRECTION.buy, usage=0, limit=3000000,
+        UserLimitFactory(fiat_currency=FIAT_CURRENCY.PHP, direction=DIRECTION_ALL, usage=0, limit=3000000,
                          user=self.user)
 
     def test_add_cod_order(self):
@@ -116,7 +116,7 @@ class AddSellingOrderTest(APITestCase):
         self.user = self.auth_utils.create_exchange_user()
         self.auth_utils.login()
 
-        UserLimitFactory(fiat_currency=FIAT_CURRENCY.PHP, direction=DIRECTION.sell, usage=0, limit=3000000,
+        UserLimitFactory(fiat_currency=FIAT_CURRENCY.PHP, direction=DIRECTION_ALL, usage=0, limit=3000000,
                          user=self.user)
 
     def test_add_order(self):
@@ -186,11 +186,11 @@ class OrderCancelTest(APITestCase):
 class OrderSupportFunctionTest(TestCase):
     def test_amount_too_small(self):
         with self.assertRaises(AmountIsTooSmallException):
-            OrderManagement.check_minimum_amount(MIN_ETH_AMOUNT - Decimal('0.000001'), CURRENCY.ETH)
+            OrderManagement._check_minimum_amount(MIN_ETH_AMOUNT - Decimal('0.000001'), CURRENCY.ETH)
 
         with self.assertRaises(AmountIsTooSmallException):
-            OrderManagement.check_minimum_amount(MIN_BTC_AMOUNT - Decimal('0.000001'), CURRENCY.BTC)
+            OrderManagement._check_minimum_amount(MIN_BTC_AMOUNT - Decimal('0.000001'), CURRENCY.BTC)
 
     def test_check_different_in_threshold(self):
         with self.assertRaises(PriceChangeException):
-            OrderManagement.check_different_in_threshold(Decimal(5), Decimal(4.5))
+            OrderManagement._check_different_in_threshold(Decimal(5), Decimal(4.5))

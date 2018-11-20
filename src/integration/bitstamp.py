@@ -30,5 +30,7 @@ def send_transaction(address: str, currency: str, amount: Decimal):
         resp = trading_client.bitcoin_withdrawal(amount.__str__(), address)
     elif currency == 'ETH':
         resp = trading_client.ethereum_withdrawal(amount.__str__(), address)
+    if resp == 0:
+        raise Exception('Bitstamp: Something wrong when transfer')
 
     return resp

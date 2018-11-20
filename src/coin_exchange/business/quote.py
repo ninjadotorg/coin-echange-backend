@@ -10,7 +10,7 @@ from coin_exchange.serializers import QuoteSerializer, QuoteInputSerializer, Quo
     QuoteReverseSerializer
 from coin_system.business import markup_fee, round_currency, remove_markup_fee
 from common.business import PriceManagement, RateManagement
-from common.constants import FIAT_CURRENCY, DIRECTION
+from common.constants import FIAT_CURRENCY, DIRECTION, DIRECTION_ALL
 from common.exceptions import InvalidDataException
 
 
@@ -37,7 +37,7 @@ class QuoteManagement(object):
             fiat_local_currency = safe_data['fiat_currency']
             raw_fiat_local_amount = RateManagement.convert_to_local_currency(raw_fiat_amount, fiat_local_currency)
 
-            QuoteManagement.check_user_limit(user, direction, raw_fiat_local_amount, safe_data)
+            QuoteManagement.check_user_limit(user, raw_fiat_local_amount, safe_data)
             QuoteManagement.check_pool(direction, amount, safe_data)
 
             if direction == DIRECTION.buy:
@@ -110,7 +110,7 @@ class QuoteManagement(object):
             price = QuoteManagement.get_price(direction, safe_data)
             amount = raw_fiat_amount / price
 
-            QuoteManagement.check_user_limit(user, direction, raw_fiat_local_amount, safe_data)
+            QuoteManagement.check_user_limit(user, raw_fiat_local_amount, safe_data)
             QuoteManagement.check_pool(direction, amount, safe_data)
 
             fiat_local_amount = RateManagement.convert_to_local_currency(fiat_amount, fiat_local_currency)
@@ -148,14 +148,14 @@ class QuoteManagement(object):
                 raise CoinOverLimitException
 
     @staticmethod
-    def check_user_limit(user, direction, local_price, safe_data):
+    def check_user_limit(user, local_price, safe_data):
         if safe_data['user_check']:
             # request.user
             # User logged in
             if user and user.is_authenticated:
                 # Get user limit to check
                 try:
-                    user_limit = UserLimit.objects.get(user__user=user, direction=direction,
+                    user_limit = UserLimit.objects.get(user__user=user, direction=DIRECTION_ALL,
                                                        fiat_currency=safe_data['fiat_currency'])
                     if user_limit.usage + local_price > user_limit.limit:
                         raise CoinUserOverLimitException

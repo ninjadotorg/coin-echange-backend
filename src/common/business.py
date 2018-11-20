@@ -28,14 +28,14 @@ class PriceManagement(object):
 
         coin_price = CryptoPrice(currency, Decimal(buy_price), Decimal(sell_price))
 
-        cache.set(CACHE_KEY_CRYPTO_RATE_CURRENCY_BY_EXCHANGE.format(currency, EXCHANGE_SITE.coinbase),
+        cache.set(CACHE_KEY_CRYPTO_RATE_CURRENCY_BY_EXCHANGE.format(currency, EXCHANGE_SITE.bitstamp),
                   coin_price, timeout=None)
 
         return coin_price
 
     @staticmethod
     def get_cache_price(currency: str) -> CryptoPrice:
-        data = cache.get(CACHE_KEY_CRYPTO_RATE_CURRENCY_BY_EXCHANGE.format(currency, EXCHANGE_SITE.coinbase))
+        data = cache.get(CACHE_KEY_CRYPTO_RATE_CURRENCY_BY_EXCHANGE.format(currency, EXCHANGE_SITE.bitstamp))
         if not data:
             raise InvalidDataException
         return data

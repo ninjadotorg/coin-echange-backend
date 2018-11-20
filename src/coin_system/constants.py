@@ -5,12 +5,6 @@ FEE_TYPE = Choices(
     ('percentage', 'Percentage'),
 )
 
-SYSTEM_FEE = Choices(
-    ('coin_order_bank', 'Buy - Bank Transfer'),
-    ('coin_order_cod', 'Buy - COD'),
-    ('coin_selling_order_bank', 'Sell - Bank Transfer'),
-)
-
 SYSTEM_CONFIG = Choices(
     ('user_limit', 'User limit'),
 )
