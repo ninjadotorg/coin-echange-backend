@@ -24,7 +24,7 @@ class CryptoRateView(APIView):
 
 class CurrencyLevelLimitView(APIView):
     def get(self, request, format=None):
-        currency = request.params.get('currency', '')
+        currency = request.query_params.get('currency', '')
         keys = Config.objects.filter(key__istartswith=currency).order_by('key')
         limits = list(map(lambda key: {'currency': key.key.split(CONFIG_USER_LIMIT)[0],
                                        'level': key.key.split(CONFIG_USER_LIMIT)[1],
