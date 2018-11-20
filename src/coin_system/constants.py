@@ -5,10 +5,6 @@ FEE_TYPE = Choices(
     ('percentage', 'Percentage'),
 )
 
-SYSTEM_CONFIG = Choices(
-    ('user_limit', 'User limit'),
-)
-
 EMAIL_PURPOSE = Choices(
     ('email_verification', 'Email verification'),
     ('forgot_password', 'Forgot password'),
