@@ -8,7 +8,7 @@ from coin_exchange.business.crypto import AddressManagement
 from coin_exchange.business.order import OrderManagement
 from coin_exchange.business.quote import QuoteManagement
 from common.business import view_serializer_fields
-from common.constants import CURRENCY
+from common.constants import SUPPORT_CURRENCIES
 
 
 class AddressView(APIView):
@@ -16,7 +16,7 @@ class AddressView(APIView):
 
     def post(self, request, format=None):
         currency = request.query_params.get('currency')
-        if currency not in CURRENCY:
+        if currency not in SUPPORT_CURRENCIES:
             raise ValidationError
 
         address, exists = AddressManagement.create_address(request.user.exchange_user, currency)

@@ -6,7 +6,7 @@ from rest_framework.views import APIView
 from coin_exchange.constants import CONFIG_USER_LIMIT
 from coin_system.models import Config
 from common.business import PriceManagement, RateManagement
-from common.constants import CURRENCY
+from common.constants import SUPPORT_CURRENCIES
 
 
 class CurrencyRateView(APIView):
@@ -19,7 +19,7 @@ class CurrencyRateView(APIView):
 class CryptoRateView(APIView):
     def get(self, request, format=None):
         result = []
-        for currency in CURRENCY:
+        for currency in SUPPORT_CURRENCIES:
             price = PriceManagement.get_cache_price(currency)
             result.append({
                 'buy': price.buy,
@@ -29,7 +29,7 @@ class CryptoRateView(APIView):
         return Response(result)
 
     def post(self, request, format=None):
-        for currency in CURRENCY:
+        for currency in SUPPORT_CURRENCIES:
             PriceManagement.save_cache_price(currency)
 
         return Response(True)
