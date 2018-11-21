@@ -71,3 +71,29 @@ class CryptoTransactionManagement(object):
             currency=order.currency,
             status=TRACKING_ADDRESS_STATUS.has_order
         )
+
+
+class TrackingManagement(object):
+    @staticmethod
+    def load_tracking_address():
+        pass
+
+    @staticmethod
+    def load_tracking_transaction():
+        pass
+
+    @staticmethod
+    def track_system_address(pk: int):
+        pass
+
+    @staticmethod
+    def track_system_transaction(pk: int):
+        pass
+
+    @staticmethod
+    def track_network_address(address: str):
+        pass
+
+    @staticmethod
+    def track_network_transaction(tx_hash: str):
+        pass

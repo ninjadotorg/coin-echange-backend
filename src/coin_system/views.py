@@ -20,7 +20,7 @@ class CryptoRateView(APIView):
     def get(self, request, format=None):
         result = []
         for currency in CURRENCY:
-            price = PriceManagement.get_cache_price(request.query_params['currency'])
+            price = PriceManagement.get_cache_price(currency)
             result.append({
                 'buy': price.buy,
                 'sell': price.sell,
