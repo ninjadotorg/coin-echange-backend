@@ -30,6 +30,7 @@ class QuoteManagement(object):
             safe_data = input_serializer.validated_data
             direction = safe_data['direction']
 
+            currency = safe_data['currency']
             amount = safe_data['amount']
             price = QuoteManagement.get_price(direction, safe_data)
 
@@ -37,8 +38,10 @@ class QuoteManagement(object):
             fiat_local_currency = safe_data['fiat_currency']
             raw_fiat_local_amount = RateManagement.convert_to_local_currency(raw_fiat_amount, fiat_local_currency)
 
-            QuoteManagement.check_user_limit(user, raw_fiat_local_amount, safe_data)
-            QuoteManagement.check_pool(direction, amount, safe_data)
+            if safe_data['user_check']:
+                QuoteManagement.check_user_limit(user, raw_fiat_local_amount, fiat_local_currency)
+            if safe_data['pool_check']:
+                QuoteManagement.check_pool(direction, amount, currency)
 
             if direction == DIRECTION.buy:
                 fiat_amount, fiat_amount_fee = markup_fee(raw_fiat_amount, FEE_COIN_ORDER_BANK)
@@ -96,6 +99,7 @@ class QuoteManagement(object):
         if input_serializer.is_valid(raise_exception=True):
             safe_data = input_serializer.validated_data
             direction = safe_data['direction']
+            currency = safe_data['currency']
 
             fiat_local_amount = safe_data['fiat_amount']
             fiat_local_currency = safe_data['fiat_currency']
@@ -110,8 +114,10 @@ class QuoteManagement(object):
             price = QuoteManagement.get_price(direction, safe_data)
             amount = raw_fiat_amount / price
 
-            QuoteManagement.check_user_limit(user, raw_fiat_local_amount, safe_data)
-            QuoteManagement.check_pool(direction, amount, safe_data)
+            if safe_data['user_check']:
+                QuoteManagement.check_user_limit(user, raw_fiat_local_amount, fiat_local_currency)
+            if safe_data['pool_check']:
+                QuoteManagement.check_pool(direction, amount, currency)
 
             fiat_local_amount = RateManagement.convert_to_local_currency(fiat_amount, fiat_local_currency)
 
@@ -140,27 +146,29 @@ class QuoteManagement(object):
         return price
 
     @staticmethod
-    def check_pool(direction, amount, safe_data):
-        if safe_data['pool_check']:
-            pool = Pool.objects.get(direction=direction,
-                                    currency=safe_data['currency'])
-            if pool.usage + amount > pool.limit:
-                raise CoinOverLimitException
+    def check_pool(direction, amount, currency):
+        pool = Pool.objects.get(direction=direction,
+                                currency=currency)
+        if pool.usage + amount > pool.limit:
+            raise CoinOverLimitException
 
     @staticmethod
-    def check_user_limit(user, local_price, safe_data):
-        if safe_data['user_check']:
-            # request.user
-            # User logged in
-            if user and user.is_authenticated:
-                # Get user limit to check
-                try:
-                    user_limit = UserLimit.objects.get(user__user=user, direction=DIRECTION_ALL,
-                                                       fiat_currency=safe_data['fiat_currency'])
-                    if user_limit.usage + local_price > user_limit.limit:
-                        raise CoinUserOverLimitException
-                except UserLimit.DoesNotExist as e:
-                    logging.exception(e)
-                    raise InvalidDataException
-            else:
-                raise NotAuthenticated
+    def check_user_limit(user, local_price, fiat_currency):
+        # request.user
+        # User logged in
+        if user and user.is_authenticated:
+            # Get user limit to check
+            try:
+                exchange_user = user.exchange_user
+                check_amount = local_price
+                if exchange_user.currency != fiat_currency:
+                    check_amount = RateManagement.convert_currency(local_price, exchange_user.currency, fiat_currency)
+                user_limit = UserLimit.objects.get(user=exchange_user, direction=DIRECTION_ALL,
+                                                   fiat_currency=exchange_user.currency)
+                if user_limit.usage + check_amount > user_limit.limit:
+                    raise CoinUserOverLimitException
+            except UserLimit.DoesNotExist as e:
+                logging.exception(e)
+                raise InvalidDataException
+        else:
+            raise NotAuthenticated

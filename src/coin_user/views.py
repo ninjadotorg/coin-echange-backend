@@ -11,7 +11,8 @@ from coin_exchange.models import UserLimit
 from coin_system.constants import EMAIL_PURPOSE, SMS_PURPOSE
 from coin_system.models import CountryDefaultConfig
 from coin_user.constants import VERIFICATION_LEVEL, VERIFICATION_STATUS
-from coin_user.exceptions import InvalidVerificationException, AlreadyVerifiedException, NotReadyToVerifyException
+from coin_user.exceptions import InvalidVerificationException, AlreadyVerifiedException, NotReadyToVerifyException, \
+    ExistedEmailException
 from coin_user.models import ExchangeUser
 from coin_user.serializers import SignUpSerializer, ExchangeUserSerializer, ExchangeUserProfileSerializer, \
     ExchangeUserIDVerificationSerializer, ExchangeUserSelfieVerificationSerializer
@@ -121,6 +122,10 @@ class SignUpView(APIView):
         first_name = serializer.validated_data['first_name']
         last_name = serializer.validated_data['last_name']
         country = serializer.validated_data['country']
+
+        if User.objects.filter(username=username).exists():
+            raise ExistedEmailException
+
         user = User.objects.create_user(
             username=username,
             password=serializer.validated_data['password'],

@@ -66,6 +66,11 @@ class RateManagement(object):
         rate = RateManagement.get_cache_rate(currency)
         return amount / rate
 
+    @staticmethod
+    def convert_currency(amount: Decimal, from_currency: str, to_currency: str) -> Decimal:
+        amount_usd = RateManagement.convert_from_local_currency(amount, from_currency)
+        return RateManagement.convert_to_local_currency(amount_usd, to_currency)
+
 
 def view_serializer_fields(fields: List[str], serializer_data: dict) -> dict:
     data = {key: serializer_data[key] for key in fields}

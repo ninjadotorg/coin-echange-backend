@@ -67,7 +67,7 @@ class AddOrderTest(APITestCase):
         self.user = self.auth_utils.create_exchange_user()
         self.auth_utils.login()
 
-        UserLimitFactory(fiat_currency=FIAT_CURRENCY.PHP, direction=DIRECTION_ALL, usage=0, limit=3000000,
+        UserLimitFactory(fiat_currency=self.user.currency, direction=DIRECTION_ALL, usage=0, limit=3000000,
                          user=self.user)
 
     def test_add_cod_order(self):

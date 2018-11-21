@@ -19,7 +19,7 @@ from coin_exchange.exceptions import AmountIsTooSmallException, PriceChangeExcep
 from coin_exchange.models import UserLimit, Pool, Order
 from coin_exchange.serializers import OrderSerializer, SellingOrderSerializer
 from coin_system.business import round_crypto_currency
-from common.business import validate_crypto_address, get_now, generate_random_code
+from common.business import validate_crypto_address, get_now, generate_random_code, RateManagement
 from common.constants import DIRECTION, CURRENCY, FIAT_CURRENCY, DIRECTION_ALL
 from common.exceptions import InvalidAddress
 
@@ -68,8 +68,6 @@ class OrderManagement(object):
             ref_code=generate_random_code(REF_CODE_LENGTH),
         )
 
-        OrderManagement._increase_limit(user, amount, currency, direction, fiat_local_amount, fiat_local_currency)
-
     @staticmethod
     @transaction.atomic
     def add_selling_order(user: User, serializer: SellingOrderSerializer):
@@ -100,8 +98,6 @@ class OrderManagement(object):
             ref_code=generate_random_code(REF_CODE_LENGTH)
         )
 
-        OrderManagement._increase_limit(user, amount, currency, direction, fiat_local_amount, fiat_local_currency)
-
         CryptoTransactionManagement.create_tracking_address(order)
 
     @staticmethod
@@ -110,10 +106,7 @@ class OrderManagement(object):
         if order.status == ORDER_STATUS.pending and order.direction == DIRECTION.buy \
                 and order.user.user == user:
             order.status = ORDER_STATUS.cancelled
-            order.save()
-
-            OrderManagement._decrease_limit(user, order.amount, order.currency, order.direction,
-                                            order.fiat_local_amount, order.fiat_local_currency)
+            order.save(update_fields=['status', 'updated_at'])
         else:
             raise InvalidOrderStatusException
 
@@ -164,43 +157,50 @@ class OrderManagement(object):
     def reject_order(user: User, order: Order):
         if order.user.user == user and order.status == ORDER_STATUS.processing:
             order.status = ORDER_STATUS.rejected
-            order.save()
-
-            OrderManagement._decrease_limit(user, order.amount, order.currency, order.direction,
-                                            order.fiat_local_amount, order.fiat_local_currency)
+            order.save(update_fields=['status', 'updated_at'])
         else:
             raise InvalidOrderStatusException
 
     @staticmethod
     def expire_order():
         now = get_now()
-        Order.objects.filter(created_at__lt=now - timedelta(seconds=ORDER_EXPIRATION_DURATION),
-                             status=ORDER_STATUS.pending, order_type=ORDER_TYPE.bank,
-                             direction=DIRECTION.buy).update(
-            status=ORDER_STATUS.expired,
-            updated_at=now,
-        )
+        orders = Order.objects.filter(created_at__lt=now - timedelta(seconds=ORDER_EXPIRATION_DURATION),
+                                      status=ORDER_STATUS.pending, order_type=ORDER_TYPE.bank,
+                                      direction=DIRECTION.buy)
+        for order in orders:
+            order.status = ORDER_STATUS.expired
+            order.save(update_fields=['status', 'updated_at'])
 
     @staticmethod
-    def _increase_limit(user, amount, currency, direction, fiat_local_amount, fiat_local_currency):
-        UserLimit.objects.filter(user__user=user,
+    def increase_limit(user, amount, currency, direction, fiat_local_amount, fiat_local_currency):
+        # Convert local currency to user currency
+        update_amount = fiat_local_amount
+        if user.currency != fiat_local_currency:
+            update_amount = RateManagement.convert_currency(update_amount, user.currency, fiat_local_currency)
+        UserLimit.objects.filter(user=user,
                                  direction=DIRECTION_ALL,
-                                 fiat_currency=fiat_local_currency) \
-            .update(usage=F('usage') + fiat_local_amount,
+                                 fiat_currency=user.currency) \
+            .update(usage=F('usage') + update_amount,
                     updated_at=get_now())
+
         Pool.objects.filter(direction=direction,
                             currency=currency).update(usage=F('usage') + amount,
                                                       updated_at=get_now())
 
     @staticmethod
-    def _decrease_limit(user, amount, currency, direction, fiat_local_amount, fiat_local_currency):
-        user_limit = UserLimit.objects.get(user__user=user,
+    def decrease_limit(user, amount, currency, direction, fiat_local_amount, fiat_local_currency):
+        # Convert local currency to user currency
+        update_amount = fiat_local_amount
+        if user.currency != fiat_local_currency:
+            update_amount = RateManagement.convert_currency(update_amount, user.currency, fiat_local_currency)
+
+        user_limit = UserLimit.objects.get(user=user,
                                            direction=DIRECTION_ALL,
-                                           fiat_currency=fiat_local_currency)
-        if user_limit.usage < fiat_local_amount:
+                                           fiat_currency=user.currency)
+        if user_limit.usage < update_amount:
             user_limit.usage = 0
         else:
-            user_limit.usage = F('usage') - fiat_local_amount
+            user_limit.usage = F('usage') - update_amount
         user_limit.save()
 
         pool = Pool.objects.get(direction=direction,

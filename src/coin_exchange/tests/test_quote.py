@@ -33,7 +33,7 @@ class BuyingQuoteTests(APITestCase):
         PoolFactory(currency=CURRENCY.ETH, direction=DIRECTION.buy, usage=1, limit=2)
 
         user = self.auth_utils.create_user()
-        exchange_user = ExchangeUserFactory(user=user)
+        exchange_user = ExchangeUserFactory(user=user, currency=FIAT_CURRENCY.PHP)
 
         UserLimitFactory(fiat_currency=FIAT_CURRENCY.PHP, direction=DIRECTION_ALL, usage=2300000, limit=3000000,
                          user=exchange_user)
@@ -114,7 +114,7 @@ class BuyingQuoteTests(APITestCase):
     def test_check_user_without_limit_setup(self):
         url = reverse('exchange:quote-detail')
         username = 'another_username'
-        self.auth_utils.create_user(username)
+        self.auth_utils.create_exchange_user(username)
         self.auth_utils.login(username)
 
         response = self.client.get(url, data={
@@ -155,7 +155,7 @@ class SellingQuoteTests(APITestCase):
         PoolFactory(currency=CURRENCY.ETH, direction=DIRECTION.sell, usage=1, limit=2)
 
         user = self.auth_utils.create_user()
-        exchange_user = ExchangeUserFactory(user=user)
+        exchange_user = ExchangeUserFactory(user=user, currency=FIAT_CURRENCY.PHP)
         UserLimitFactory(fiat_currency=FIAT_CURRENCY.PHP, direction=DIRECTION_ALL, usage=2300000, limit=3000000,
                          user=exchange_user)
 
@@ -240,7 +240,7 @@ class SellingQuoteTests(APITestCase):
     def test_check_user_without_limit_setup(self):
         url = reverse('exchange:quote-detail')
         username = 'another_username'
-        self.auth_utils.create_user(username)
+        self.auth_utils.create_exchange_user(username)
         self.auth_utils.login(username)
 
         response = self.client.get(url, data={
@@ -286,7 +286,7 @@ class BuyingQuoteReverseTests(APITestCase):
         self.username = 'test_username'
         user = self._create_user(self.username)
 
-        exchange_user = ExchangeUserFactory(user=user)
+        exchange_user = ExchangeUserFactory(user=user, currency=FIAT_CURRENCY.PHP)
         UserLimitFactory(fiat_currency=FIAT_CURRENCY.PHP, direction=DIRECTION_ALL, usage=2300000, limit=3000000,
                          user=exchange_user)
 
@@ -363,8 +363,9 @@ class BuyingQuoteReverseTests(APITestCase):
     def test_check_user_without_limit_setup(self):
         url = reverse('exchange:quote-reverse-detail')
         username = 'another_username'
-        self._create_user(username)
+        user = self._create_user(username)
         self._login(username)
+        ExchangeUserFactory(user=user)
 
         response = self.client.get(url, data={
             'currency': CURRENCY.ETH,
@@ -421,7 +422,7 @@ class SellingQuoteReverseTests(APITestCase):
         self.username = 'test_username'
         user = self._create_user(self.username)
 
-        exchange_user = ExchangeUserFactory(user=user)
+        exchange_user = ExchangeUserFactory(user=user, currency=FIAT_CURRENCY.PHP)
         UserLimitFactory(fiat_currency=FIAT_CURRENCY.PHP, direction=DIRECTION_ALL, usage=2300000, limit=3000000,
                          user=exchange_user)
 
@@ -504,8 +505,9 @@ class SellingQuoteReverseTests(APITestCase):
     def test_check_user_without_limit_setup(self):
         url = reverse('exchange:quote-reverse-detail')
         username = 'another_username'
-        self._create_user(username)
+        user = self._create_user(username)
         self._login(username)
+        ExchangeUserFactory(user=user)
 
         response = self.client.get(url, data={
             'currency': CURRENCY.ETH,

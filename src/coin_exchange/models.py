@@ -38,6 +38,19 @@ class Order(TimestampedModel):
         return '{:.6f}'.format(self.amount)
     format_amount.short_description = 'Amount'
 
+    def reject(self):
+        pass
+
+    def cancel(self):
+        pass
+
+    def expire(self):
+        pass
+
+    def _destroy_order(self, status):
+        self.status = status
+        self.save(update_fields=['status', 'updated_at'])
+
 
 class Payment(TimestampedModel):
     order = models.ForeignKey(Order, related_name='order_payments', on_delete=models.PROTECT)
