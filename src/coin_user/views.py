@@ -203,7 +203,8 @@ class VerifyEmailView(APIView):
         EmailNotification.send_email_template(user.user.email,
                                               EMAIL_PURPOSE.email_verification,
                                               user.language,
-                                              {'code': user.email_verification_code})
+                                              {'code': user.email_verification_code,
+                                               'name': user.name})
 
 
 class VerifyPhoneView(APIView):
