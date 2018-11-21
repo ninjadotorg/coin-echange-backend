@@ -242,3 +242,16 @@ SLACK_CHANNEL = 'exchange-notification'
 SENDGRID = {
     'API_KEY': ''
 }
+
+BITPAY_BTC = {
+    'URL': 'https://insight.bitpay.com/api'
+}
+
+BITPAY_BCH = {
+    'URL': 'https://bch-insight.bitpay.com/api'
+}
+
+ETHERSCAN = {
+    'URL': 'http://api.etherscan.io/api',
+    'API_KEY': ''
+}

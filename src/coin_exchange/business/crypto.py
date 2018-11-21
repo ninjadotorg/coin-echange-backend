@@ -5,9 +5,10 @@ from django.conf import settings
 from coin_exchange.constants import TRACKING_ADDRESS_STATUS
 from coin_exchange.models import TrackingAddress, Order, TrackingTransaction
 from coin_user.models import ExchangeUser
+from common.constants import CURRENCY
 from common.provider_data import BitstampTxData
-from integration import coinbase
-from integration.bitstamp import send_transaction, list_withdrawal_requests
+from integration import coinbase, bitpay, etherscan, bitstamp
+from integration.objects import AddressResponse, TransactionResponse
 
 
 class AddressManagement(object):
@@ -42,9 +43,9 @@ class CryptoTransactionManagement(object):
             tx_hash = 'ThisIsATestTransactionHash'
             provider_data['tx_id'] = 'TestProviderTransactionId'
         else:
-            tx_id = send_transaction(address, currency, amount)
+            tx_id = bitstamp.send_transaction(address, currency, amount)
             # Get transaction in 1 minutes to find this one
-            list_tx = list_withdrawal_requests(1*60)
+            list_tx = bitstamp.list_withdrawal_requests(1*60)
             for tx in list_tx:
                 if tx['id'] == tx_id:
                     tx_hash = tx['transaction_id']
@@ -91,9 +92,21 @@ class TrackingManagement(object):
         pass
 
     @staticmethod
-    def track_network_address(address: str):
-        pass
+    def track_network_address(address: str, currency: str) -> AddressResponse:
+        if settings.TEST:
+            return AddressResponse(address, Decimal('0'), tx_hashes=['TestTxHash'])
+
+        if currency == CURRENCY.ETH:
+            return etherscan.get_address(address)
+        if currency == CURRENCY.BTC:
+            return bitpay.get_btc_address(address)
 
     @staticmethod
-    def track_network_transaction(tx_hash: str):
-        pass
+    def track_network_transaction(tx_hash: str, currency: str):
+        if settings.TEST:
+            return TransactionResponse(tx_hash, Decimal('0'), is_pending=True, is_success=True)
+
+        if currency == CURRENCY.ETH:
+            return etherscan.get_transaction(tx_hash)
+        if currency == CURRENCY.BTC:
+            return bitpay.get_btc_transaction(tx_hash)

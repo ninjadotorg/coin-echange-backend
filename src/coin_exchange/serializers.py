@@ -57,7 +57,7 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         exclude = ('user', 'direction', 'raw_fiat_amount', 'price', 'fee', 'provider_data')
-        read_only_fields = ('user_info', 'fiat_amount', 'fiat_currency', 'ref_code', 'reviewed')
+        read_only_fields = ('fiat_amount', 'fiat_currency', 'ref_code', 'reviewed')
 
 
 class SellingOrderSerializer(serializers.ModelSerializer):

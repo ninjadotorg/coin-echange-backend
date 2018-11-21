@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from coin_exchange.business.crypto import AddressManagement
+from coin_exchange.business.crypto import AddressManagement, TrackingManagement
 from coin_exchange.business.order import OrderManagement
 from coin_exchange.business.quote import QuoteManagement
 from common.business import view_serializer_fields
@@ -47,3 +47,17 @@ class ExpireOrderView(APIView):
     def post(self, request, format=None):
         OrderManagement.expire_order()
         return Response()
+
+
+class DepositedAddressView(APIView):
+    def get(self, request, format=None):
+        currency = request.query_params.get('currency', '')
+        if currency not in SUPPORT_CURRENCIES:
+            raise ValidationError
+        address = request.query_params.get('address', '')
+        if not address:
+            raise ValidationError
+
+        has_transaction = len(TrackingManagement.track_network_address(address, currency).tx_hashes) > 0
+
+        return Response({'has_transaction': has_transaction})
