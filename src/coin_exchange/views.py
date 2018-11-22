@@ -58,6 +58,31 @@ class DepositedAddressView(APIView):
         if not address:
             raise ValidationError
 
+        print(TrackingManagement.track_network_address(address, currency).tx_hashes)
         has_transaction = len(TrackingManagement.track_network_address(address, currency).tx_hashes) > 0
 
         return Response({'has_transaction': has_transaction})
+
+
+class TrackingAddressView(APIView):
+    def post(self, request, format=None):
+        TrackingManagement.load_tracking_address()
+        return Response()
+
+
+class TrackingAddressDetailView(APIView):
+    def post(self, request, pk, format=None):
+        TrackingManagement.track_system_address(pk)
+        return Response()
+
+
+class TrackingTransactionView(APIView):
+    def post(self, request, format=None):
+        TrackingManagement.load_tracking_transaction()
+        return Response()
+
+
+class TrackingTransactionDetailView(APIView):
+    def post(self, request, pk, format=None):
+        TrackingManagement.track_system_transaction(pk)
+        return Response()

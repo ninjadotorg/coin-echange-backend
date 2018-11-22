@@ -1,13 +1,15 @@
 from decimal import Decimal
 
+import requests
 from django.conf import settings
+from django.db import transaction
 from django.db.models import Q
 
 from coin_exchange.constants import TRACKING_ADDRESS_STATUS, TRACKING_TRANSACTION_STATUS, \
-    TRACKING_TRANSACTION_DIRECTION, ORDER_STATUS
-from coin_exchange.models import TrackingAddress, Order, TrackingTransaction
+    TRACKING_TRANSACTION_DIRECTION, ORDER_STATUS, PAYMENT_STATUS
+from coin_exchange.models import TrackingAddress, Order, TrackingTransaction, SellingPayment, SellingPaymentDetail
 from coin_user.models import ExchangeUser
-from common.constants import CURRENCY
+from common.constants import CURRENCY, DIRECTION
 from common.provider_data import BitstampTxData
 from integration import coinbase, bitpay, etherscan, bitstamp
 from integration.objects import AddressResponse, TransactionResponse
@@ -29,9 +31,6 @@ class AddressManagement(object):
 
         # If there is not, generate one
         address = AddressManagement.generate_address(currency)
-        # Add to tracking
-        TrackingAddress.objects.create(user=user, currency=currency, address=address,
-                                       status=TRACKING_ADDRESS_STATUS.created)
 
         return address, False
 
@@ -47,7 +46,7 @@ class CryptoTransactionManagement(object):
         else:
             tx_id = bitstamp.send_transaction(address, currency, amount)
             # Get transaction in 1 minutes to find this one
-            list_tx = bitstamp.list_withdrawal_requests(1*60)
+            list_tx = bitstamp.list_withdrawal_requests(1 * 60)
             for tx in list_tx:
                 if tx['id'] == tx_id:
                     tx_hash = tx['transaction_id']
@@ -57,39 +56,82 @@ class CryptoTransactionManagement(object):
 
         return tx_hash, BitstampTxData(provider_data).to_json()
 
+
+class TrackingManagement(object):
     @staticmethod
-    def create_tracking_tx(order: Order, direction: str):
+    @transaction.atomic
+    def create_tracking_address(order: Order,
+                                add_payment: bool = True) -> TrackingAddress:
+        obj = TrackingAddress.objects.create(
+            user=order.user,
+            order=order,
+            currency=order.currency,
+            address=order.address,
+            status=TRACKING_ADDRESS_STATUS.has_order
+        )
+        if add_payment and order.direction == DIRECTION.sell:
+            SellingPayment.objects.create(
+                address=order.address,
+                order=order,
+                amount=0,
+                currency=order.currency,
+                overspent=0,
+                status=PAYMENT_STATUS.under,
+            )
+
+        return obj
+
+    @staticmethod
+    def create_tracking_transaction(tracking_address: TrackingAddress, tx_hash: str) -> TrackingAddress:
+        obj = TrackingTransaction.objects.create(
+            tx_hash=tx_hash,
+            currency=tracking_address.order.currency,
+            order=tracking_address.order,
+            direction=TRACKING_TRANSACTION_DIRECTION.transfer_in
+            if tracking_address.order.direction == DIRECTION.sell else TRACKING_TRANSACTION_DIRECTION.transfer_out,
+            tracking_address=tracking_address,
+            to_address=tracking_address.address,
+        )
+
+        return obj
+
+    @staticmethod
+    def create_tracking_simple_transaction(order: Order):
         TrackingTransaction.objects.create(
             order=order,
             tx_hash=order.tx_hash,
             currency=order.currency,
-            direction=direction
+            direction=TRACKING_TRANSACTION_DIRECTION.transfer_in
+            if order.direction == DIRECTION.sell else TRACKING_TRANSACTION_DIRECTION.transfer_out,
         )
 
-    @staticmethod
-    def create_tracking_address(order: Order):
-        TrackingAddress.objects.create(
-            user=order.user,
-            order=order,
-            currency=order.currency,
-            status=TRACKING_ADDRESS_STATUS.has_order
-        )
-
-
-class TrackingManagement(object):
     @staticmethod
     def load_tracking_address():
-        pass
+        url = settings.EXCHANGE_API + '/tracking-addresses/{}/'
+        for tracking in TrackingAddress.objects.all():
+            # Just don't push too much
+            requests.post(url.format(tracking.id), timeout=200)
 
     @staticmethod
     def load_tracking_transaction():
-        pass
+        url = settings.EXCHANGE_API + '/tracking-transactions/{}/'
+        for tracking in TrackingTransaction.objects.all():
+            # Just don't push too much
+            requests.post(url.format(tracking.id), timeout=200)
 
     @staticmethod
     def track_system_address(pk: int):
-        pass
+        obj = TrackingAddress.objects.get(id=pk)
+        network_tracking = TrackingManagement.track_network_address(obj.address, obj.currency)
+        tx_hashes = network_tracking.tx_hashes
+        tracking_tx_hashes = TrackingTransaction.objects.filter(tracking_address=obj).values_list('tx_hash', flat=True)
+        new_tx_hashes = set(tx_hashes) - set(tracking_tx_hashes)
+
+        for tx_hash in new_tx_hashes:
+            TrackingManagement.create_tracking_transaction(obj, tx_hash)
 
     @staticmethod
+    @transaction.atomic
     def track_system_transaction(pk: int):
         obj = TrackingTransaction.objects.get(id=pk)
         resp = TrackingManagement.track_network_transaction(obj.tx_hash, obj.currency)
@@ -107,7 +149,15 @@ class TrackingManagement(object):
                 order.status = ORDER_STATUS.success
                 order.save(update_fields=['status', 'updated_at'])
         else:
-            pass
+            if obj.status == TRACKING_TRANSACTION_STATUS.success:
+                payment = SellingPayment.objects.select_related('order')\
+                    .get(address__iexact=obj.tracking_address.address)
+                SellingPaymentDetail.objects.create(
+                    payment=payment,
+                    currency=obj.currency,
+                    amount=resp.amount,
+                    tx_hash=obj.tx_hash,
+                )
 
     @staticmethod
     def track_network_address(address: str, currency: str) -> AddressResponse:

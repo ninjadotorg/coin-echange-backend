@@ -37,7 +37,7 @@ class OrderFactory(factory.django.DjangoModelFactory):
     direction = factory.Iterator([DIRECTION.buy, DIRECTION.sell])
     duration = 0
     fee = factory.LazyAttribute(lambda o: o.raw_fiat_amount * o.fiat_amount)
-    address = 'SomeAddress'
+    address = factory.Sequence(lambda n: "CryptoAddress%03d" % n)
     ref_code = 'SomeRefCode'
 
 

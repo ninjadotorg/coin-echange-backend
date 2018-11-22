@@ -14,7 +14,7 @@ from coin_exchange.constants import (
     ORDER_EXPIRATION_DURATION,
     DIFFERENT_THRESHOLD,
     REF_CODE_LENGTH,
-    ORDER_STATUS, TRACKING_TRANSACTION_DIRECTION)
+    ORDER_STATUS)
 from coin_exchange.exceptions import AmountIsTooSmallException, PriceChangeException, InvalidOrderStatusException
 from coin_exchange.models import UserLimit, Pool, Order
 from coin_exchange.serializers import OrderSerializer, SellingOrderSerializer
@@ -42,7 +42,7 @@ class OrderManagement(object):
 
     @staticmethod
     @transaction.atomic
-    def add_order(user: User, serializer: OrderSerializer):
+    def add_order(user: User, serializer: OrderSerializer) -> Order:
         safe_data = serializer.validated_data
         amount = safe_data['amount']
         currency = safe_data['currency']
@@ -56,7 +56,7 @@ class OrderManagement(object):
                                                                                   fiat_local_amount,
                                                                                   fiat_local_currency,
                                                                                   safe_data)
-        serializer.save(
+        order = serializer.save(
             user=user.exchange_user,
             fiat_amount=check_fiat_amount,
             fiat_currency=FIAT_CURRENCY.USD,
@@ -67,10 +67,11 @@ class OrderManagement(object):
             fee=check_fee,
             ref_code=generate_random_code(REF_CODE_LENGTH),
         )
+        return order
 
     @staticmethod
     @transaction.atomic
-    def add_selling_order(user: User, serializer: SellingOrderSerializer):
+    def add_selling_order(user: User, serializer: SellingOrderSerializer) -> Order:
         safe_data = serializer.validated_data
         amount = safe_data['amount']
         currency = safe_data['currency']
@@ -97,8 +98,7 @@ class OrderManagement(object):
             fee=check_fee,
             ref_code=generate_random_code(REF_CODE_LENGTH)
         )
-
-        CryptoTransactionManagement.create_tracking_address(order)
+        return order
 
     @staticmethod
     @transaction.atomic
@@ -142,13 +142,10 @@ class OrderManagement(object):
                                                                               order.amount)
                 order.tx_hash = tx_hash
                 order.provider_data = provider_data
-
-                CryptoTransactionManagement.create_tracking_tx(order,
-                                                               TRACKING_TRANSACTION_DIRECTION.transfer_out)
             else:
                 order.status = ORDER_STATUS.success
 
-            order.save()
+            order.save(update_fields=['status', 'updated_at'])
         else:
             raise InvalidOrderStatusException
 

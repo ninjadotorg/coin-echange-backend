@@ -25,6 +25,9 @@ def make_request(uri: str, params=None):
 def get_address(address: str) -> AddressResponse:
     resp = make_request('module=account&action=txlist&address={}&sort=asc'.format(address))
     data = resp.json()
+    if data['status'] != '1':
+        raise ExternalAPIException
+
     addr_obj = AddressResponse(address,
                                None,
                                tx_hashes=list(map(lambda item: item['hash'], data['result'])),

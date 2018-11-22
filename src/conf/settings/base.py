@@ -202,7 +202,8 @@ sentry_logging = LoggingIntegration(
 EMAIL_FROM_NAME = 'Coin Exchange'
 EMAIL_FROM_ADDRESS = "cash@shake.ninja"
 
-FRONTEND_HOST = 'https://staging.ninja.org'
+FRONTEND_HOST = 'http://staging.coinbowl.com'
+EXCHANGE_API = 'http://localhost:8000/api/exchange'
 
 COINBASE = {
     'API_KEY': 'SomeKey',
