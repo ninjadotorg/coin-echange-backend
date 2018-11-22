@@ -65,11 +65,8 @@ class ContactTests(APITestCase):
         contact = ContactFactory(user=self.user)
         url = reverse('user:contact-detail', kwargs={'pk': contact.id})
 
-        response = self.client.put(url, data={
+        response = self.client.patch(url, data={
             'name': 'Contact',
-            'email': 'contact@contact.com',
-            'phone_number': '1234567890',
-            'description': 'Some description',
         }, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)

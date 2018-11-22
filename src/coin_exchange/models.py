@@ -36,6 +36,7 @@ class Order(TimestampedModel):
 
     def format_amount(self):
         return '{:.6f}'.format(self.amount)
+
     format_amount.short_description = 'Amount'
 
     def reject(self):
@@ -86,8 +87,8 @@ class TrackingAddress(TimestampedModel):
     class Meta:
         unique_together = ('user', 'address', 'currency')
 
-    user = models.ForeignKey(ExchangeUser, related_name='user_addresses', on_delete=models.PROTECT)
-    order = models.OneToOneField(Order, related_name='order_address', on_delete=models.PROTECT, null=True, blank=True)
+    user = models.ForeignKey(ExchangeUser, related_name='user_addresses', on_delete=models.CASCADE)
+    order = models.OneToOneField(Order, related_name='order_address', on_delete=models.CASCADE, null=True, blank=True)
     address = model_fields.CryptoHashField()
     currency = model_fields.CurrencyField()
     status = models.CharField(max_length=20, choices=TRACKING_ADDRESS_STATUS, default=TRACKING_ADDRESS_STATUS.created)
@@ -99,10 +100,13 @@ class TrackingTransaction(TimestampedModel):
 
     tx_hash = model_fields.CryptoHashField()
     currency = model_fields.CurrencyField()
-    order = models.OneToOneField(Order, related_name='order_tx_hashes', on_delete=models.PROTECT, null=True, blank=True)
+    order = models.OneToOneField(Order, related_name='order_tx_hashes', on_delete=models.CASCADE, null=True, blank=True)
     status = models.CharField(max_length=20, choices=TRACKING_TRANSACTION_STATUS,
                               default=TRACKING_TRANSACTION_STATUS.pending)
     direction = models.CharField(max_length=5, choices=TRACKING_TRANSACTION_DIRECTION)
+    tracking_address = models.ForeignKey(TrackingAddress, related_name='address_transactions', null=True, blank=True,
+                                         on_delete=models.CASCADE)
+    to_address = model_fields.CryptoHashField(blank=True)
 
 
 class Review(TimestampedModel):

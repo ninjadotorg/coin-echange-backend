@@ -30,9 +30,9 @@ class ProfileView(APIView):
         obj = ExchangeUser.objects.get(user=request.user)
         return Response(ExchangeUserSerializer(instance=obj).data)
 
-    def put(self, request):
+    def patch(self, request):
         obj = ExchangeUser.objects.get(user=request.user)
-        serializer = ExchangeUserProfileSerializer(instance=obj, data=request.data)
+        serializer = ExchangeUserProfileSerializer(instance=obj, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         obj = serializer.save()
         User.objects.filter(pk=obj.user.pk).update(first_name=serializer.validated_data['first_name'],

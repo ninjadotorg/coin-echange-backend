@@ -27,17 +27,17 @@ class ExchangeUserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExchangeUser
         fields = ('phone_number', 'language', 'country', 'currency',
-                  'first_name', 'last_name')
-        extra_kwargs = {
-            'language': {'required': True},
-            'country': {'required': True},
-            'currency': {'required': True},
-            'first_name': {'required': True},
-            'last_name': {'required': True},
-        }
+                  'first_name', 'last_name', 'name')
+        # extra_kwargs = {
+        #     'language': {'required': True},
+        #     'country': {'required': True},
+        #     'currency': {'required': True},
+        #     'first_name': {'required': True},
+        #     'last_name': {'required': True},
+        # }
 
-    first_name = serializers.CharField()
-    last_name = serializers.CharField()
+    first_name = serializers.CharField(source='user.first_name')
+    last_name = serializers.CharField(source='user.last_name')
 
 
 class ExchangeUserIDVerificationSerializer(serializers.ModelSerializer):

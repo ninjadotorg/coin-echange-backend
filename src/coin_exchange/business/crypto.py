@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 from django.conf import settings
+from django.db.models import Q
 
 from coin_exchange.constants import TRACKING_ADDRESS_STATUS
 from coin_exchange.models import TrackingAddress, Order, TrackingTransaction
@@ -110,3 +111,8 @@ class TrackingManagement(object):
             return etherscan.get_transaction(tx_hash)
         if currency == CURRENCY.BTC:
             return bitpay.get_btc_transaction(tx_hash)
+
+    @staticmethod
+    def remove_tracking(order: Order):
+        TrackingTransaction.objects.filter(Q(order=order) | Q(address=order.order_address)).delete()
+        TrackingAddress.objects.filter(order=order).delete()
