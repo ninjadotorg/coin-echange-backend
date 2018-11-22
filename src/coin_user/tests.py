@@ -57,6 +57,10 @@ class SignUpTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 
+class VerificationTests(APITestCase):
+    pass
+
+
 class ContactTests(APITestCase):
     def setUp(self):
         self.auth_utils = AuthenticationUtils(self.client)

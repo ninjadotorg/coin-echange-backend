@@ -5,7 +5,7 @@ from django.conf import settings
 
 from common.decorators import raise_api_exception
 from integration.exceptions import ExternalAPIException
-from integration.objects import AddressResponse, TransactionResponse
+from integration.objects import AddressResponse, TransactionResponse, BTCTransactionResponse
 
 
 @raise_api_exception(ExternalAPIException)
@@ -34,8 +34,8 @@ def get_btc_address(address: str) -> AddressResponse:
 def get_btc_transaction(tx_hash: str) -> TransactionResponse:
     resp = make_bitpay_btc_request('/tx/{}'.format(tx_hash))
     data = resp.json()
-    tx_obj = TransactionResponse(data['txid'],
-                                 data['valueOut'],
-                                 data['confirmations'])
+    tx_obj = BTCTransactionResponse(data['txid'],
+                                    data['valueOut'],
+                                    data['confirmations'])
 
     return tx_obj

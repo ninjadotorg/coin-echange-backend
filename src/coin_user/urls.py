@@ -17,7 +17,7 @@ patterns = ([
     path('verify-phone/', VerifyPhoneView.as_view(), name='verify-phone'),
     path('verify-id/', VerifyIDView.as_view(), name='verify-id'),
     path('verify-selfie/', VerifySelfieView.as_view(), name='verify-selfie'),
-    path('forgot-password/', ForgotPasswordView.as_view(), name='reset-password'),
+    path('forgot-password/', ForgotPasswordView.as_view(), name='forgot-password'),
     path('change-password/', ChangePasswordView.as_view(), name='change-password'),
 ], 'user')
 

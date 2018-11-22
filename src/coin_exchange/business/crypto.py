@@ -3,7 +3,8 @@ from decimal import Decimal
 from django.conf import settings
 from django.db.models import Q
 
-from coin_exchange.constants import TRACKING_ADDRESS_STATUS
+from coin_exchange.constants import TRACKING_ADDRESS_STATUS, TRACKING_TRANSACTION_STATUS, \
+    TRACKING_TRANSACTION_DIRECTION, ORDER_STATUS
 from coin_exchange.models import TrackingAddress, Order, TrackingTransaction
 from coin_user.models import ExchangeUser
 from common.constants import CURRENCY
@@ -90,7 +91,23 @@ class TrackingManagement(object):
 
     @staticmethod
     def track_system_transaction(pk: int):
-        pass
+        obj = TrackingTransaction.objects.get(id=pk)
+        resp = TrackingManagement.track_network_transaction(obj.tx_hash, obj.currency)
+        if resp.check_pending():
+            obj.status = TRACKING_TRANSACTION_STATUS.pending
+        else:
+            if resp.check_success():
+                obj.status = TRACKING_TRANSACTION_STATUS.success
+            else:
+                obj.status = TRACKING_TRANSACTION_STATUS.failed
+
+        if obj.direction == TRACKING_TRANSACTION_DIRECTION.transfer_out:
+            order = obj.order
+            if order:
+                order.status = ORDER_STATUS.success
+                order.save(update_fields=['status', 'updated_at'])
+        else:
+            pass
 
     @staticmethod
     def track_network_address(address: str, currency: str) -> AddressResponse:
@@ -103,9 +120,9 @@ class TrackingManagement(object):
             return bitpay.get_btc_address(address)
 
     @staticmethod
-    def track_network_transaction(tx_hash: str, currency: str):
+    def track_network_transaction(tx_hash: str, currency: str) -> TransactionResponse:
         if settings.TEST:
-            return TransactionResponse(tx_hash, Decimal('0'), is_pending=True, is_success=True)
+            return TransactionResponse(tx_hash, Decimal('0'), is_pending=False, is_success=True)
 
         if currency == CURRENCY.ETH:
             return etherscan.get_transaction(tx_hash)
@@ -114,5 +131,9 @@ class TrackingManagement(object):
 
     @staticmethod
     def remove_tracking(order: Order):
-        TrackingTransaction.objects.filter(Q(order=order) | Q(address=order.order_address)).delete()
+        TrackingTransaction.objects.filter(Q(order=order) | Q(address__iexact=order.order_address)).delete()
         TrackingAddress.objects.filter(order=order).delete()
+
+    @staticmethod
+    def remove_transaction_tracking(tx_hash: str):
+        TrackingTransaction.objects.filter(tx_hash__iexact=tx_hash).delete()

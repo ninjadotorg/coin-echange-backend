@@ -5,7 +5,7 @@ from django.conf import settings
 
 from common.decorators import raise_api_exception
 from integration.exceptions import ExternalAPIException
-from integration.objects import AddressResponse, TransactionResponse
+from integration.objects import AddressResponse, TransactionResponse, ETHTransactionResponse
 
 WEI = Decimal('1000000000000000000')
 
@@ -62,4 +62,4 @@ def get_transaction(tx_hash: str) -> TransactionResponse:
     if not is_pending:
         is_success = gas < gas_used
 
-    return TransactionResponse(tx_hash, value, is_pending=is_pending, is_success=is_success)
+    return ETHTransactionResponse(tx_hash, value, is_pending=is_pending, is_success=is_success)

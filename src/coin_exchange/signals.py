@@ -1,3 +1,5 @@
+import logging
+
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
@@ -8,6 +10,7 @@ from coin_exchange.constants import ORDER_STATUS
 from coin_exchange.models import Order
 from coin_user.constants import VERIFICATION_STATUS
 from coin_user.models import ExchangeUser
+from common.constants import DIRECTION
 
 
 @receiver(post_save, sender=ExchangeUser)
@@ -34,3 +37,10 @@ def post_save_order(sender, **kwargs):
                 OrderManagement.decrease_limit(order.user, order.amount, order.currency, order.direction,
                                                order.fiat_local_amount, order.fiat_local_currency)
                 TrackingManagement.remove_tracking(order)
+            if order.direction == DIRECTION.buy and order.status == ORDER_STATUS.success:
+                TrackingManagement.remove_tracking(order)
+                try:
+                    # TODO Send notification
+                    pass
+                except Exception as ex:
+                    logging.exception(ex)
