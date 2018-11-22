@@ -1,8 +1,11 @@
 import logging
 
 from django.contrib.auth.models import User
+from django.core.cache import cache
 from django.db import transaction
 from rest_framework import status
+from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -15,9 +18,10 @@ from coin_user.exceptions import InvalidVerificationException, AlreadyVerifiedEx
     ExistedEmailException
 from coin_user.models import ExchangeUser
 from coin_user.serializers import SignUpSerializer, ExchangeUserSerializer, ExchangeUserProfileSerializer, \
-    ExchangeUserIDVerificationSerializer, ExchangeUserSelfieVerificationSerializer
+    ExchangeUserIDVerificationSerializer, ExchangeUserSelfieVerificationSerializer, UserSerializer, \
+    ResetPasswordSerializer, ChangePasswordSerializer
 from common.business import generate_random_code, generate_random_digit
-from common.constants import DIRECTION_ALL
+from common.constants import DIRECTION_ALL, CACHE_KEY_FORGOT_PASSWORD
 from common.exceptions import InvalidDataException
 from notification.email import EmailNotification
 from notification.sms import SmsNotification
@@ -31,12 +35,14 @@ class ProfileView(APIView):
         return Response(ExchangeUserSerializer(instance=obj).data)
 
     def patch(self, request):
-        obj = ExchangeUser.objects.get(user=request.user)
+        obj = ExchangeUser.objects.select_related('user').get(user=request.user)
         serializer = ExchangeUserProfileSerializer(instance=obj, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
+        user_serializer = UserSerializer(instance=obj.user, data=request.data, partial=True)
+        user_serializer.is_valid(raise_exception=True)
+
         obj = serializer.save()
-        User.objects.filter(pk=obj.user.pk).update(first_name=serializer.validated_data['first_name'],
-                                                   last_name=serializer.validated_data['last_name'])
+        user_serializer.save()
 
         return Response(ExchangeUserSerializer(instance=obj).data)
 
@@ -256,3 +262,52 @@ class VerifyPhoneView(APIView):
                                           SMS_PURPOSE.phone_verification,
                                           user.language,
                                           {'code': user.phone_verification_code})
+
+
+class ForgotPasswordView(APIView):
+    def post(self, request, format=None):
+        data = request.data
+        email = data.get('email')
+        if not email:
+            raise ValidationError
+
+        try:
+            obj = ExchangeUser.objects.select_related('user').get(user__email=email)
+            code = generate_random_code(36)
+            cache.set(CACHE_KEY_FORGOT_PASSWORD.format(code), obj.user.username, timeout=5 * 60)  # Valid in 5 minutes
+
+            EmailNotification.send_email_template(obj.user.email,
+                                                  EMAIL_PURPOSE.forgot_password,
+                                                  obj.language,
+                                                  {'code': code})
+        except Exception as ex:
+            logging.exception(ex)
+
+        return Response(True)
+
+    @action(detail=False, methods=['post'])
+    def reset(self, request):
+        serializer = ResetPasswordSerializer(data=request.data)
+        serializer.is_valid(True)
+        token = serializer.validated_data['token']
+        username = cache.get(CACHE_KEY_FORGOT_PASSWORD.format(token))
+        user = User.objects.get(username=username)
+        user.set_password(serializer.validated_data['password'])
+        user.check_password()
+
+        return Response(True)
+
+
+class ChangePasswordView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request, format=None):
+        serializer = ChangePasswordSerializer(data=request.data)
+        serializer.is_valid(True)
+
+        user = request.user
+        if user.check_password(serializer.validated_data['old_password']):
+            user.set_password(serializer.validated_data['password'])
+            return Response(True)
+
+        return Response(status=status.HTTP_401_UNAUTHORIZED)

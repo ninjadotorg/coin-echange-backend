@@ -1,7 +1,14 @@
+from django.contrib.auth.models import User
 from rest_framework import serializers
 
 from coin_user.models import ExchangeUser, Contact
 from common import serializer_fields
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('first_name', 'last_name')
 
 
 class SignUpSerializer(serializers.Serializer):
@@ -32,12 +39,12 @@ class ExchangeUserProfileSerializer(serializers.ModelSerializer):
         #     'language': {'required': True},
         #     'country': {'required': True},
         #     'currency': {'required': True},
-        #     'first_name': {'required': True},
-        #     'last_name': {'required': True},
+        #     'first_name': {'write_only': True},
+        #     'last_name': {'write_only': True},
         # }
 
-    first_name = serializers.CharField(source='user.first_name')
-    last_name = serializers.CharField(source='user.last_name')
+    first_name = serializers.CharField()
+    last_name = serializers.CharField()
 
 
 class ExchangeUserIDVerificationSerializer(serializers.ModelSerializer):
@@ -66,3 +73,13 @@ class ContactSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contact
         exclude = ('user', )
+
+
+class ResetPasswordSerializer(serializers.Serializer):
+    token = serializers.CharField(write_only=True)
+    password = serializers.CharField(min_length=8, write_only=True)
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(min_length=8, write_only=True)
+    password = serializers.CharField(min_length=8, write_only=True)

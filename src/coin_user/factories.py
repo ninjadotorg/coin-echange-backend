@@ -18,6 +18,7 @@ class ExchangeUserFactory(factory.django.DjangoModelFactory):
     user = factory.SubFactory(DjangoUserFactory)
     country = factory.Iterator([COUNTRY.KH, COUNTRY.ID])
     language = factory.Iterator([LANGUAGE.km, LANGUAGE.en])
+    name = factory.Sequence(lambda n: "ExchangeUser%03d" % n)
 
 
 class ContactFactory(factory.django.DjangoModelFactory):

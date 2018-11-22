@@ -23,6 +23,8 @@ class AuthenticationUtils(object):
         user = User.objects.create_user(
             username=username if username else self.username,
             password=self.password,
+            first_name='First',
+            last_name='Last',
         )
         exchange_user = ExchangeUserFactory(user=user, currency=FIAT_CURRENCY.PHP)
 

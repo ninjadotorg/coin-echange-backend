@@ -1,6 +1,7 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+from coin_exchange.business.crypto import TrackingManagement
 from coin_exchange.business.order import OrderManagement
 from coin_exchange.business.user_limit import update_limit_by_level
 from coin_exchange.constants import ORDER_STATUS
@@ -32,3 +33,4 @@ def post_save_order(sender, **kwargs):
             if order.status in [ORDER_STATUS.expired, ORDER_STATUS.cancelled, ORDER_STATUS.rejected]:
                 OrderManagement.decrease_limit(order.user, order.amount, order.currency, order.direction,
                                                order.fiat_local_amount, order.fiat_local_currency)
+                TrackingManagement.remove_tracking(order)
