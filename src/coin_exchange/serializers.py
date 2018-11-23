@@ -70,5 +70,7 @@ class SellingOrderSerializer(serializers.ModelSerializer):
 class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
-        fields = ('review', 'order')
+        fields = ('name', 'review', 'order')
         extra_kwargs = {'order': {'write_only': True}}
+
+    name = serializers.CharField(source='user.name', read_only=True)

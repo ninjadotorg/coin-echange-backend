@@ -3,7 +3,6 @@ import string
 from decimal import Decimal
 from typing import List
 
-import coinaddr
 from django.core.cache import cache
 from django.utils import timezone
 
@@ -78,8 +77,10 @@ def view_serializer_fields(fields: List[str], serializer_data: dict) -> dict:
 
 
 def validate_crypto_address(currency: str, address: str) -> bool:
-    result = coinaddr.validate(currency.lower(), address)
-    return result.valid
+    # result = coinaddr.validate(currency.lower(), address)
+    # return result.valid
+    # TODO need to check here
+    return True
 
 
 def get_now():

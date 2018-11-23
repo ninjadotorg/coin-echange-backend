@@ -295,7 +295,7 @@ class ResetPasswordView(APIView):
         username = cache.get(CACHE_KEY_FORGOT_PASSWORD.format(token))
         user = User.objects.get(username=username)
         user.set_password(serializer.validated_data['password'])
-        user.check_password()
+        user.save()
 
         return Response(True)
 
