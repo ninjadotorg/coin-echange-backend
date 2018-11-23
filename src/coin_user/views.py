@@ -278,7 +278,9 @@ class ForgotPasswordView(APIView):
             EmailNotification.send_email_template(obj.user.email,
                                                   EMAIL_PURPOSE.forgot_password,
                                                   obj.language,
-                                                  {'code': code})
+                                                  {'code': code,
+                                                   'email': email,
+                                                   'name': obj.user.get_full_name()})
         except Exception as ex:
             logging.exception(ex)
 
