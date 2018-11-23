@@ -60,15 +60,15 @@ class CryptoTransactionManagement(object):
 class TrackingManagement(object):
     @staticmethod
     @transaction.atomic
-    def create_tracking_address(order: Order,
-                                add_payment: bool = True) -> TrackingAddress:
-        obj = TrackingAddress.objects.create(
+    def add_tracking_address_payment(order: Order,
+                                     add_payment: bool = True) -> TrackingAddress:
+        obj = TrackingAddress.objects.get(
             user=order.user,
-            order=order,
-            currency=order.currency,
             address=order.address,
-            status=TRACKING_ADDRESS_STATUS.has_order
-        )
+            currency=order.currency)
+        obj.status = TRACKING_ADDRESS_STATUS.has_order
+        obj.save(update_fields=['status', ])
+
         if add_payment and order.direction == DIRECTION.sell:
             SellingPayment.objects.create(
                 address=order.address,

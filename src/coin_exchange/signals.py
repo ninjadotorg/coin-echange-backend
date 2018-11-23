@@ -32,7 +32,7 @@ def post_save_order(sender, **kwargs):
         OrderManagement.increase_limit(order.user, order.amount, order.currency, order.direction,
                                        order.fiat_local_amount, order.fiat_local_currency)
         if order.direction == DIRECTION.sell:
-            TrackingManagement.create_tracking_address(order)
+            TrackingManagement.add_tracking_address_payment(order)
     else:
         update_fields = kwargs['update_fields']
         if update_fields and 'status' in update_fields:
