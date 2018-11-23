@@ -69,9 +69,9 @@ class PoolAdmin(admin.ModelAdmin):
 
 @admin.register(TrackingAddress)
 class TrackingAddressAdmin(admin.ModelAdmin):
-    list_display = ['address', 'currency', 'status', 'order']
+    list_display = ['user', 'address', 'currency', 'status', 'order']
 
 
 @admin.register(TrackingTransaction)
 class TrackingTransactionAdmin(admin.ModelAdmin):
-    list_display = ['tx_hash', 'currency', 'order', 'direction']
+    list_display = ['tx_hash', 'currency', 'status', 'order', 'direction']
