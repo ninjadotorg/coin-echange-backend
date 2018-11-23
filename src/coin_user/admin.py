@@ -112,6 +112,9 @@ class ExchangeUserAdmin(admin.ModelAdmin):
         if obj.verification_status == VERIFICATION_STATUS.processing:
             return self._get_approve_button(obj) + format_html('&nbsp;') + self._get_reject_button(obj)
 
+    user_actions.short_description = 'Actions'
+    user_actions.allow_tags = True
+
     def _get_process_button(self, obj):
         return format_html(
             '<a class="button" href="{}?{}">Process</a>',
@@ -139,6 +142,3 @@ class ExchangeUserAdmin(admin.ModelAdmin):
             <img src="{}" width="75" height="75" />
         </a>
         ''', image_url, image_url) if image_url else ''
-
-    user_actions.short_description = 'Actions'
-    user_actions.allow_tags = True

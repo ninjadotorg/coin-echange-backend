@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from coin_exchange.constants import ORDER_TYPE
-from coin_exchange.models import Order, Review, Pool
+from coin_exchange.models import Order, Review, Pool, TrackingAddress, TrackingTransaction
 from common.constants import DIRECTION
 
 
@@ -65,3 +65,13 @@ class PoolAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+
+@admin.register(TrackingAddress)
+class TrackingAddressAdmin(admin.ModelAdmin):
+    list_display = ['address', 'currency', 'status', 'order']
+
+
+@admin.register(TrackingTransaction)
+class TrackingTransactionAdmin(admin.ModelAdmin):
+    list_display = ['tx_hash', 'currency', 'order', 'direction']
