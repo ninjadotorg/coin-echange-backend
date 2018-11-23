@@ -62,12 +62,21 @@ class TrackingManagement(object):
     @transaction.atomic
     def add_tracking_address_payment(order: Order,
                                      add_payment: bool = True) -> TrackingAddress:
-        obj = TrackingAddress.objects.get(
+        obj = TrackingAddress.objects.filter(
             user=order.user,
             address=order.address,
-            currency=order.currency)
-        obj.status = TRACKING_ADDRESS_STATUS.has_order
-        obj.save(update_fields=['status', ])
+            currency=order.currency).first()
+        if not obj:
+            obj = TrackingAddress.objects.create(
+                user=order.user,
+                order=order,
+                currency=order.currency,
+                address=order.address,
+                status=TRACKING_ADDRESS_STATUS.has_order
+            )
+        else:
+            obj.status = TRACKING_ADDRESS_STATUS.has_order
+            obj.save(update_fields=['status', ])
 
         if add_payment and order.direction == DIRECTION.sell:
             SellingPayment.objects.create(
@@ -150,7 +159,7 @@ class TrackingManagement(object):
                 order.save(update_fields=['status', 'updated_at'])
         else:
             if obj.status == TRACKING_TRANSACTION_STATUS.success:
-                payment = SellingPayment.objects.select_related('order')\
+                payment = SellingPayment.objects.select_related('order') \
                     .get(address__iexact=obj.tracking_address.address)
                 SellingPaymentDetail.objects.create(
                     payment=payment,
