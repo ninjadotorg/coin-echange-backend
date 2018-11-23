@@ -308,6 +308,7 @@ class ChangePasswordView(APIView):
         user = request.user
         if user.check_password(serializer.validated_data['old_password']):
             user.set_password(serializer.validated_data['password'])
+            user.save()
             return Response(True)
 
         return Response(status=status.HTTP_401_UNAUTHORIZED)
