@@ -1,0 +1,17 @@
+{% if widget.payment_details %}
+    <div style="margin-left: 170px;">
+        <table>
+            {% for item in widget.payment_details %}
+            <tr>
+                <td><a href="{{ widget.value|stringformat:'s' }}{{ item.tx_hash|stringformat:'s' }}"
+                   target="_blank">{{ item.tx_hash|stringformat:'s' }}</a></td>
+                <td>{{ item.amount|stringformat:'.6f' }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+{% else %}
+    <p>
+        <a href="{{ widget.value|stringformat:'s' }}" target="_blank">{{ widget.raw_value|stringformat:'s' }}</a>
+    </p>
+{% endif %}

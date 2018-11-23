@@ -5,7 +5,7 @@ from django.shortcuts import redirect
 from django.urls import reverse, path
 from django.utils.html import format_html
 
-from coin_exchange.admin_views import custom_order_view
+from coin_exchange.admin_views import custom_order_view, custom_order_cod_view, custom_selling_order_view
 from coin_exchange.constants import ORDER_TYPE, ORDER_STATUS
 from coin_exchange.models import Order, Review, Pool, TrackingAddress, TrackingTransaction
 from common.constants import DIRECTION
@@ -68,9 +68,10 @@ class OrderAdmin(BaseOrderAdmin):
         return False
 
     def user_actions(self, obj):
-        return self.create_button(obj, 'View', 'admin:custom-order-view') + \
-               format_html('&nbsp;') + \
-               self.create_button(obj, 'Process', 'admin:custom-order-process')
+        process_button_html = format_html('')
+        if obj.status in [ORDER_STATUS.fiat_transferring, ORDER_STATUS.processing]:
+            process_button_html = self.create_button(obj, 'Process', 'admin:custom-order-process')
+        return self.create_button(obj, 'View', 'admin:custom-order-view') + format_html('&nbsp;') + process_button_html
 
     user_actions.short_description = 'Actions'
     user_actions.allow_tags = True
@@ -113,9 +114,12 @@ class CODOrderAdmin(BaseOrderAdmin):
         return False
 
     def user_actions(self, obj):
-        return self.create_button(obj, 'View', 'admin:custom-order-view') + \
-               format_html('&nbsp;') + \
-               self.create_button(obj, 'Process', 'admin:custom-order-process')
+        process_button_html = format_html('')
+        if obj.status in [ORDER_STATUS.pending, ORDER_STATUS.processing]:
+            process_button_html = self.create_button(obj, 'Process', 'admin:custom-order-cod-process')
+
+        return self.create_button(obj, 'View', 'admin:custom-order-cod-view') + \
+            format_html('&nbsp;') + process_button_html
 
     user_actions.short_description = 'Actions'
     user_actions.allow_tags = True
@@ -123,20 +127,20 @@ class CODOrderAdmin(BaseOrderAdmin):
     def get_urls(self):
         urls = super().get_urls()
         custom_urls = [
-            path('order-view/<int:pk>',
+            path('order-cod-view/<int:pk>',
                  self.admin_site.admin_view(self.order_view),
-                 name='custom-order-view'),
-            path('order-process/<int:pk>',
+                 name='custom-order-cod-view'),
+            path('order-cod-process/<int:pk>',
                  self.admin_site.admin_view(self.order_process),
-                 name='custom-order-process'),
+                 name='custom-order-cod-process'),
         ]
         return custom_urls + urls
 
     def order_view(self, request, pk, *args, **kwargs):
-        return custom_order_view(self, request, pk, 'View Bank Order', True)
+        return custom_order_cod_view(self, request, pk, 'View COD Order', True)
 
     def order_process(self, request, pk, *args, **kwargs):
-        return custom_order_view(self, request, pk, 'Process Bank Order', False)
+        return custom_order_cod_view(self, request, pk, 'Process COD Order', False)
 
 
 class SellingOrder(Order):
@@ -158,9 +162,12 @@ class SellingOrderAdmin(BaseOrderAdmin):
         return False
 
     def user_actions(self, obj):
-        return self.create_button(obj, 'View', 'admin:custom-order-view') + \
-               format_html('&nbsp;') + \
-               self.create_button(obj, 'Process', 'admin:custom-order-process')
+        process_button_html = format_html('')
+        if obj.status in [ORDER_STATUS.transferred, ORDER_STATUS.processing]:
+            process_button_html = self.create_button(obj, 'Process', 'admin:custom-selling-order-process')
+
+        return self.create_button(obj, 'View', 'admin:custom-selling-order-view') + \
+            format_html('&nbsp;') + process_button_html
 
     user_actions.short_description = 'Actions'
     user_actions.allow_tags = True
@@ -168,20 +175,20 @@ class SellingOrderAdmin(BaseOrderAdmin):
     def get_urls(self):
         urls = super().get_urls()
         custom_urls = [
-            path('order-view/<int:pk>',
+            path('selling-order-view/<int:pk>',
                  self.admin_site.admin_view(self.order_view),
-                 name='custom-order-view'),
-            path('order-process/<int:pk>',
+                 name='custom-selling-order-view'),
+            path('selling-order-process/<int:pk>',
                  self.admin_site.admin_view(self.order_process),
-                 name='custom-order-process'),
+                 name='custom-selling-order-process'),
         ]
         return custom_urls + urls
 
     def order_view(self, request, pk, *args, **kwargs):
-        return custom_order_view(self, request, pk, 'View Bank Order', True)
+        return custom_selling_order_view(self, request, pk, 'View Selling Order', True)
 
     def order_process(self, request, pk, *args, **kwargs):
-        return custom_order_view(self, request, pk, 'Process Bank Order', False)
+        return custom_selling_order_view(self, request, pk, 'Process Selling Order', False)
 
 
 @admin.register(Review)
