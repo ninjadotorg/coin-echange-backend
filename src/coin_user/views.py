@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.db import transaction
 from rest_framework import status
-from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -285,8 +284,9 @@ class ForgotPasswordView(APIView):
 
         return Response(True)
 
-    @action(detail=False, methods=['post'])
-    def reset(self, request):
+
+class ResetPasswordView(APIView):
+    def post(self, request, format=None):
         serializer = ResetPasswordSerializer(data=request.data)
         serializer.is_valid(True)
         token = serializer.validated_data['token']
