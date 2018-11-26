@@ -14,7 +14,7 @@ from coin_system.constants import EMAIL_PURPOSE, SMS_PURPOSE
 from coin_system.models import CountryDefaultConfig
 from coin_user.constants import VERIFICATION_LEVEL, VERIFICATION_STATUS
 from coin_user.exceptions import InvalidVerificationException, AlreadyVerifiedException, NotReadyToVerifyException, \
-    ExistedEmailException
+    ExistedEmailException, ResetPasswordExpiredException
 from coin_user.models import ExchangeUser
 from coin_user.serializers import SignUpSerializer, ExchangeUserSerializer, ExchangeUserProfileSerializer, \
     ExchangeUserIDVerificationSerializer, ExchangeUserSelfieVerificationSerializer, UserSerializer, \
@@ -273,7 +273,7 @@ class ForgotPasswordView(APIView):
         try:
             obj = ExchangeUser.objects.select_related('user').get(user__email=email)
             code = generate_random_code(36)
-            cache.set(CACHE_KEY_FORGOT_PASSWORD.format(code), obj.user.username, timeout=5 * 60)  # Valid in 5 minutes
+            cache.set(CACHE_KEY_FORGOT_PASSWORD.format(code), obj.user.username, timeout=15 * 60)  # Valid in 15 minutes
 
             EmailNotification.send_email_template(obj.user.email,
                                                   EMAIL_PURPOSE.forgot_password,
@@ -293,11 +293,14 @@ class ResetPasswordView(APIView):
         serializer.is_valid(True)
         token = serializer.validated_data['token']
         username = cache.get(CACHE_KEY_FORGOT_PASSWORD.format(token))
-        user = User.objects.get(username=username)
-        user.set_password(serializer.validated_data['password'])
-        user.save()
+        if username:
+            user = User.objects.get(username=username)
+            user.set_password(serializer.validated_data['password'])
+            user.save()
 
-        return Response(True)
+            return Response(True)
+        else:
+            raise ResetPasswordExpiredException
 
 
 class ChangePasswordView(APIView):
