@@ -22,8 +22,8 @@ class SignUpSerializer(serializers.Serializer):
 class ExchangeUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExchangeUser
-        exclude = ('id', 'user', 'email_verification_code', 'phone_verification_code')
-        read_only_fields = ('verification_level', 'verification_status')
+        exclude = ('id', 'user', 'email_verification_code', 'phone_verification_code', 'security_2fa_secret')
+        read_only_fields = ('verification_level', 'verification_status', 'security_2fa')
 
     email = serializers.CharField(source='user.email')
     first_name = serializers.CharField(source='user.first_name')
@@ -34,8 +34,7 @@ class ExchangeUserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExchangeUser
         fields = ('phone_number', 'language', 'country', 'currency',
-                  'first_name', 'last_name', 'name',
-                  'security_2fa')
+                  'first_name', 'last_name', 'name')
 
     first_name = serializers.CharField()
     last_name = serializers.CharField()
