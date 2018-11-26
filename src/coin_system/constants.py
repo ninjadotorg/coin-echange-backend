@@ -29,6 +29,18 @@ NOTIFICATION_TARGET = Choices(
     ('system', 'System'),
 )
 
+NOTIFICATION_METHOD = Choices(
+    ('email', 'Email'),
+    ('slack', 'Slack'),
+    ('sms', 'SMS'),
+    ('call', 'Call'),
+)
+
+NOTIFICATION_GROUP = Choices(
+    ('verification', 'Verification'),
+    ('order', 'Order'),
+)
+
 CACHE_KEY_CONFIG = 'system_config.{}'
 CACHE_KEY_FEE = 'system_fee.{}'
 CACHE_KEY_COUNTRY_DEFAULT = 'system_country_default.{}'

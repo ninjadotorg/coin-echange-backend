@@ -1,5 +1,7 @@
 import logging
 
+import pyotp
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.db import transaction
@@ -14,7 +16,7 @@ from coin_system.constants import EMAIL_PURPOSE, SMS_PURPOSE
 from coin_system.models import CountryDefaultConfig
 from coin_user.constants import VERIFICATION_LEVEL, VERIFICATION_STATUS
 from coin_user.exceptions import InvalidVerificationException, AlreadyVerifiedException, NotReadyToVerifyException, \
-    ExistedEmailException, ResetPasswordExpiredException
+    ExistedEmailException, ResetPasswordExpiredException, InvalidPasswordException
 from coin_user.models import ExchangeUser
 from coin_user.serializers import SignUpSerializer, ExchangeUserSerializer, ExchangeUserProfileSerializer, \
     ExchangeUserIDVerificationSerializer, ExchangeUserSelfieVerificationSerializer, UserSerializer, \
@@ -40,7 +42,13 @@ class ProfileView(APIView):
         user_serializer = UserSerializer(instance=obj.user, data=request.data, partial=True)
         user_serializer.is_valid(raise_exception=True)
 
-        obj = serializer.save()
+        security_2fa_secret = ''
+        if serializer.validated_data.get('security_2fa'):
+            security_2fa_secret = serializer.validated_data.get('security_2fa_secret')
+            if not security_2fa_secret:
+                raise ValidationError
+
+        obj = serializer.save(security_2fa_secret=security_2fa_secret)
         user_serializer.save()
 
         return Response(ExchangeUserSerializer(instance=obj).data)
@@ -316,4 +324,30 @@ class ChangePasswordView(APIView):
             user.save()
             return Response(True)
 
-        return Response(status=status.HTTP_401_UNAUTHORIZED)
+        raise InvalidPasswordException
+
+
+class TwoFAView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request, format=None):
+        obj = ExchangeUser.objects.get(user=request.user)
+        secret_code = generate_random_code(16).upper()
+        if not obj.security_2fa:
+            obj.security_2fa_secret = secret_code
+            obj.security_2fa = True
+            obj.save(update_fields=['security_2fa', 'security_2fa_secret', 'updated_at'])
+
+            return Response({'otp': pyotp.totp.TOTP(secret_code).provisioning_uri(
+                settings.EMAIL_FROM_ADDRESS,
+                issuer_name=settings.EMAIL_FROM_NAME)})
+
+        raise ValidationError
+
+    def delete(self, request, format=None):
+        obj = ExchangeUser.objects.get(user=request.user)
+        obj.security_2fa = False
+        obj.security_2fa_secret = False
+        obj.save(update_fields=['security_2fa', 'security_2fa_secret', 'updated_at'])
+
+        return Response(True)

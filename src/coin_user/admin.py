@@ -107,7 +107,8 @@ class ExchangeUserAdmin(admin.ModelAdmin):
         user.reject_verification()
 
     def user_actions(self, obj):
-        if obj.verification_status == VERIFICATION_STATUS.pending:
+        if obj.verification_status == VERIFICATION_STATUS.pending and \
+                obj.verification_level > VERIFICATION_LEVEL.level_2:
             return self._get_process_button(obj)
         if obj.verification_status == VERIFICATION_STATUS.processing:
             return self._get_approve_button(obj) + format_html('&nbsp;') + self._get_reject_button(obj)

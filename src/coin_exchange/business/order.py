@@ -145,7 +145,7 @@ class OrderManagement(object):
             else:
                 order.status = ORDER_STATUS.success
 
-            order.save(update_fields=['status', 'updated_at'])
+            order.save(update_fields=['status', 'tx_hash', 'provider_data', 'updated_at'])
         else:
             raise InvalidOrderStatusException
 

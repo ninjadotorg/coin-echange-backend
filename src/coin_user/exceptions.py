@@ -30,3 +30,9 @@ class ResetPasswordExpiredException(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
     default_detail = 'Reset password token expired'
     default_code = 'reset_password_expired'
+
+
+class InvalidPasswordException(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = 'Invalid password'
+    default_code = 'invalid_password'

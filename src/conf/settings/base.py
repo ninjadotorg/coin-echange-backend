@@ -199,8 +199,8 @@ sentry_logging = LoggingIntegration(
     event_level=logging.ERROR  # Send errors as events
 )
 
-EMAIL_FROM_NAME = 'Coin Exchange'
-EMAIL_FROM_ADDRESS = "cash@shake.ninja"
+EMAIL_FROM_NAME = 'Coinbowl'
+EMAIL_FROM_ADDRESS = "info@coinbowl.com"
 
 FRONTEND_HOST = 'http://staging.coinbowl.com'
 EXCHANGE_API = 'http://localhost:8000/api/exchange'
