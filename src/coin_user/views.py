@@ -16,12 +16,12 @@ from coin_system.constants import EMAIL_PURPOSE, SMS_PURPOSE
 from coin_system.models import CountryDefaultConfig
 from coin_user.constants import VERIFICATION_LEVEL, VERIFICATION_STATUS
 from coin_user.exceptions import InvalidVerificationException, AlreadyVerifiedException, NotReadyToVerifyException, \
-    ExistedEmailException, ResetPasswordExpiredException, InvalidPasswordException
+    ExistedEmailException, ResetPasswordExpiredException, InvalidPasswordException, NotYetVerifiedException
 from coin_user.models import ExchangeUser
 from coin_user.serializers import SignUpSerializer, ExchangeUserSerializer, ExchangeUserProfileSerializer, \
     ExchangeUserIDVerificationSerializer, ExchangeUserSelfieVerificationSerializer, UserSerializer, \
     ResetPasswordSerializer, ChangePasswordSerializer
-from common.business import generate_random_code, generate_random_digit
+from common.business import generate_random_code, generate_random_digit, Is2FA
 from common.constants import DIRECTION_ALL, CACHE_KEY_FORGOT_PASSWORD
 from common.exceptions import InvalidDataException
 from notification.email import EmailNotification
@@ -59,6 +59,7 @@ class VerifyIDView(APIView):
 
     def post(self, request):
         obj = ExchangeUser.objects.get(user=request.user)
+        VerifyIDView.check_last_step_verified(obj)
         VerifyIDView.check_verified(obj)
 
         serializer = ExchangeUserIDVerificationSerializer(instance=obj, data=request.data)
@@ -68,6 +69,12 @@ class VerifyIDView(APIView):
                               verification_status=VERIFICATION_STATUS.pending)
 
         return Response(ExchangeUserSerializer(instance=obj).data)
+
+    @staticmethod
+    def check_last_step_verified(user: ExchangeUser):
+        if user.verification_level < VERIFICATION_LEVEL.level_2 and \
+                user.verification_status != VERIFICATION_STATUS.approved:
+            raise NotYetVerifiedException
 
     @staticmethod
     def check_verified(user: ExchangeUser):
@@ -86,6 +93,7 @@ class VerifySelfieView(APIView):
 
     def post(self, request):
         obj = ExchangeUser.objects.get(user=request.user)
+        VerifySelfieView.check_last_step_verified(obj)
         VerifySelfieView.check_verified(obj)
 
         serializer = ExchangeUserSelfieVerificationSerializer(instance=obj, data=request.data)
@@ -95,6 +103,12 @@ class VerifySelfieView(APIView):
                               verification_status=VERIFICATION_STATUS.pending)
 
         return Response(ExchangeUserSerializer(instance=obj).data)
+
+    @staticmethod
+    def check_last_step_verified(user: ExchangeUser):
+        if user.verification_level < VERIFICATION_LEVEL.level_2 and \
+                user.verification_status != VERIFICATION_STATUS.approved:
+            raise NotYetVerifiedException
 
     @staticmethod
     def check_verified(user: ExchangeUser):
@@ -240,12 +254,19 @@ class VerifyPhoneView(APIView):
     def post(self, request, format=None):
         obj = ExchangeUser.objects.get(user=request.user)
 
+        self.check_last_step_verified(obj)
         self.check_phone_verified(obj)
 
         if obj.phone_number:
             VerifyPhoneView.send_verification_phone(obj)
 
         return Response(ExchangeUserSerializer(instance=obj).data)
+
+    @staticmethod
+    def check_last_step_verified(user: ExchangeUser):
+        if user.verification_level < VERIFICATION_LEVEL.level_1 and \
+                user.verification_status != VERIFICATION_STATUS.approved:
+            raise NotYetVerifiedException
 
     @staticmethod
     def check_phone_verified(user: ExchangeUser):
@@ -336,18 +357,21 @@ class TwoFAView(APIView):
         if not obj.security_2fa:
             obj.security_2fa_secret = secret_code
             obj.security_2fa = True
-            obj.save(update_fields=['security_2fa', 'security_2fa_secret', 'updated_at'])
+            obj.save(update_fields=['security_2fa', 'security_2fa_secret'])
 
             return Response({'otp': pyotp.totp.TOTP(secret_code).provisioning_uri(
                 settings.EMAIL_FROM_ADDRESS,
                 issuer_name=settings.EMAIL_FROM_NAME)})
 
-        raise ValidationError
+        return Response({'detail': 'Already setup'}, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, format=None):
+        if not Is2FA.check(request):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
         obj = ExchangeUser.objects.get(user=request.user)
         obj.security_2fa = False
         obj.security_2fa_secret = False
-        obj.save(update_fields=['security_2fa', 'security_2fa_secret', 'updated_at'])
+        obj.save(update_fields=['security_2fa', 'security_2fa_secret'])
 
         return Response(True)

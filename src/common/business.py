@@ -3,8 +3,10 @@ import string
 from decimal import Decimal
 from typing import List
 
+import pyotp
 from django.core.cache import cache
 from django.utils import timezone
+from rest_framework.permissions import BasePermission
 
 from common.constants import CACHE_KEY_CRYPTO_RATE_CURRENCY_BY_EXCHANGE, CACHE_KEY_CURRENCY_RATE, EXCHANGE_SITE
 from common.exceptions import InvalidDataException
@@ -69,6 +71,24 @@ class RateManagement(object):
     def convert_currency(amount: Decimal, from_currency: str, to_currency: str) -> Decimal:
         amount_usd = RateManagement.convert_from_local_currency(amount, from_currency)
         return RateManagement.convert_to_local_currency(amount_usd, to_currency)
+
+
+class Is2FA(BasePermission):
+    """
+    Allows access only to 2FA users.
+    """
+
+    def has_permission(self, request, view):
+        return self.check(request)
+
+    @staticmethod
+    def check(request):
+        twofa = request.META.get('HTTP_TWOFA')
+        if twofa and request.user.exchange_user.security_2fa:
+            totp = pyotp.TOTP(request.user.exchange_user.security_2fa_secret)
+            return totp.verify(twofa)
+
+        return False
 
 
 def view_serializer_fields(fields: List[str], serializer_data: dict) -> dict:

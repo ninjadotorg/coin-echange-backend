@@ -8,6 +8,12 @@ class InvalidVerificationException(APIException):
     default_code = 'invalid_verification'
 
 
+class NotYetVerifiedException(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = 'Not yet verify previous level'
+    default_code = 'not_yet_verify'
+
+
 class AlreadyVerifiedException(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
     default_detail = 'Already verified'
