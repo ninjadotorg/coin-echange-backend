@@ -35,7 +35,7 @@ class ExchangeUserProfileSerializer(serializers.ModelSerializer):
         model = ExchangeUser
         fields = ('phone_number', 'language', 'country', 'currency',
                   'first_name', 'last_name', 'name',
-                  'security_2fa', 'security_2fa_secret')
+                  'security_2fa')
 
     first_name = serializers.CharField()
     last_name = serializers.CharField()

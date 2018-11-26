@@ -42,13 +42,7 @@ class ProfileView(APIView):
         user_serializer = UserSerializer(instance=obj.user, data=request.data, partial=True)
         user_serializer.is_valid(raise_exception=True)
 
-        security_2fa_secret = ''
-        if serializer.validated_data.get('security_2fa'):
-            security_2fa_secret = serializer.validated_data.get('security_2fa_secret')
-            if not security_2fa_secret:
-                raise ValidationError
-
-        obj = serializer.save(security_2fa_secret=security_2fa_secret)
+        obj = serializer.save()
         user_serializer.save()
 
         return Response(ExchangeUserSerializer(instance=obj).data)
