@@ -12,7 +12,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from coin_exchange.models import UserLimit
-from coin_system.constants import EMAIL_PURPOSE, SMS_PURPOSE
+from notification.constants import EMAIL_PURPOSE, SMS_PURPOSE
 from coin_system.models import CountryDefaultConfig
 from coin_user.constants import VERIFICATION_LEVEL, VERIFICATION_STATUS
 from coin_user.exceptions import InvalidVerificationException, AlreadyVerifiedException, NotReadyToVerifyException, \
@@ -25,8 +25,8 @@ from coin_user.serializers import SignUpSerializer, ExchangeUserSerializer, Exch
 from common.business import generate_random_code, generate_random_digit, Is2FA
 from common.constants import DIRECTION_ALL, CACHE_KEY_FORGOT_PASSWORD
 from common.exceptions import InvalidDataException
-from notification.email import EmailNotification
-from notification.sms import SmsNotification
+from notification.provider.email import EmailNotification
+from notification.provider.sms import SmsNotification
 
 
 class ProfileView(APIView):

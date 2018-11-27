@@ -61,7 +61,8 @@ LOCAL_APPS = [
     'coin_system',
     'coin_exchange',
     'coin_user',
-    'content'
+    'content',
+    'notification'
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -203,7 +204,9 @@ EMAIL_FROM_NAME = 'Coinbowl'
 EMAIL_FROM_ADDRESS = "info@coinbowl.com"
 
 FRONTEND_HOST = 'http://staging.coinbowl.com'
-EXCHANGE_API = 'http://localhost:8000/api/exchange'
+API_HOST = 'http://localhost:8000/api'
+EXCHANGE_API = API_HOST + '/exchange'
+NOTIFICATION_API = API_HOST + '/notification'
 
 COINBASE = {
     'API_KEY': 'SomeKey',

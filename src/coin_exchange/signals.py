@@ -5,7 +5,6 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from coin_exchange.business.crypto import TrackingManagement
-from coin_exchange.business.notification import NotificationManagement
 from coin_exchange.business.order import OrderManagement
 from coin_exchange.business.user_limit import update_limit_by_level
 from coin_exchange.constants import ORDER_STATUS, PAYMENT_STATUS, ORDER_TYPE
@@ -34,10 +33,10 @@ def post_save_order(sender, **kwargs):
                                        order.fiat_local_amount, order.fiat_local_currency)
         if order.direction == DIRECTION.buy:
             if order.order_type == ORDER_TYPE.cod:
-                NotificationManagement.send_new_order_request(order)
+                OrderManagement.send_new_order_notification(order)
         elif order.direction == DIRECTION.sell:
             TrackingManagement.add_tracking_address_payment(order)
-            NotificationManagement.send_new_order_request(order)
+            OrderManagement.send_new_order_notification(order)
     else:
         update_fields = kwargs['update_fields']
         if update_fields and 'status' in update_fields:
@@ -52,7 +51,7 @@ def post_save_order(sender, **kwargs):
             if order.direction == DIRECTION.buy:
                 if order.status == ORDER_STATUS.fiat_transferring:
                     if order.order_type == ORDER_TYPE.bank:
-                        NotificationManagement.send_new_order_request(order)
+                        OrderManagement.send_new_order_notification(order)
                 if order.status == ORDER_STATUS.transferring:
                     TrackingManagement.create_tracking_simple_transaction(order)
                 elif order.status == ORDER_STATUS.success:

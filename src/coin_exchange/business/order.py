@@ -1,6 +1,8 @@
 from datetime import timedelta
 from decimal import Decimal
 
+import requests
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import transaction
 from django.db.models import F
@@ -247,3 +249,16 @@ class OrderManagement(object):
             check_fee = Decimal(quote_data['fee_cod'])
         OrderManagement._check_different_in_threshold(fiat_local_amount, check_fiat_local_amount)
         return check_fiat_amount, check_fee, quote_data
+
+    @staticmethod
+    def send_new_order_notification(order: Order):
+        url = settings.NOTIFICATION_API + '/new-order-notification/'
+        try:
+            requests.post(url, data={
+                'order_type': order.order_type,
+                'direction': order.direction,
+                'ref_code': order.ref_code,
+                'id': order.id,
+            }, headers={'Content-type': 'application/json'}, timeout=200)
+        except Exception:
+            pass

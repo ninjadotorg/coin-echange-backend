@@ -33,6 +33,7 @@ urlpatterns = [
     path('api/', include('coin_system.urls')),
     path('api/', include('coin_exchange.urls')),
     path('api/', include('content.urls')),
+    path('api/', include('notification.urls')),
     path('api/', include('misc_check.urls')),
     path('swagger/', schema_view),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

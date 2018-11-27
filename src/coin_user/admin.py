@@ -33,6 +33,7 @@ class ExchangeUserAdmin(admin.ModelAdmin):
                     'display_level', 'display_status', 'country', 'user_actions']
     inlines = (UserLimitInline,)
     list_filter = ('country', 'verification_level', 'verification_status')
+    search_fields = ['name']
 
     def changelist_view(self, request, *args, **kwargs):
         self.request = request
