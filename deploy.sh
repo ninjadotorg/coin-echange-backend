@@ -25,6 +25,9 @@ then
     cp -a ./deployments/production.py ./src/conf/settings/local.py
 fi
 
+# Do migration
+python ./src/manage.py migrate --settings=conf.settings.local
+
 buildNumber=$V
 docker build \
     -t gcr.io/$PROJECT/$BACKEND_IMAGE:$buildNumber .
