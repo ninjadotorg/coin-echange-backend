@@ -39,15 +39,6 @@ class Order(TimestampedModel):
 
     format_amount.short_description = 'Amount'
 
-    def reject(self):
-        pass
-
-    def cancel(self):
-        pass
-
-    def expire(self):
-        pass
-
     def _destroy_order(self, status):
         self.status = status
         self.save(update_fields=['status', 'updated_at'])
@@ -103,7 +94,7 @@ class TrackingTransaction(TimestampedModel):
     order = models.OneToOneField(Order, related_name='order_tx_hashes', on_delete=models.CASCADE, null=True, blank=True)
     status = models.CharField(max_length=20, choices=TRACKING_TRANSACTION_STATUS,
                               default=TRACKING_TRANSACTION_STATUS.pending)
-    direction = models.CharField(max_length=5, choices=TRACKING_TRANSACTION_DIRECTION)
+    direction = models.CharField(max_length=20, choices=TRACKING_TRANSACTION_DIRECTION)
     tracking_address = models.ForeignKey(TrackingAddress, related_name='address_transactions', null=True, blank=True,
                                          on_delete=models.CASCADE)
     to_address = model_fields.CryptoHashField(blank=True)
