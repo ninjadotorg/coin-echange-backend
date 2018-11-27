@@ -52,6 +52,7 @@ class BaseOrderAdmin(InlineLinkMixin, DefaultFilterMixin, admin.ModelAdmin):
     list_display = ['id', 'user', 'format_amount', 'currency', 'fiat_local_amount', 'fiat_local_currency',
                     'status', 'user_actions']
     list_filter = ['status', 'currency']
+    search_fields = ['ref_code']
 
 
 @admin.register(Order)

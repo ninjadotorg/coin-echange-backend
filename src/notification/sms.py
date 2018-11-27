@@ -13,6 +13,10 @@ class SmsNotification(object):
         if params:
             content = content.format(**params)
 
+        SmsNotification.send_sms(to_phone, content, raise_exception)
+
+    @staticmethod
+    def send_sms(to_phone: str, content: str, raise_exception: bool = False):
         try:
             send_sms(settings.FROM_PHONE_NUMBER, to_phone, content)
         except Exception:

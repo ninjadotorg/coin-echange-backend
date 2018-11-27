@@ -8,7 +8,7 @@ from common.constants import LANGUAGE, COUNTRY, FIAT_CURRENCY
 
 class ExchangeUser(models.Model):
     user = models.OneToOneField(User, related_name='exchange_user', on_delete=models.CASCADE)
-    name = models.CharField(max_length=255, blank=True)
+    name = models.CharField(max_length=255, unique=True)
     phone_number = models.CharField(max_length=20, blank=True)
     id_name = models.CharField(max_length=100, blank=True)
     id_number = models.CharField(max_length=100, blank=True)
@@ -27,6 +27,8 @@ class ExchangeUser(models.Model):
     country = models.CharField(max_length=3, choices=COUNTRY, null=True)
     currency = models.CharField(max_length=5, choices=FIAT_CURRENCY, null=True)
     wallet = models.TextField(null=True, blank=True)
+    referral = models.ForeignKey('ExchangeUser', null=True, blank=True, related_name='referral_users',
+                                 on_delete=models.SET_NULL)
 
     def __str__(self):
         return '%s' % self.user.username

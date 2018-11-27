@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from coin_system.models import Config, Fee, Bank, CountryCurrency, PopularPlace, CountryDefaultConfig, SystemReminder, \
-    SystemReminderAction
+    SystemReminderAction, LandingPageContact
 
 
 @admin.register(Config)
@@ -42,3 +42,8 @@ class SystemReminderAdmin(admin.ModelAdmin):
 @admin.register(SystemReminderAction)
 class SystemReminderActionAdmin(admin.ModelAdmin):
     list_display = ['group', 'active_reminder', 'active_time', 'stop_duration']
+
+
+@admin.register(LandingPageContact)
+class LandingPageContactAdmin(admin.ModelAdmin):
+    list_display = ['name', 'phone_number', 'email', 'description']

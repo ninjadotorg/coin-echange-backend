@@ -231,6 +231,7 @@ class VerifyEmailView(APIView):
 class VerifyPhoneView(APIView):
     permission_classes = (IsAuthenticated,)
 
+    @transaction.atomic
     def put(self, request, format=None):
         verification_code = request.query_params.get('code')
         obj = ExchangeUser.objects.get(user=request.user)

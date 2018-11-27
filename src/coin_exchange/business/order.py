@@ -130,13 +130,11 @@ class OrderManagement(object):
             raise InvalidOrderStatusException
 
     @staticmethod
+    @transaction.atomic
     def complete_order(order: Order):
         if order.status == ORDER_STATUS.processing:
             if order.direction == DIRECTION.buy:
                 order.status = ORDER_STATUS.transferring
-                # Want to save before transfer crypto
-                order.save()
-
                 tx_hash, provider_data = CryptoTransactionManagement.transfer(order.address,
                                                                               order.currency,
                                                                               order.amount)
@@ -151,14 +149,15 @@ class OrderManagement(object):
 
     @staticmethod
     @transaction.atomic
-    def reject_order(user: User, order: Order):
-        if order.user.user == user and order.status == ORDER_STATUS.processing:
+    def reject_order(order: Order):
+        if order.status == ORDER_STATUS.processing:
             order.status = ORDER_STATUS.rejected
             order.save(update_fields=['status', 'updated_at'])
         else:
             raise InvalidOrderStatusException
 
     @staticmethod
+    @transaction.atomic
     def expire_order():
         now = get_now()
         orders = Order.objects.filter(created_at__lt=now - timedelta(seconds=ORDER_EXPIRATION_DURATION),

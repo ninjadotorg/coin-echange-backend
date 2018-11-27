@@ -14,5 +14,5 @@ def send_slack(channel: str, message: str):
         channel=channel,
         text=message
     )
-    if not result.ok:
+    if not result['ok']:
         raise Exception(result)

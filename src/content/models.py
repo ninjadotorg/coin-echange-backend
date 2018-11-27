@@ -2,7 +2,7 @@ from django.db import models
 from tinymce.models import HTMLField
 
 from coin_base.models import TimestampedModel
-from coin_system.constants import EMAIL_PURPOSE, NOTIFICATION_TARGET, SMS_PURPOSE
+from coin_system.constants import EMAIL_PURPOSE, NOTIFICATION_TARGET, SMS_PURPOSE, STATIC_PAGE
 from common import model_fields
 
 
@@ -27,8 +27,18 @@ class SMSContent(TimestampedModel):
     target = models.CharField(max_length=100, choices=NOTIFICATION_TARGET)
 
 
+# DEPRECATED
 class AboutUs(TimestampedModel):
     language = model_fields.LanguageField(primary_key=True)
+    content = HTMLField()
+
+
+class StaticPage(TimestampedModel):
+    class Meta:
+        unique_together = ('page', 'language')
+
+    page = models.CharField(max_length=100, choices=STATIC_PAGE)
+    language = model_fields.LanguageField()
     content = HTMLField()
 
 

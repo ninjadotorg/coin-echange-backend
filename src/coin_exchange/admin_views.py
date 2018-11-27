@@ -6,6 +6,7 @@ from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.utils.http import urlunquote
 
+from coin_exchange.business.order import OrderManagement
 from coin_exchange.constants import ORDER_STATUS, ORDER_TYPE, PAYMENT_STATUS
 from coin_exchange.models import Order
 from coin_exchange.widgets import ImageWidget, CryptoTransactionWidget, CryptoAmountWidget, FiatAmountWidget, \
@@ -68,12 +69,10 @@ def custom_order_view(admin_view, request, pk, title, read_only):
     else:
         action = request.POST['action'].lower()
         if action == 'approve':
-            order.status = ORDER_STATUS.transferring
-            order.save(update_fields=['status', 'updated_at'])
+            OrderManagement.complete_order(order)
             messages.success(request, 'Order is approved successful. Sending crypto to destination...')
         elif action == 'reject':
-            order.status = ORDER_STATUS.rejected
-            order.save(update_fields=['status', 'updated_at'])
+            OrderManagement.reject_order(order)
             messages.success(request, 'Order is rejected successful.')
 
         return HttpResponseRedirect(reverse("admin:coin_exchange_order_changelist") + '?{}'.format(url_filters))
@@ -147,12 +146,10 @@ def custom_order_cod_view(admin_view, request, pk, title, read_only):
     else:
         action = request.POST['action'].lower()
         if action == 'approve':
-            order.status = ORDER_STATUS.transferring
-            order.save(update_fields=['status', 'updated_at'])
+            OrderManagement.complete_order(order)
             messages.success(request, 'Order is approved successful. Sending crypto to destination...')
         elif action == 'reject':
-            order.status = ORDER_STATUS.rejected
-            order.save(update_fields=['status', 'updated_at'])
+            OrderManagement.reject_order(order)
             messages.success(request, 'Order is rejected successful.')
 
         return HttpResponseRedirect(reverse("admin:coin_exchange_codorder_changelist") + '?{}'.format(url_filters))
@@ -238,12 +235,10 @@ def custom_selling_order_view(admin_view, request, pk, title, read_only):
     else:
         action = request.POST['action'].lower()
         if action == 'approve':
-            order.status = ORDER_STATUS.success
-            order.save(update_fields=['status', 'updated_at'])
+            OrderManagement.complete_order(order)
             messages.success(request, 'Order is approved successful.')
         elif action == 'reject':
-            order.status = ORDER_STATUS.rejected
-            order.save(update_fields=['status', 'updated_at'])
+            OrderManagement.reject_order(order)
             messages.success(request, 'Order is rejected successful.')
 
         return HttpResponseRedirect(reverse("admin:coin_exchange_sellingorder_changelist") + '?{}'.format(url_filters))

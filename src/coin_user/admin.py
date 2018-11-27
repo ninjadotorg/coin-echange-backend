@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.db import transaction
 from django.http import HttpResponseRedirect
 from django.urls import path, reverse
 from django.utils.html import format_html
@@ -83,6 +84,7 @@ class ExchangeUserAdmin(admin.ModelAdmin):
     def user_verify_process(self, request, user_id, *args, **kwargs):
         return self.do_action(request, user_id, self._do_change_verify_process)
 
+    @transaction.atomic
     def user_verify_approve(self, request, user_id, *args, **kwargs):
         return self.do_action(request, user_id, self._do_change_verify_approve)
 
