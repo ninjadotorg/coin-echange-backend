@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from coin_exchange.business.crypto import AddressManagement, TrackingManagement
+from coin_exchange.business.notification import NotificationManagement
 from coin_exchange.business.order import OrderManagement
 from coin_exchange.business.quote import QuoteManagement
 from common.business import view_serializer_fields
@@ -90,4 +91,10 @@ class TrackingTransactionView(APIView):
 class TrackingTransactionDetailView(APIView):
     def post(self, request, pk, format=None):
         TrackingManagement.track_system_transaction(pk)
+        return Response()
+
+
+class NewOrderNotification(APIView):
+    def post(self, request, format=None):
+        NotificationManagement.send_new_order_notification(request.data)
         return Response()

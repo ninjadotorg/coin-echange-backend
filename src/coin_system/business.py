@@ -1,7 +1,7 @@
 from decimal import Decimal, ROUND_CEILING
 
 from coin_system.constants import CACHE_KEY_CONFIG, CACHE_KEY_FEE, CACHE_KEY_COUNTRY_DEFAULT, FEE_TYPE, \
-    CACHE_KEY_SYSTEM_NOTIFICATION, CACHE_KEY_SYSTEM_REMINDER
+    CACHE_KEY_SYSTEM_NOTIFICATION, CACHE_KEY_SYSTEM_REMINDER, NOTIFICATION_METHOD
 from coin_system.models import Config, Fee, CountryDefaultConfig, SystemNotification, SystemReminder
 from common.decorators import raise_api_exception, cache_first
 from common.exceptions import UnexpectedException, InvalidDataException
@@ -77,16 +77,25 @@ def round_crypto_currency(amount: Decimal) -> Decimal:
     return amount.quantize(Decimal('.000001'), ROUND_CEILING)
 
 
-def send_email_notification(subject: str, content: str, notification: SystemNotification):
+def send_notification(notification: SystemNotification, **kwargs):
+    if notification.method == NOTIFICATION_METHOD.email:
+        send_email_notification(notification, kwargs['subject'], kwargs['content'])
+    elif notification.method == NOTIFICATION_METHOD.slack:
+        send_slack_notification(notification, kwargs['content'])
+    elif notification.method == NOTIFICATION_METHOD.sms:
+        send_sms_notification(notification, kwargs['content'])
+
+
+def send_email_notification(notification: SystemNotification, subject: str, content: str):
     emails = [email.strip() for email in notification.target.split(';')]
     EmailNotification.send_simple_emails(emails, subject, content)
 
 
-def send_slack_notification(content, notification: SystemNotification):
+def send_slack_notification(notification: SystemNotification, content):
     SlackNotification.send_channel(notification.target, content)
 
 
-def send_sms_notification(content, notification: SystemNotification):
+def send_sms_notification(notification: SystemNotification, content):
     to_phones = [phone.strip() for phone in notification.target.split(';')]
     for to_phone in to_phones:
         SmsNotification.send_sms(to_phone, content)

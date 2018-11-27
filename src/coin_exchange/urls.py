@@ -4,7 +4,7 @@ from rest_framework.routers import DefaultRouter
 from coin_exchange.resource import ReviewViewSet, OrderViewSet
 from coin_exchange.views import QuoteView, QuoteReverseView, AddressView, ExpireOrderView, DepositedAddressView, \
     TrackingAddressView, TrackingAddressDetailView, TrackingTransactionView, TrackingTransactionDetailView, \
-    ResetUserLimitView
+    ResetUserLimitView, NewOrderNotification
 
 router = DefaultRouter()
 router.register('reviews', ReviewViewSet)
@@ -27,6 +27,7 @@ patterns = ([
          name='tracking-address-detail'),
     path('tracking-transactions/<int:pk>/', TrackingTransactionDetailView.as_view(),
          name='tracking-transaction-detail'),
+    path('new-order-notification/', NewOrderNotification.as_view(), name='new-order-notification'),
 
 ], 'exchange')
 

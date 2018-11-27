@@ -118,15 +118,21 @@ class TrackingManagement(object):
     def load_tracking_address():
         url = settings.EXCHANGE_API + '/tracking-addresses/{}/'
         for tracking in TrackingAddress.objects.all():
-            # Just don't push too much
-            requests.post(url.format(tracking.id), timeout=200)
+            try:
+                # Just don't push too much
+                requests.post(url.format(tracking.id), timeout=200)
+            except Exception:
+                pass
 
     @staticmethod
     def load_tracking_transaction():
         url = settings.EXCHANGE_API + '/tracking-transactions/{}/'
         for tracking in TrackingTransaction.objects.all():
-            # Just don't push too much
-            requests.post(url.format(tracking.id), timeout=200)
+            try:
+                # Just don't push too much
+                requests.post(url.format(tracking.id), timeout=200)
+            except Exception:
+                pass
 
     @staticmethod
     def track_system_address(pk: int):
