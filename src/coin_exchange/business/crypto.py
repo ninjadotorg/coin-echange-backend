@@ -1,4 +1,3 @@
-import logging
 from decimal import Decimal
 
 import requests
@@ -191,11 +190,8 @@ class TrackingManagement(object):
 
     @staticmethod
     def remove_tracking(order: Order):
-        try:
-            TrackingTransaction.objects.filter(Q(order=order) | Q(address__iexact=order.order_address)).delete()
-            TrackingAddress.objects.filter(order=order).delete()
-        except Exception as ex:
-            logging.exception(ex)
+        TrackingTransaction.objects.filter(Q(order=order) | Q(address__iexact=order.order_address)).delete()
+        TrackingAddress.objects.filter(order=order).delete()
 
     @staticmethod
     def remove_transaction_tracking(tx_hash: str):

@@ -37,9 +37,12 @@ def post_save_order(sender, **kwargs):
         update_fields = kwargs['update_fields']
         if update_fields and 'status' in update_fields:
             if order.status in [ORDER_STATUS.expired, ORDER_STATUS.cancelled, ORDER_STATUS.rejected]:
-                OrderManagement.decrease_limit(order.user, order.amount, order.currency, order.direction,
-                                               order.fiat_local_amount, order.fiat_local_currency)
-                TrackingManagement.remove_tracking(order)
+                try:
+                    OrderManagement.decrease_limit(order.user, order.amount, order.currency, order.direction,
+                                                   order.fiat_local_amount, order.fiat_local_currency)
+                    TrackingManagement.remove_tracking(order)
+                except Exception as ex:
+                    logging.exception(ex)
 
             if order.direction == DIRECTION.buy:
                 if order.status == ORDER_STATUS.transferring:
