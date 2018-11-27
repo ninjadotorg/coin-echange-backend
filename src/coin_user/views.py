@@ -355,8 +355,7 @@ class TwoFAView(APIView):
         secret_code = generate_random_code(16).upper()
         if not obj.security_2fa:
             obj.security_2fa_secret = secret_code
-            obj.security_2fa = True
-            obj.save(update_fields=['security_2fa', 'security_2fa_secret'])
+            obj.save(update_fields=['security_2fa_secret'])
 
             return Response({'otp': pyotp.totp.TOTP(secret_code).provisioning_uri(
                 settings.EMAIL_FROM_ADDRESS,
@@ -364,13 +363,23 @@ class TwoFAView(APIView):
 
         return Response({'detail': 'Already setup'}, status=status.HTTP_400_BAD_REQUEST)
 
+    def put(self, request, format=None):
+        if not Is2FA.check(request):
+            return Response(status=status.HTTP_403_FORBIDDEN)
+
+        obj = ExchangeUser.objects.get(user=request.user)
+        obj.security_2fa = True
+        obj.save(update_fields=['security_2fa'])
+
+        return Response(True)
+
     def delete(self, request, format=None):
         if not Is2FA.check(request):
             return Response(status=status.HTTP_403_FORBIDDEN)
 
         obj = ExchangeUser.objects.get(user=request.user)
         obj.security_2fa = False
-        obj.security_2fa_secret = False
+        obj.security_2fa_secret = ''
         obj.save(update_fields=['security_2fa', 'security_2fa_secret'])
 
         return Response(True)
