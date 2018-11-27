@@ -14,8 +14,7 @@ class UserSerializer(serializers.ModelSerializer):
 class SignUpSerializer(serializers.Serializer):
     username = serializers.EmailField()
     password = serializers.CharField(min_length=8, write_only=True)
-    first_name = serializers.CharField()
-    last_name = serializers.CharField()
+    name = serializers.CharField()
     country = serializer_fields.CountryField()
 
 
@@ -34,7 +33,7 @@ class ExchangeUserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExchangeUser
         fields = ('phone_number', 'language', 'country', 'currency',
-                  'first_name', 'last_name', 'name')
+                  'first_name', 'last_name')
 
     first_name = serializers.CharField()
     last_name = serializers.CharField()

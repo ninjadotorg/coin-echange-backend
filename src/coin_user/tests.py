@@ -49,11 +49,11 @@ class SignUpTests(APITestCase):
         response = self.client.post(url, data={
             'username': 'dev@exchange.com',
             'password': '12345678',
-            'first_name': 'First Name',
-            'last_name': 'Last Name',
+            'name': 'Username',
             'country': COUNTRY.PH,
         }, format='json')
 
+        print(response.json())
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 

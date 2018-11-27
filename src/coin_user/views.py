@@ -140,19 +140,22 @@ class SignUpView(APIView):
         serializer.is_valid(True)
 
         username = serializer.validated_data['username']
-        first_name = serializer.validated_data['first_name']
-        last_name = serializer.validated_data['last_name']
+        # first_name = serializer.validated_data['first_name']
+        # last_name = serializer.validated_data['last_name']
+        name = serializer.validated_data['name']
         country = serializer.validated_data['country']
 
         if User.objects.filter(username=username).exists():
+            raise ExistedEmailException
+        if ExchangeUser.objects.filter(name__iexact=name).exists():
             raise ExistedEmailException
 
         user = User.objects.create_user(
             username=username,
             password=serializer.validated_data['password'],
             email=username,
-            first_name=first_name,
-            last_name=last_name,
+            # first_name=first_name,
+            # last_name=last_name,
             is_active=True,
         )
 
@@ -161,7 +164,7 @@ class SignUpView(APIView):
             raise InvalidDataException
 
         obj = ExchangeUser.objects.create(user=user,
-                                          name='{} {}'.format(first_name, last_name),
+                                          name=name,
                                           language=country_config.language,
                                           country=country_config.country,
                                           currency=country_config.currency)

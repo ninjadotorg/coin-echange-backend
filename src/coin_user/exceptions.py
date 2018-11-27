@@ -32,6 +32,12 @@ class ExistedEmailException(APIException):
     default_code = 'existed_email'
 
 
+class ExistedNameException(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = 'Existed name'
+    default_code = 'existed_name'
+
+
 class ResetPasswordExpiredException(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
     default_detail = 'Reset password token expired'
