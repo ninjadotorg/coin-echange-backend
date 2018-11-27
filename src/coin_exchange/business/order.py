@@ -168,6 +168,10 @@ class OrderManagement(object):
             order.save(update_fields=['status', 'updated_at'])
 
     @staticmethod
+    def reset_user_limit():
+        UserLimit.objects.filter(direction=DIRECTION_ALL).update(usage=0, updated_at=get_now())
+
+    @staticmethod
     def increase_limit(user, amount, currency, direction, fiat_local_amount, fiat_local_currency):
         # Convert local currency to user currency
         update_amount = fiat_local_amount

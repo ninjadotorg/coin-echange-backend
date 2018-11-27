@@ -49,6 +49,12 @@ class ExpireOrderView(APIView):
         return Response()
 
 
+class ResetUserLimitView(APIView):
+    def post(self, request, format=None):
+        OrderManagement.reset_user_limit()
+        return Response()
+
+
 class DepositedAddressView(APIView):
     def get(self, request, format=None):
         currency = request.query_params.get('currency', '')
@@ -58,7 +64,6 @@ class DepositedAddressView(APIView):
         if not address:
             raise ValidationError
 
-        print(TrackingManagement.track_network_address(address, currency).tx_hashes)
         has_transaction = len(TrackingManagement.track_network_address(address, currency).tx_hashes) > 0
 
         return Response({'has_transaction': has_transaction})
