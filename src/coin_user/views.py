@@ -352,13 +352,12 @@ class TwoFAView(APIView):
 
     def post(self, request, format=None):
         obj = ExchangeUser.objects.get(user=request.user)
-        secret_code = generate_random_code(16).upper()
         if not obj.security_2fa:
-            obj.security_2fa_secret = secret_code
+            obj.security_2fa_secret = pyotp.random_base32()
             obj.save(update_fields=['security_2fa_secret'])
 
-            return Response({'otp': pyotp.totp.TOTP(secret_code).provisioning_uri(
-                settings.EMAIL_FROM_ADDRESS,
+            return Response({'otp': pyotp.totp.TOTP(obj.security_2fa_secret).provisioning_uri(
+                obj.user.email,
                 issuer_name=settings.EMAIL_FROM_NAME)})
 
         return Response({'detail': 'Already setup'}, status=status.HTTP_400_BAD_REQUEST)
