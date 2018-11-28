@@ -10,7 +10,7 @@ LANGUAGE = Choices(
     ('km', 'km', '🇰🇭 ភាសាខ្មែរ'),
     ('en', 'en', '🇺🇸 English'),
     ('id', 'id', '🇮🇩 bahasa Indonesia'),
-    ('hk', 'zh-Hant-HK', '🇭🇰 廣東話')
+    ('zh-Hant-HK', 'hk', '🇭🇰 廣東話')
 )
 
 COUNTRY = Choices(
