@@ -31,6 +31,7 @@ class ExchangeUser(models.Model):
     wallet = models.TextField(null=True, blank=True)
     referral = models.ForeignKey('ExchangeUser', null=True, blank=True, related_name='referral_users',
                                  on_delete=models.SET_NULL)
+    first_purchase = models.BooleanField(default=False)
 
     def __str__(self):
         return '%s' % self.user.username

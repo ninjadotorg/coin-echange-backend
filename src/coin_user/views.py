@@ -152,7 +152,7 @@ class SignUpView(APIView):
         if ExchangeUser.objects.filter(name__exact=name).exists():
             raise ExistedNameException
 
-        referral_name = serializer.validated_data.get('referral_name')
+        referral_name = serializer.validated_data.get('referral')
         referral_user = ExchangeUser.objects.filter(name__exact=referral_name).first()
 
         user = User.objects.create_user(
@@ -416,3 +416,17 @@ class TwoFAView(APIView):
         obj.save(update_fields=['security_2fa', 'security_2fa_secret'])
 
         return Response(True)
+
+
+class ReferralView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request):
+        obj = ExchangeUser.objects.prefetch_related('referral_users__user').get(user=request.user)
+        referrals = obj.referral_users.all()
+
+        return Response([{
+            'name': item.name,
+            'status': 'finished' if item.first_purchase else 'unfinished',
+            'date_joined': item.user.date_joined,
+        } for item in referrals])

@@ -1,5 +1,5 @@
-from django.utils.decorators import method_decorator
-from django.views.decorators.cache import cache_page
+# from django.utils.decorators import method_decorator
+# from django.views.decorators.cache import cache_page
 from rest_framework import mixins
 from rest_framework.viewsets import GenericViewSet
 
@@ -15,6 +15,6 @@ class FAQViewSet(mixins.ListModelMixin,
         'language',
     )
 
-    @method_decorator(cache_page(5 * 60))
+    # @method_decorator(cache_page(5 * 60))
     def dispatch(self, *args, **kwargs):
         return super(FAQViewSet, self).dispatch(*args, **kwargs)

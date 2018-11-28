@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 
 from coin_user.resource import ContactViewSet
 from coin_user.views import SignUpView, ProfileView, VerifyEmailView, WalletView, VerifyPhoneView, VerifyIDView, \
-    VerifySelfieView, ForgotPasswordView, ChangePasswordView, ResetPasswordView, TwoFAView
+    VerifySelfieView, ForgotPasswordView, ChangePasswordView, ResetPasswordView, TwoFAView, ReferralView
 
 router = DefaultRouter()
 router.register('contacts', ContactViewSet)
@@ -11,6 +11,7 @@ router.register('contacts', ContactViewSet)
 patterns = ([
     path('', include(router.urls)),
     path('profile/', ProfileView.as_view(), name='profile'),
+    path('referrals/', ReferralView.as_view(), name='referrals'),
     path('wallet/', WalletView.as_view(), name='wallet'),
     path('sign-up/', SignUpView.as_view(), name='sign-up'),
     path('verify-email/', VerifyEmailView.as_view(), name='verify-email'),

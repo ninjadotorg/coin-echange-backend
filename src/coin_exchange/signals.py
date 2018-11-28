@@ -6,6 +6,7 @@ from django.dispatch import receiver
 
 from coin_exchange.business.crypto import TrackingManagement
 from coin_exchange.business.order import OrderManagement
+from coin_exchange.business.referral import ReferralManagement
 from coin_exchange.business.user_limit import update_limit_by_level
 from coin_exchange.constants import ORDER_STATUS, PAYMENT_STATUS, ORDER_TYPE
 from coin_exchange.models import Order, SellingPaymentDetail
@@ -28,49 +29,44 @@ def post_save_exchange_user(sender, **kwargs):
 def post_save_order(sender, **kwargs):
     order = kwargs['instance']
     created = kwargs['created']
-    if created:
-        OrderManagement.increase_limit(order.user, order.amount, order.currency, order.direction,
-                                       order.fiat_local_amount, order.fiat_local_currency)
-        if order.direction == DIRECTION.buy:
-            if order.order_type == ORDER_TYPE.cod:
+    try:
+
+        if created:
+            OrderManagement.increase_limit(order.user, order.amount, order.currency, order.direction,
+                                           order.fiat_local_amount, order.fiat_local_currency)
+            if order.direction == DIRECTION.buy:
+                if order.order_type == ORDER_TYPE.cod:
+                    OrderManagement.send_new_order_notification(order)
+            elif order.direction == DIRECTION.sell:
+                TrackingManagement.add_tracking_address_payment(order)
                 OrderManagement.send_new_order_notification(order)
-        elif order.direction == DIRECTION.sell:
-            TrackingManagement.add_tracking_address_payment(order)
-            OrderManagement.send_new_order_notification(order)
-    else:
-        update_fields = kwargs['update_fields']
-        if update_fields and 'status' in update_fields:
-            if order.status in [ORDER_STATUS.expired, ORDER_STATUS.cancelled, ORDER_STATUS.rejected]:
-                try:
+        else:
+            update_fields = kwargs['update_fields']
+            if update_fields and 'status' in update_fields:
+                if order.status in [ORDER_STATUS.expired, ORDER_STATUS.cancelled, ORDER_STATUS.rejected]:
                     OrderManagement.decrease_limit(order.user, order.amount, order.currency, order.direction,
                                                    order.fiat_local_amount, order.fiat_local_currency)
                     TrackingManagement.remove_tracking(order)
-                except Exception as ex:
-                    logging.exception(ex)
-
-            if order.direction == DIRECTION.buy:
-                if order.status == ORDER_STATUS.fiat_transferring:
-                    if order.order_type == ORDER_TYPE.bank:
-                        OrderManagement.send_new_order_notification(order)
-                if order.status == ORDER_STATUS.transferring:
-                    TrackingManagement.create_tracking_simple_transaction(order)
-                elif order.status == ORDER_STATUS.success:
-                    try:
+                if order.direction == DIRECTION.buy:
+                    if order.status == ORDER_STATUS.fiat_transferring:
+                        if order.order_type == ORDER_TYPE.bank:
+                            OrderManagement.send_new_order_notification(order)
+                    if order.status == ORDER_STATUS.transferring:
+                        TrackingManagement.create_tracking_simple_transaction(order)
+                        ReferralManagement.create_referral(order)
+                    elif order.status == ORDER_STATUS.success:
                         TrackingManagement.remove_tracking(order)
                         # TODO Send notification
-                        pass
-                    except Exception as ex:
-                        logging.exception(ex)
-            elif order.direction == DIRECTION.sell:
-                if order.status == ORDER_STATUS.transferred:
-                    TrackingManagement.remove_tracking(order)
-                elif order.status == ORDER_STATUS.success:
-                    try:
+                elif order.direction == DIRECTION.sell:
+                    if order.status == ORDER_STATUS.transferred:
+                        TrackingManagement.remove_tracking(order)
+                    elif order.status == ORDER_STATUS.success:
+                        ReferralManagement.create_referral(order)
                         TrackingManagement.remove_tracking(order)
                         # TODO Send notification
-                        pass
-                    except Exception as ex:
-                        logging.exception(ex)
+    except Exception as ex:
+        # I don't want the alter flow effect the ORDER
+        logging.exception(ex)
 
 
 @receiver(post_save, sender=SellingPaymentDetail)

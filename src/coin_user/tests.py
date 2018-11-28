@@ -56,6 +56,22 @@ class SignUpTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+    def test_sign_up_referral(self):
+        url = reverse('user:sign-up')
+
+        self.auth_utils = AuthenticationUtils(self.client)
+        self.user = self.auth_utils.create_exchange_user()
+
+        response = self.client.post(url, data={
+            'username': 'dev@exchange.com',
+            'password': '12345678',
+            'name': 'Username',
+            'country': COUNTRY.PH,
+            'referral': self.user.name
+        }, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
 
 class VerificationTests(APITestCase):
     pass

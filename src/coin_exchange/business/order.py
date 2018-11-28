@@ -135,6 +135,7 @@ class OrderManagement(object):
     @transaction.atomic
     def complete_order(order: Order):
         if order.status == ORDER_STATUS.processing:
+            order.first_purchase = True
             if order.direction == DIRECTION.buy:
                 order.status = ORDER_STATUS.transferring
                 tx_hash, provider_data = CryptoTransactionManagement.transfer(order.address,
