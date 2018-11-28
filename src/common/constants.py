@@ -7,9 +7,10 @@ VALUE_TYPE = Choices(
 )
 
 LANGUAGE = Choices(
-    ('km', 'km', 'Cambodian'),
-    ('en', 'en', 'English'),
-    ('id', 'id', 'Indonesian'),
+    ('km', 'km', '🇰🇭 ភាសាខ្មែរ'),
+    ('en', 'en', '🇺🇸 English'),
+    ('id', 'id', '🇮🇩 bahasa Indonesia'),
+    ('hk', 'hk', '🇭🇰 廣東話')
 )
 
 COUNTRY = Choices(
