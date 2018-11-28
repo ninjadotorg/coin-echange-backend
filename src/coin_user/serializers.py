@@ -33,7 +33,7 @@ class ExchangeUserSerializer(serializers.ModelSerializer):
 class ExchangeUserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExchangeUser
-        fields = ('phone_number', 'language', 'country', 'currency',
+        fields = ('language', 'country', 'currency',
                   'first_name', 'last_name')
 
     first_name = serializers.CharField()

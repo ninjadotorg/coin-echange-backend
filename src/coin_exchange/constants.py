@@ -45,6 +45,12 @@ TRACKING_TRANSACTION_DIRECTION = Choices(
     ('transfer_out', 'Transfer Out'),
 )
 
+REFERRAL_STATUS = Choices(
+    ('pending', 'Pending'),
+    ('paid', 'Paid'),
+    ('rejected', 'Rejected'),
+)
+
 FEE_COIN_ORDER_COD = "FEE_COIN_ORDER_COD"
 FEE_COIN_ORDER_BANK = "FEE_COIN_ORDER_BANK"
 FEE_COIN_SELLING_ORDER_BANK = "FEE_COIN_SELLING_ORDER_BANK"

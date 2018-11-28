@@ -2,7 +2,7 @@ from django.db import models
 
 from coin_base.models import TimestampedModel
 from coin_exchange.constants import ORDER_STATUS, ORDER_TYPE, PAYMENT_STATUS, TRACKING_ADDRESS_STATUS, \
-    TRACKING_TRANSACTION_STATUS, TRACKING_TRANSACTION_DIRECTION
+    TRACKING_TRANSACTION_STATUS, TRACKING_TRANSACTION_DIRECTION, REFERRAL_STATUS
 from coin_user.models import ExchangeUser
 from common import model_fields
 from common.constants import DIRECTION, DIRECTION_ALL
@@ -144,3 +144,18 @@ class UserLimit(TimestampedModel):
 
     def __str__(self):
         return '%s - %s' % (DIRECTION[self.direction] if self.direction != DIRECTION_ALL else 'All', self.fiat_currency)
+
+
+class ReferralOrder(TimestampedModel):
+    order = models.ForeignKey(Order, related_name='order_referrals', on_delete=models.PROTECT)
+    user = models.ForeignKey(Order, related_name='user_order_referrals', on_delete=models.PROTECT)
+    amount = model_fields.CryptoAmountField()
+    currency = model_fields.CurrencyField()
+    status = models.CharField(max_length=20, choices=REFERRAL_STATUS, default=REFERRAL_STATUS.pending)
+    referrer = models.BooleanField(default=True)
+    address = model_fields.CryptoHashField()
+
+    def format_amount(self):
+        return '{:.6f}'.format(self.amount)
+
+    format_amount.short_description = 'Amount'

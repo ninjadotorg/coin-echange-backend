@@ -7,7 +7,7 @@ from django.utils.html import format_html
 
 from coin_exchange.admin_views import custom_order_view, custom_order_cod_view, custom_selling_order_view
 from coin_exchange.constants import ORDER_TYPE, ORDER_STATUS
-from coin_exchange.models import Order, Review, Pool, TrackingAddress, TrackingTransaction
+from coin_exchange.models import Order, Review, Pool, TrackingAddress, TrackingTransaction, ReferralOrder
 from common.constants import DIRECTION
 
 
@@ -190,6 +190,11 @@ class SellingOrderAdmin(BaseOrderAdmin):
 
     def order_process(self, request, pk, *args, **kwargs):
         return custom_selling_order_view(self, request, pk, 'Process Selling Order', False)
+
+
+@admin.register(ReferralOrder)
+class ReferralOrderAdmin(admin.ModelAdmin):
+    list_display = ['order', 'format_amount', 'currency', 'status', 'referrer']
 
 
 @admin.register(Review)

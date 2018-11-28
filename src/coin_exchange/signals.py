@@ -55,8 +55,8 @@ def post_save_order(sender, **kwargs):
                 if order.status == ORDER_STATUS.transferring:
                     TrackingManagement.create_tracking_simple_transaction(order)
                 elif order.status == ORDER_STATUS.success:
-                    TrackingManagement.remove_tracking(order)
                     try:
+                        TrackingManagement.remove_tracking(order)
                         # TODO Send notification
                         pass
                     except Exception as ex:
@@ -64,7 +64,9 @@ def post_save_order(sender, **kwargs):
             elif order.direction == DIRECTION.sell:
                 if order.status == ORDER_STATUS.transferred:
                     TrackingManagement.remove_tracking(order)
+                elif order.status == ORDER_STATUS.success:
                     try:
+                        TrackingManagement.remove_tracking(order)
                         # TODO Send notification
                         pass
                     except Exception as ex:

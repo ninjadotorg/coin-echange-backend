@@ -244,24 +244,48 @@ class VerifyPhoneView(APIView):
         verification_code = request.query_params.get('code')
         obj = ExchangeUser.objects.get(user=request.user)
 
-        if obj.verification_level != VERIFICATION_LEVEL.level_2:
+        self.check_last_step_verified(obj)
+        if not obj.pending_phone_number:
             raise InvalidDataException
 
         if obj.phone_verification_code != verification_code:
             raise InvalidVerificationException
 
-        obj.approve_verification()
+        verified = False
+        try:
+            self.check_phone_verified(obj)
+        except AlreadyVerifiedException:
+            verified = True
+            if not obj.pending_phone_number:
+                raise
+
+        obj.phone_number = obj.pending_phone_number
+        obj.pending_phone_number = ''
+        if not verified:
+            obj.approve_verification()
+        else:
+            obj.save(update_fields=['phone_number', 'pending_phone_number'])
 
         return Response(ExchangeUserSerializer(instance=obj).data)
 
     def post(self, request, format=None):
         obj = ExchangeUser.objects.get(user=request.user)
 
-        self.check_last_step_verified(obj)
-        self.check_phone_verified(obj)
+        phone_number = request.data.get('phone_number')
+        if not phone_number:
+            raise ValidationError
 
-        if obj.phone_number:
-            VerifyPhoneView.send_verification_phone(obj)
+        self.check_last_step_verified(obj)
+        verified = False
+        try:
+            self.check_phone_verified(obj)
+        except AlreadyVerifiedException:
+            verified = True
+            # only check if the phone submit is the same with the current one
+            if obj.phone_number == phone_number:
+                raise
+
+        VerifyPhoneView.send_verification_phone(obj, phone_number, verified)
 
         return Response(ExchangeUserSerializer(instance=obj).data)
 
@@ -279,17 +303,16 @@ class VerifyPhoneView(APIView):
             raise AlreadyVerifiedException
 
     @staticmethod
-    def send_verification_phone(user: ExchangeUser):
+    def send_verification_phone(user: ExchangeUser, phone_number: str, verified: bool):
         verification_code = generate_random_digit(6)
-
-        VerifyPhoneView.check_phone_verified(user)
-
+        user.pending_phone_number = phone_number
         user.phone_verification_code = verification_code
-        user.verification_level = VERIFICATION_LEVEL.level_2
-        user.verification_status = VERIFICATION_STATUS.pending
+        if not verified:
+            user.verification_level = VERIFICATION_LEVEL.level_2
+            user.verification_status = VERIFICATION_STATUS.pending
         user.save()
 
-        SmsNotification.send_sms_template(user.phone_number,
+        SmsNotification.send_sms_template(phone_number,
                                           SMS_PURPOSE.phone_verification,
                                           user.language,
                                           {'code': user.phone_verification_code})
