@@ -84,7 +84,7 @@ class Is2FA(BasePermission):
     @staticmethod
     def check(request):
         twofa = request.META.get('HTTP_TWOFA')
-        if twofa and request.user.exchange_user.security_2fa:
+        if twofa and request.user.exchange_user.security_2fa_secret:
             totp = pyotp.TOTP(request.user.exchange_user.security_2fa_secret)
             return totp.verify(twofa)
 
