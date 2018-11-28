@@ -51,9 +51,9 @@ class SignUpTests(APITestCase):
             'password': '12345678',
             'name': 'Username',
             'country': COUNTRY.PH,
+            'referral': ''
         }, format='json')
 
-        print(response.json())
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 

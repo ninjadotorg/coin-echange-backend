@@ -151,6 +151,9 @@ class SignUpView(APIView):
         if ExchangeUser.objects.filter(name__exact=name).exists():
             raise ExistedNameException
 
+        referral_name = serializer.validated_data.get('referral_name')
+        referral_user = ExchangeUser.objects.filter(name__exact=referral_name).first()
+
         user = User.objects.create_user(
             username=username,
             password=serializer.validated_data['password'],
@@ -168,7 +171,8 @@ class SignUpView(APIView):
                                           name=name,
                                           language=country_config.language,
                                           country=country_config.country,
-                                          currency=country_config.currency)
+                                          currency=country_config.currency,
+                                          referral=referral_user)
 
         # Create user limit
         UserLimit.objects.create(user=obj, usage=0, limit=0,

@@ -16,6 +16,7 @@ class SignUpSerializer(serializers.Serializer):
     password = serializers.CharField(min_length=8, write_only=True)
     name = serializers.CharField()
     country = serializer_fields.CountryField()
+    referral = serializers.CharField(allow_blank=True, allow_null=True)
 
 
 class ExchangeUserSerializer(serializers.ModelSerializer):
