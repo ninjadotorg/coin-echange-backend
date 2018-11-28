@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.db import transaction
+from django.db.models import F
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
@@ -17,7 +18,7 @@ from coin_system.models import CountryDefaultConfig
 from coin_user.constants import VERIFICATION_LEVEL, VERIFICATION_STATUS
 from coin_user.exceptions import InvalidVerificationException, AlreadyVerifiedException, NotReadyToVerifyException, \
     ExistedEmailException, ResetPasswordExpiredException, InvalidPasswordException, NotYetVerifiedException, \
-    ExistedNameException
+    ExistedNameException, ExceedLimitException
 from coin_user.models import ExchangeUser
 from coin_user.serializers import SignUpSerializer, ExchangeUserSerializer, ExchangeUserProfileSerializer, \
     ExchangeUserIDVerificationSerializer, ExchangeUserSelfieVerificationSerializer, UserSerializer, \
@@ -280,10 +281,12 @@ class VerifyPhoneView(APIView):
         try:
             self.check_phone_verified(obj)
         except AlreadyVerifiedException:
-            verified = True
+            raise
+            # === WHEN want to verify another phone, remove these line
+            # verified = True
             # only check if the phone submit is the same with the current one
-            if obj.phone_number == phone_number:
-                raise
+            # if obj.phone_number == phone_number:
+            #     raise
 
         VerifyPhoneView.send_verification_phone(obj, phone_number, verified)
 
@@ -304,9 +307,13 @@ class VerifyPhoneView(APIView):
 
     @staticmethod
     def send_verification_phone(user: ExchangeUser, phone_number: str, verified: bool):
+        if user.phone_retry <= 0:
+            raise ExceedLimitException
+
         verification_code = generate_random_digit(6)
         user.pending_phone_number = phone_number
         user.phone_verification_code = verification_code
+        user.phone_retry = F('phone_retry') - 1
         if not verified:
             user.verification_level = VERIFICATION_LEVEL.level_2
             user.verification_status = VERIFICATION_STATUS.pending

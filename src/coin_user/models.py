@@ -22,6 +22,7 @@ class ExchangeUser(models.Model):
                                            default=VERIFICATION_STATUS.not_yet)
     email_verification_code = models.CharField(max_length=20, blank=True)
     phone_verification_code = models.CharField(max_length=10, blank=True)
+    phone_retry = models.IntegerField(default=10)
     security_2fa = models.BooleanField(default=False)
     security_2fa_secret = models.CharField(max_length=500, null=True, blank=True)
     language = models.CharField(max_length=10, choices=LANGUAGE, null=True)

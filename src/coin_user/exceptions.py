@@ -48,3 +48,9 @@ class InvalidPasswordException(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
     default_detail = 'Invalid password'
     default_code = 'invalid_password'
+
+
+class ExceedLimitException(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = 'Exceed limit'
+    default_code = 'exceed_limit'
