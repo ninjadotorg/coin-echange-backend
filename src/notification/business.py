@@ -1,27 +1,33 @@
-from django.conf import settings
+from datetime import timedelta
 
-from coin_exchange.constants import ORDER_TYPE
+from django.conf import settings
+from django.db.models import Q, F
+
+from coin_exchange.constants import ORDER_TYPE, ORDER_STATUS
+from coin_exchange.models import Order
 from coin_system.constants import CACHE_KEY_SYSTEM_REMINDER, CACHE_KEY_SYSTEM_NOTIFICATION
-from coin_user.constants import VERIFICATION_LEVEL
+from coin_user.constants import VERIFICATION_LEVEL, VERIFICATION_STATUS
+from coin_user.models import ExchangeUser
+from common.business import get_now
 from common.constants import DIRECTION
 from common.decorators import raise_api_exception, cache_first
 from common.exceptions import UnexpectedException
 from notification.constants import NOTIFICATION_METHOD, NOTIFICATION_GROUP
-from notification.models import SystemNotification, SystemReminder
+from notification.models import SystemNotification, SystemReminder, SystemReminderAction
 from notification.provider.email import EmailNotification
 from notification.provider.slack import SlackNotification
 from notification.provider.sms import SmsNotification
 
 
 @raise_api_exception(UnexpectedException)
-@cache_first(CACHE_KEY_SYSTEM_REMINDER, timeout=5*60)
-def get_system_reminder() -> list:
-    objs = SystemReminder.objects.filter(active=True)
+@cache_first(CACHE_KEY_SYSTEM_REMINDER, timeout=5 * 60)
+def get_system_reminder(group) -> list:
+    objs = SystemReminder.objects.filter(group=group, active=True)
     return [obj for obj in objs]
 
 
 @raise_api_exception(UnexpectedException)
-@cache_first(CACHE_KEY_SYSTEM_NOTIFICATION, timeout=5*60)
+@cache_first(CACHE_KEY_SYSTEM_NOTIFICATION, timeout=5 * 60)
 def get_system_notification(group) -> list:
     objs = SystemNotification.objects.filter(group=group, active=True)
     return [obj for obj in objs]
@@ -117,3 +123,113 @@ class UserVerificationNotification(object):
                 NotificationManagement.send_slack_notification(notification, slack_content)
             elif notification.method == NOTIFICATION_METHOD.sms:
                 NotificationManagement.send_sms_notification(notification, msg)
+
+
+class ReminderManagement(object):
+    @staticmethod
+    def get_action_to_do():
+        reminder_actions = SystemReminderAction.objects.all()
+        actions = []
+
+        # order_action = verification_action = None
+        pending_order = ReminderManagement.check_pending_order()
+        pending_verification = ReminderManagement.check_pending_verification()
+
+        # If there are current actions
+        for reminder_action in reminder_actions:
+            # No pending anymore
+            if reminder_action.reminder.group == NOTIFICATION_GROUP.order and not pending_order:
+                reminder_action.delete()
+            # No pending anymore
+            if reminder_action.reminder.group == NOTIFICATION_GROUP.notification and not pending_verification:
+                reminder_action.delete()
+
+            # Check if the action is not at on hold
+            if reminder_action.updated_at + timedelta(seconds=60 * reminder_action.stop_duration) < get_now():
+                # Check if the action still have active time
+                if reminder_action.active_time:
+                    # Check if the time is proper to do?
+                    if reminder_action.updated_at + timedelta(
+                            seconds=60 * reminder_action.reminder.frequency) < get_now():
+                        reminder_action.active_time = F('active_time') - 1
+                        reminder_action.save()
+                        actions.append(reminder_action)
+                else:
+                    # Not, go next
+                    # Check if the time is proper to do?
+                    if reminder_action.updated_at + timedelta(
+                            seconds=60 * reminder_action.reminder.break_duration) < get_now():
+
+                        reminder = ReminderManagement.get_next_reminder(reminder_action.group,
+                                                                        reminder_action.reminder.id)
+
+                        reminder_action.reminder = reminder
+                        reminder_action.active_time = reminder.times
+                        reminder.save()
+                        actions.append(reminder_action)
+            elif reminder_action.stop_duration:
+                # Time out of stop duration
+                # Just delete and the code below will add again to reset the action if needed
+                reminder_action.delete()
+
+        # There is no action, make one
+        if not actions:
+            if pending_order:
+                reminder = ReminderManagement.get_next_reminder(NOTIFICATION_GROUP.order)
+                if reminder:
+                    action = SystemReminderAction.objects.create(
+                        group=NOTIFICATION_GROUP.order,
+                        active_reminder=reminder,
+                        active_time=reminder.times - 1,
+                        stop_duration=0,
+                    )
+                    actions.append(action)
+
+            if pending_verification:
+                reminder = ReminderManagement.get_next_reminder(NOTIFICATION_GROUP.verification)
+                if reminder:
+                    action = SystemReminderAction.objects.create(
+                        group=NOTIFICATION_GROUP.verification,
+                        active_reminder=reminder,
+                        active_time=reminder.times - 1,
+                        stop_duration=0,
+                    )
+                    actions.append(action)
+
+        return actions
+
+    @staticmethod
+    def get_next_reminder(group, reminder_id: int = 0) -> SystemReminder:
+        reminders = get_system_reminder(group)
+        reminder = None
+        if not reminders:
+            if not reminder_id:
+                return reminders[0]
+            else:
+                find_next = False
+                for reminder in reminders:
+                    if find_next:
+                        return reminder
+                    if reminder.id == reminder_id:
+                        find_next = True
+        return reminder
+
+    @staticmethod
+    def check_pending_order():
+        # Check if there pending things to notify
+        pending_order = Order.objects.filter(
+            (Q(direction=DIRECTION.buy) & Q(order_type=ORDER_TYPE.cod) &
+             Q(status=ORDER_STATUS.pending)) |
+            (Q(direction=DIRECTION.buy) & Q(order_type=ORDER_TYPE.bank) &
+             Q(status=ORDER_STATUS.fiat_transferring)) |
+            (Q(direction=DIRECTION.sell) & Q(order_type=ORDER_TYPE.cod) &
+             Q(status=ORDER_STATUS.transferring))
+        ).exists()
+        return pending_order
+
+    @staticmethod
+    def check_pending_verification():
+        pending_verification = ExchangeUser.objects.filter(
+            verification_status=VERIFICATION_STATUS.pending,
+            verification_level__gt=VERIFICATION_LEVEL.level_2).exists()
+        return pending_verification

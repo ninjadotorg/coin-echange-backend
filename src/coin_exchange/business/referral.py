@@ -1,6 +1,7 @@
 from coin_exchange.constants import REFERRER_BONUS, REFEREE_BONUS
 from coin_exchange.models import Order, ReferralOrder
 from coin_system.business import markup_fee
+from coin_user.business import UserWalletManagement
 from coin_user.models import ExchangeUser
 
 
@@ -22,13 +23,13 @@ class ReferralManagement(object):
                           amount=referee_bonus,
                           currency=order.currency,
                           referrer=False,
-                          address='',
+                          address=UserWalletManagement.get_default_address(order.user, order.currency),
                           ),
             ReferralOrder(order=order,
                           user=referrer,
                           amount=referrer_bonus,
                           currency=order.currency,
                           referrer=True,
-                          address='',
+                          address=UserWalletManagement.get_default_address(referrer, order.currency),
                           ),
         )

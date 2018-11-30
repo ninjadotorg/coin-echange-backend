@@ -1,3 +1,5 @@
+import simplejson
+
 import requests
 from django.conf import settings
 
@@ -16,3 +18,21 @@ class UserVerificationManagement(object):
             }, headers={'Content-type': 'application/json'}, timeout=200)
         except Exception:
             pass
+
+
+class UserWalletManagement(object):
+    @staticmethod
+    def get_default_address(user: ExchangeUser, currency: str):
+        address = ''
+        try:
+            if user.wallet:
+                wallets = simplejson.loads(user.wallet)
+                for wallet in wallets:
+                    if wallet['name'] == currency:
+                        address = wallet['address']
+                        if wallet['default']:
+                            break
+        except Exception:
+            pass
+
+        return address
