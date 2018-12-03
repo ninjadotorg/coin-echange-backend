@@ -12,6 +12,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from coin_exchange.business.user_limit import update_currency
 from coin_exchange.models import UserLimit
 from notification.constants import EMAIL_PURPOSE, SMS_PURPOSE
 from coin_system.models import CountryDefaultConfig
@@ -37,12 +38,17 @@ class ProfileView(APIView):
         obj = ExchangeUser.objects.get(user=request.user)
         return Response(ExchangeUserSerializer(instance=obj).data)
 
+    @transaction.atomic
     def patch(self, request):
         obj = ExchangeUser.objects.select_related('user').get(user=request.user)
+        old_currency = obj.currency
         serializer = ExchangeUserProfileSerializer(instance=obj, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         user_serializer = UserSerializer(instance=obj.user, data=request.data, partial=True)
         user_serializer.is_valid(raise_exception=True)
+        if user_serializer.validated_data.get('currency') and \
+                old_currency != user_serializer.validated_data.get('currency'):
+            update_currency(obj, user_serializer.validated_data['currency'])
 
         obj = serializer.save()
         user_serializer.save()
