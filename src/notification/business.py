@@ -135,13 +135,21 @@ class ReminderManagement(object):
         pending_order = ReminderManagement.check_pending_order()
         pending_verification = ReminderManagement.check_pending_verification()
 
+        reminder_groups = {
+            NOTIFICATION_GROUP.order: {
+                'group': NOTIFICATION_GROUP.order,
+                'pending': pending_order,
+            },
+            NOTIFICATION_GROUP.notification: {
+                'group': NOTIFICATION_GROUP.notification,
+                'pending': pending_verification,
+            }
+        }
+
         # If there are current actions
         for reminder_action in reminder_actions:
             # No pending anymore
-            if reminder_action.reminder.group == NOTIFICATION_GROUP.order and not pending_order:
-                reminder_action.delete()
-            # No pending anymore
-            if reminder_action.reminder.group == NOTIFICATION_GROUP.notification and not pending_verification:
+            if not reminder_groups[reminder_action.reminder.group]['pending']:
                 reminder_action.delete()
 
             # Check if the action is not at on hold
@@ -174,29 +182,23 @@ class ReminderManagement(object):
 
         # There is no action, make one
         if not actions:
-            if pending_order:
-                reminder = ReminderManagement.get_next_reminder(NOTIFICATION_GROUP.order)
-                if reminder:
-                    action = SystemReminderAction.objects.create(
-                        group=NOTIFICATION_GROUP.order,
-                        active_reminder=reminder,
-                        active_time=reminder.times - 1,
-                        stop_duration=0,
-                    )
-                    actions.append(action)
-
-            if pending_verification:
-                reminder = ReminderManagement.get_next_reminder(NOTIFICATION_GROUP.verification)
-                if reminder:
-                    action = SystemReminderAction.objects.create(
-                        group=NOTIFICATION_GROUP.verification,
-                        active_reminder=reminder,
-                        active_time=reminder.times - 1,
-                        stop_duration=0,
-                    )
-                    actions.append(action)
+            for key, item in reminder_groups.items():
+                if item['pending']:
+                    reminder = ReminderManagement.get_next_reminder(key)
+                    if reminder:
+                        action = SystemReminderAction.objects.create(
+                            group=key,
+                            active_reminder=reminder,
+                            active_time=reminder.times - 1,
+                            stop_duration=0,
+                        )
+                        actions.append(action)
 
         return actions
+
+    @staticmethod
+    def do_reminder():
+        pass
 
     @staticmethod
     def get_next_reminder(group, reminder_id: int = 0) -> SystemReminder:
