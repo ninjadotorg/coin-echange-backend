@@ -21,6 +21,11 @@ ORDER_TYPE = Choices(
     ('cod', 'COD')
 )
 
+ORDER_USER_PAYMENT_TYPE = Choices(
+    ('bank', 'Bank'),
+    ('tng', 'TNG')
+)
+
 PAYMENT_STATUS = Choices(
     ('matched', 'Matched'),
     ('under', 'Under'),

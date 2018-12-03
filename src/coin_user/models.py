@@ -29,6 +29,7 @@ class ExchangeUser(models.Model):
     country = models.CharField(max_length=3, choices=COUNTRY, null=True)
     currency = models.CharField(max_length=5, choices=FIAT_CURRENCY, null=True)
     wallet = models.TextField(null=True, blank=True)
+    payment_info = models.TextField(null=True, blank=True)
     referral = models.ForeignKey('ExchangeUser', null=True, blank=True, related_name='referral_users',
                                  on_delete=models.SET_NULL)
     first_purchase = models.BooleanField(default=False)

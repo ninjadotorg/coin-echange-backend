@@ -2,7 +2,7 @@ from django.db import models
 
 from coin_base.models import TimestampedModel
 from coin_exchange.constants import ORDER_STATUS, ORDER_TYPE, PAYMENT_STATUS, TRACKING_ADDRESS_STATUS, \
-    TRACKING_TRANSACTION_STATUS, TRACKING_TRANSACTION_DIRECTION, REFERRAL_STATUS
+    TRACKING_TRANSACTION_STATUS, TRACKING_TRANSACTION_DIRECTION, REFERRAL_STATUS, ORDER_USER_PAYMENT_TYPE
 from coin_user.models import ExchangeUser
 from common import model_fields
 from common.constants import DIRECTION, DIRECTION_ALL
@@ -21,6 +21,7 @@ class Order(TimestampedModel):
     price = model_fields.FiatAmountField()
     status = models.CharField(max_length=20, choices=ORDER_STATUS, default=ORDER_STATUS.pending)
     order_type = models.CharField(max_length=20, choices=ORDER_TYPE)
+    order_user_payment_type = models.CharField(max_length=20, choices=ORDER_USER_PAYMENT_TYPE, null=True, blank=True)
     direction = model_fields.DirectionField()
     duration = models.IntegerField(null=True)
     fee = model_fields.FiatAmountField()

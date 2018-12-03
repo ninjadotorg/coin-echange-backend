@@ -34,8 +34,8 @@ class ExchangeUserSerializer(serializers.ModelSerializer):
 class ExchangeUserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExchangeUser
-        fields = ('language', 'country', 'currency',
-                  'first_name', 'last_name')
+        fields = ('language', 'currency',
+                  'first_name', 'last_name', 'payment_info')
 
     first_name = serializers.CharField()
     last_name = serializers.CharField()
