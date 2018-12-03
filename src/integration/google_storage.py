@@ -13,7 +13,6 @@ bucket = None
 
 @raise_api_exception(ExternalAPIException)
 def upload_file(full_file_name: str, file):
-
     blob = Blob(full_file_name, get_bucket())
     blob.upload_from_file(file)
 
