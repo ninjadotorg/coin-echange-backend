@@ -1,3 +1,4 @@
+import simplejson
 from datetime import timedelta
 from decimal import Decimal
 
@@ -16,14 +17,14 @@ from coin_exchange.constants import (
     ORDER_EXPIRATION_DURATION,
     DIFFERENT_THRESHOLD,
     REF_CODE_LENGTH,
-    ORDER_STATUS)
+    ORDER_STATUS, ORDER_USER_PAYMENT_TYPE)
 from coin_exchange.exceptions import AmountIsTooSmallException, PriceChangeException, InvalidOrderStatusException
 from coin_exchange.models import UserLimit, Pool, Order
 from coin_exchange.serializers import OrderSerializer, SellingOrderSerializer
 from coin_system.business import round_crypto_currency
 from common.business import validate_crypto_address, get_now, generate_random_code, RateManagement
 from common.constants import DIRECTION, CURRENCY, FIAT_CURRENCY, DIRECTION_ALL
-from common.exceptions import InvalidAddress
+from common.exceptions import InvalidAddress, InvalidInputDataException
 
 
 class OrderManagement(object):
@@ -248,6 +249,14 @@ class OrderManagement(object):
             check_fiat_amount = Decimal(quote_data['fiat_amount_cod'])
             check_fiat_local_amount = Decimal(quote_data['fiat_local_amount_cod'])
             check_fee = Decimal(quote_data['fee_cod'])
+        if direction == DIRECTION.sell:
+            if safe_data.get('user_info'):
+                user_info = simplejson.loads(safe_data['user_info'])
+                if safe_data['order_user_payment_type'] == ORDER_USER_PAYMENT_TYPE.tng:
+                    # Make sure
+                    if user.exchange_user.phone_number != user_info.get('bankUserPhoneNumber'):
+                        raise InvalidInputDataException
+
         OrderManagement._check_different_in_threshold(fiat_local_amount, check_fiat_local_amount)
         return check_fiat_amount, check_fee, quote_data
 
