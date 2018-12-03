@@ -1,4 +1,5 @@
 import logging
+import uuid
 
 import pyotp
 from django.conf import settings
@@ -8,12 +9,14 @@ from django.db import transaction
 from django.db.models import F
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
+from rest_framework.parsers import FileUploadParser
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from coin_exchange.business.user_limit import update_currency
 from coin_exchange.models import UserLimit
+from integration.google_storage import upload_file
 from notification.constants import EMAIL_PURPOSE, SMS_PURPOSE
 from coin_system.models import CountryDefaultConfig
 from coin_user.constants import VERIFICATION_LEVEL, VERIFICATION_STATUS
@@ -26,7 +29,7 @@ from coin_user.serializers import SignUpSerializer, ExchangeUserSerializer, Exch
     ResetPasswordSerializer, ChangePasswordSerializer
 from common.business import generate_random_code, generate_random_digit, Is2FA
 from common.constants import DIRECTION_ALL, CACHE_KEY_FORGOT_PASSWORD
-from common.exceptions import InvalidDataException
+from common.exceptions import InvalidDataException, InvalidInputDataException
 from notification.provider.email import EmailNotification
 from notification.provider.sms import SmsNotification
 
@@ -436,3 +439,23 @@ class ReferralView(APIView):
             'status': 'finished' if item.first_purchase else 'unfinished',
             'date_joined': item.user.date_joined,
         } for item in referrals])
+
+
+class FileUploadView(APIView):
+    permission_classes = (IsAuthenticated,)
+    parser_class = (FileUploadParser,)
+
+    def post(self, request, format=None):
+        if 'file' not in request.data:
+            raise InvalidInputDataException
+        if request.query_params.get('type', '') not in ['verification', 'receipt']:
+            raise InvalidInputDataException
+        file_type = request.query_params['type']
+
+        f = request.data['file']
+        ext = f.name.split('.')[-1]
+        # set filename as random string
+        filename = '{}.{}'.format(uuid.uuid4().hex, ext)
+        blob = upload_file('{}/{}'.format(file_type, filename), f)
+
+        return Response({'url': blob.public_url})

@@ -38,17 +38,17 @@ class ExchangeUser(models.Model):
         return '%s' % self.user.username
 
     def approve_verification(self):
-        self._change_verificaiton_status(VERIFICATION_STATUS.approved)
+        self._change_verification_status(VERIFICATION_STATUS.approved)
 
     def reject_verification(self):
-        self._change_verificaiton_status(VERIFICATION_STATUS.rejected)
+        self._change_verification_status(VERIFICATION_STATUS.rejected)
 
     def process_verification(self):
-        self._change_verificaiton_status(VERIFICATION_STATUS.processing)
+        self._change_verification_status(VERIFICATION_STATUS.processing)
 
-    def _change_verificaiton_status(self, status):
+    def _change_verification_status(self, status):
         self.verification_status = status
-        self.save(update_fields=['verification_status'])
+        self.save(update_fields=['phone_number', 'pending_phone_number', 'verification_status'])
 
 
 class AdminUser(models.Model):

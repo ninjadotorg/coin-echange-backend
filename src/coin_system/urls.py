@@ -17,7 +17,7 @@ patterns = ([
     path('currency-rates/', CurrencyRateView.as_view(), name='currency-rates'),
     path('crypto-rates/', CryptoRateView.as_view(), name='crypto-rates'),
     path('currency-level-limits/', CurrencyLevelLimitView.as_view(), name='currency-level-limits'),
-    path('languages/', LanguageView.as_view(), name='language-view')
+    path('languages/', LanguageView.as_view(), name='language-view'),
 ], 'system')
 
 urlpatterns = [

@@ -35,6 +35,7 @@ django-rest-swagger = "*"
 twilio = "*"
 redis = "==2.10.6"
 pyotp = "==2.2.7"
+google-cloud-storage = "==1.13.0"
 
 [dev-packages]
 "flake8" = "*"

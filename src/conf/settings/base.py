@@ -203,6 +203,9 @@ sentry_logging = LoggingIntegration(
 EMAIL_FROM_NAME = 'Coinbowl'
 EMAIL_FROM_ADDRESS = "info@coinbowl.com"
 
+GOOGLE_CLOUD_PROJECT = 'coin-exchange'
+STORAGE_BUCKET = 'coin-exchange-staging'
+
 FRONTEND_HOST = 'http://staging.coinbowl.com'
 API_HOST = 'http://localhost:8000/api'
 EXCHANGE_API = API_HOST + '/exchange'

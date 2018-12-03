@@ -3,6 +3,6 @@
 deployments
 src/media
 src/static
-src/conf/credentials
+src/conf/coin-exchange-storage.json
 src/conf/settings/local*.py
 src/assets/*
