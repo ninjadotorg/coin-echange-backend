@@ -1,3 +1,5 @@
+import logging
+
 import simplejson
 from datetime import timedelta
 from decimal import Decimal
@@ -6,7 +8,7 @@ import requests
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import transaction
-from django.db.models import F
+from django.db.models import F, Q
 
 from coin_exchange.business.crypto import CryptoTransactionManagement
 from coin_exchange.business.quote import QuoteManagement
@@ -25,6 +27,8 @@ from coin_system.business import round_crypto_currency
 from common.business import validate_crypto_address, get_now, generate_random_code, RateManagement
 from common.constants import DIRECTION, CURRENCY, FIAT_CURRENCY, DIRECTION_ALL
 from common.exceptions import InvalidAddress, InvalidInputDataException
+from common.provider_data import ProviderData
+from integration import bitstamp
 
 
 class OrderManagement(object):
@@ -214,6 +218,24 @@ class OrderManagement(object):
         else:
             pool.usage = F('usage') - amount
         pool.save()
+
+    @staticmethod
+    def load_transferring_order_to_track():
+        orders = Order.objects.filter(Q(tx_hash='') | Q(tx_hash__is_null=True),
+                                      order_type=ORDER_TYPE.buy, status=ORDER_STATUS.transferring)
+
+        list_tx = bitstamp.list_withdrawal_requests(30 * 60)
+        dict_tx = {tx['id']: tx for tx in list_tx}
+
+        for order in orders:
+            try:
+                data = ProviderData(None, order.provider_data).from_json()
+                tx = dict_tx.get(data.get('tx_id', ''))
+                if tx:
+                    order.tx_hash = tx['transaction_id']
+                    order.save(update_fields=['status', 'tx_hash', 'updated_at'])
+            except Exception as ex:
+                logging.exception(ex)
 
     @staticmethod
     def _check_minimum_amount(amount: Decimal, currency: str):

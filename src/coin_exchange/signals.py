@@ -52,7 +52,8 @@ def post_save_order(sender, **kwargs):
                         if order.order_type == ORDER_TYPE.bank:
                             OrderManagement.send_new_order_notification(order)
                     if order.status == ORDER_STATUS.transferring:
-                        TrackingManagement.create_tracking_simple_transaction(order)
+                        if order.tx_hash:
+                            TrackingManagement.create_tracking_simple_transaction(order)
                         ReferralManagement.create_referral(order)
                     elif order.status == ORDER_STATUS.success:
                         TrackingManagement.remove_tracking(order)

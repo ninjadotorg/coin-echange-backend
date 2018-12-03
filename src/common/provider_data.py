@@ -11,6 +11,9 @@ class ProviderData(object):
     def to_json(self):
         return simplejson.dumps(self.data)
 
+    def from_json(self):
+        return simplejson.loads(self.data)
+
 
 class BitstampProvider(ProviderData):
     def __init__(self, data):
