@@ -18,11 +18,13 @@ BACKEND_IMAGE="$NAMESPACE-backend-service"
 if [ $1 = "staging" ]
 then
     cp -a ./deployments/staging.py ./src/conf/settings/local.py
+    cp -a ./deployments/coin-exchange-storage.json ./src/conf/coin-exchange-storage.json
 fi
 
 if [ $1 = "production" ]
 then
     cp -a ./deployments/production.py ./src/conf/settings/local.py
+    cp -a ./deployments/coin-exchange-storage.json ./src/conf/coin-exchange-storage.json
 fi
 
 # Do migration
