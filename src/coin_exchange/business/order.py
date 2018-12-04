@@ -285,6 +285,9 @@ class OrderManagement(object):
 
     @staticmethod
     def send_new_order_notification(order: Order):
+        if settings.UNIT_TEST:
+            return
+
         url = settings.NOTIFICATION_API + '/new-order-notification/'
         try:
             requests.post(url, json={

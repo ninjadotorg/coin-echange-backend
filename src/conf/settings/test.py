@@ -1,6 +1,7 @@
 from .base import *  # noqa
 
 DEBUG = True
+UNIT_TEST = True
 
 DATABASES = {
     "default": {

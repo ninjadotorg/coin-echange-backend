@@ -12,6 +12,9 @@ from coin_user.models import ExchangeUser
 class UserVerificationManagement(object):
     @staticmethod
     def send_user_verification_request(user: ExchangeUser):
+        if settings.UNIT_TEST:
+            return
+
         url = settings.NOTIFICATION_API + '/user-verification-notification/'
         try:
             requests.post(url, json={
