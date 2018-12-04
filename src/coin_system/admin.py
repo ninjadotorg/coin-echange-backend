@@ -26,7 +26,8 @@ class CountryCurrencyAdmin(admin.ModelAdmin):
 
 @admin.register(PopularPlace)
 class PopularPlaceAdmin(admin.ModelAdmin):
-    list_display = ['country', 'name', 'address', 'active']
+    list_display = ['country', 'language', 'name', 'address', 'active']
+    list_filter = ('country', 'language',)
 
 
 @admin.register(CountryDefaultConfig)

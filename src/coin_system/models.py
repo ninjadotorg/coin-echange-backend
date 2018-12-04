@@ -64,6 +64,7 @@ class CountryCurrency(models.Model):
 
 class PopularPlace(models.Model):
     country = model_fields.CountryField()
+    language = model_fields.LanguageField(null=True, blank=True)
     name = models.CharField(max_length=100)
     address = models.CharField(max_length=500, blank=True)
     latitude = models.FloatField(null=True, blank=True)

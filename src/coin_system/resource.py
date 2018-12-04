@@ -38,6 +38,7 @@ class PopularPlaceViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = PopularPlaceSerializer
     filterset_fields = (
         'country',
+        'language',
     )
 
     # @method_decorator(cache_page(5*60))
