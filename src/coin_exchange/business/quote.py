@@ -5,11 +5,11 @@ from rest_framework.exceptions import NotAuthenticated, ValidationError
 
 from coin_exchange.constants import FEE_COIN_ORDER_COD, FEE_COIN_ORDER_BANK, FEE_COIN_SELLING_ORDER_BANK, ORDER_TYPE
 from coin_exchange.exceptions import CoinUserOverLimitException, CoinOverLimitException
-from coin_exchange.models import UserLimit, Pool
+from coin_exchange.models import UserLimit, Pool, Order
 from coin_exchange.serializers import QuoteSerializer, QuoteInputSerializer, QuoteReverseInputSerializer, \
     QuoteReverseSerializer
 from coin_system.business import markup_fee, round_currency, remove_markup_fee, round_crypto_currency
-from common.business import PriceManagement, RateManagement
+from common.business import PriceManagement, RateManagement, get_now
 from common.constants import FIAT_CURRENCY, DIRECTION, DIRECTION_ALL
 from common.exceptions import InvalidDataException
 
@@ -192,4 +192,35 @@ class QuoteManagement(object):
                 raise CoinUserOverLimitException
         except UserLimit.DoesNotExist as e:
             logging.exception(e)
+            raise InvalidDataException
+
+    @staticmethod
+    def check_cod_limit(user, local_amount, fiat_currency):
+        limit = {
+            FIAT_CURRENCY.USD: {
+                'min': Decimal('2000'),
+                'max': Decimal('3000'),
+            },
+            FIAT_CURRENCY.HKD: {
+                'min': Decimal('15000'),
+                'max': Decimal('25000'),
+            },
+        }
+
+        data = limit.get(fiat_currency)
+        if data:
+            exchange_user = user.exchange_user
+            if exchange_user.currency != fiat_currency:
+                check_amount = RateManagement.convert_currency(local_amount, exchange_user.currency, fiat_currency)
+                if not (data['min'] <= check_amount <= data['max']):
+                    raise CoinUserOverLimitException
+            now = get_now()
+            order = Order.objects.filter(direction=DIRECTION.buy,
+                                         order_type=ORDER_TYPE.cod,
+                                         created_at__day=now.day,
+                                         created_at__month=now.month,
+                                         created_at__year=now.year, ).first()
+            if order:
+                raise CoinUserOverLimitException
+        else:
             raise InvalidDataException
