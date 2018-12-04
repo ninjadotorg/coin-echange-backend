@@ -82,7 +82,7 @@ class OrderViewSet(mixins.CreateModelMixin,
                 and order.user.user == request.user:
             instance = serializer.save(status=ORDER_STATUS.fiat_transferring)
             # To trigger signal
-            instance.save(updated_fields=['status'])
+            instance.save(update_fields=['status'])
         else:
             raise InvalidOrderStatusException
 
