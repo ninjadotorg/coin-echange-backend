@@ -75,6 +75,16 @@ class PopularPlace(models.Model):
         return '%s (%s)' % (self.name, self.country)
 
 
+class PopularBank(models.Model):
+    country = model_fields.CountryField()
+    language = model_fields.LanguageField(null=True, blank=True)
+    name = models.CharField(max_length=100)
+    active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return '%s (%s)' % (self.name, self.country)
+
+
 class CountryDefaultConfig(models.Model):
     country = model_fields.CountryField(primary_key=True)
     country_name = models.CharField(max_length=50, blank=True)

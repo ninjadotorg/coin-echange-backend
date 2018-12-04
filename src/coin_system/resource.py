@@ -3,9 +3,10 @@
 from rest_framework import viewsets, mixins
 from rest_framework.viewsets import GenericViewSet
 
-from coin_system.models import Bank, PopularPlace, CountryCurrency, CountryDefaultConfig, LandingPageContact
+from coin_system.models import Bank, PopularPlace, CountryCurrency, CountryDefaultConfig, LandingPageContact, \
+    PopularBank
 from coin_system.serializers import BankSerializer, PopularPlaceSerializer, CountryCurrencySerializer, \
-    CountryDefaultConfigSerializer, ContactSerializer
+    CountryDefaultConfigSerializer, ContactSerializer, PopularBankSerializer
 
 
 class BankViewSet(viewsets.ReadOnlyModelViewSet):
@@ -44,6 +45,19 @@ class PopularPlaceViewSet(viewsets.ReadOnlyModelViewSet):
     # @method_decorator(cache_page(5*60))
     def dispatch(self, *args, **kwargs):
         return super(PopularPlaceViewSet, self).dispatch(*args, **kwargs)
+
+
+class PopularBankViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = PopularBank.objects.filter(active=True)
+    serializer_class = PopularBankSerializer
+    filterset_fields = (
+        'country',
+        'language',
+    )
+
+    # @method_decorator(cache_page(5*60))
+    def dispatch(self, *args, **kwargs):
+        return super(PopularBankViewSet, self).dispatch(*args, **kwargs)
 
 
 class CountryDefaultConfigViewSet(viewsets.ReadOnlyModelViewSet):

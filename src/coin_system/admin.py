@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from coin_system.models import Config, Fee, Bank, CountryCurrency, PopularPlace, CountryDefaultConfig, \
-    LandingPageContact
+    LandingPageContact, PopularBank
 
 
 @admin.register(Config)
@@ -27,6 +27,12 @@ class CountryCurrencyAdmin(admin.ModelAdmin):
 @admin.register(PopularPlace)
 class PopularPlaceAdmin(admin.ModelAdmin):
     list_display = ['country', 'language', 'name', 'address', 'active']
+    list_filter = ('country', 'language',)
+
+
+@admin.register(PopularBank)
+class PopularBankAdmin(admin.ModelAdmin):
+    list_display = ['country', 'language', 'name', 'active']
     list_filter = ('country', 'language',)
 
 

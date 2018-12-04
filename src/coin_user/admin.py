@@ -2,6 +2,7 @@ import simplejson
 
 from django.contrib import admin
 from django.db import transaction
+from django.db.models import Q
 from django.http import HttpResponseRedirect
 from django.urls import path, reverse
 from django.utils.html import format_html
@@ -166,7 +167,7 @@ class PaymentUserAdmin(admin.ModelAdmin):
         return super().changelist_view(request, *args, **kwargs)
 
     def get_queryset(self, request):
-        return PaymentUser.objects.exclude(payment_info='')
+        return PaymentUser.objects.exclude(Q(payment_info__isnull=True) | Q(payment_info=''))
 
     def display_payment_info(self, obj):
         data = '-'

@@ -41,4 +41,5 @@ STATIC_PAGE = Choices(
     ('privacy', 'Privacy'),
     ('agreement', 'Agreement'),
     ('promotion_programs', 'Promotion Programs'),
+    ('how_it_works', 'How It Works'),
 )
