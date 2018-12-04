@@ -26,7 +26,11 @@ def get_address(address: str) -> AddressResponse:
     resp = make_request('module=account&action=txlist&address={}&sort=asc'.format(address))
     data = resp.json()
     if data['status'] != '1':
-        raise ExternalAPIException
+        return AddressResponse(address,
+                               None,
+                               tx_hashes=[],
+                               unconfirmed_balance=None,
+                               unconfirmed_tx=None)
 
     addr_obj = AddressResponse(address,
                                None,
