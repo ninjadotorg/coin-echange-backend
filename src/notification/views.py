@@ -6,6 +6,7 @@ from notification.business import OrderNotification, UserVerificationNotificatio
 
 class NewOrderNotificationView(APIView):
     def post(self, request, format=None):
+        print(request.data)
         OrderNotification.send_new_order_notification(request.data)
         return Response()
 

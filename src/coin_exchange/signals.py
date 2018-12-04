@@ -30,7 +30,6 @@ def post_save_order(sender, **kwargs):
     order = kwargs['instance']
     created = kwargs['created']
     try:
-
         if created:
             OrderManagement.increase_limit(order.user, order.amount, order.currency, order.direction,
                                            order.fiat_local_amount, order.fiat_local_currency)

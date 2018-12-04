@@ -14,7 +14,7 @@ class UserVerificationManagement(object):
     def send_user_verification_request(user: ExchangeUser):
         url = settings.NOTIFICATION_API + '/user-verification-notification/'
         try:
-            requests.post(url, data={
+            requests.post(url, json={
                 'level': user.verification_level,
                 'id': user.id,
                 'name': user.name,

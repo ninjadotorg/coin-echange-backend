@@ -287,7 +287,7 @@ class OrderManagement(object):
     def send_new_order_notification(order: Order):
         url = settings.NOTIFICATION_API + '/new-order-notification/'
         try:
-            requests.post(url, data={
+            requests.post(url, json={
                 'order_type': order.order_type,
                 'direction': order.direction,
                 'ref_code': order.ref_code,
