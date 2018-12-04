@@ -53,4 +53,7 @@ class CurrencyLevelLimitView(APIView):
 
 class LanguageView(APIView):
     def get(self, request, format=None):
-        return Response(LANGUAGE)
+        return Response({
+            LANGUAGE.en: LANGUAGE[LANGUAGE.en],
+            LANGUAGE.hk: LANGUAGE[LANGUAGE.hk],
+        })

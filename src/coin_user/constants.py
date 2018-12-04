@@ -16,6 +16,14 @@ VERIFICATION_STATUS = Choices(
     ('approved', 'Approved'),
 )
 
+PAYMENT_VERIFICATION_STATUS = Choices(
+    ('not_yet', 'Not Yet'),
+    ('pending', 'Pending'),
+    ('processing', 'Processing'),
+    ('rejected', 'Rejected'),
+    ('verified', 'Verified'),
+)
+
 ID_TYPE = Choices(
     ('passport', 'Passport'),
     ('driver_license', 'Driver License'),

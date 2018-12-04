@@ -44,7 +44,10 @@ class ProfileView(APIView):
     @transaction.atomic
     def patch(self, request):
         obj = ExchangeUser.objects.select_related('user').get(user=request.user)
+
         old_currency = obj.currency
+        old_payment_info = obj.payment_info
+
         serializer = ExchangeUserProfileSerializer(instance=obj, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         user_serializer = UserSerializer(instance=obj.user, data=request.data, partial=True)
@@ -52,6 +55,10 @@ class ProfileView(APIView):
         if user_serializer.validated_data.get('currency') and \
                 old_currency != user_serializer.validated_data.get('currency'):
             update_currency(obj, user_serializer.validated_data['currency'])
+
+        if user_serializer.validated_data.get('payment_info') and \
+                old_payment_info != user_serializer.validated_data.get('payment_info'):
+            obj.change_payment_verification(save=False)
 
         obj = serializer.save()
         user_serializer.save()

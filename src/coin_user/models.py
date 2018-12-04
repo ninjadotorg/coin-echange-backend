@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from django.db import models
 
 from coin_base.models import TimestampedModel
-from coin_user.constants import VERIFICATION_LEVEL, ID_TYPE, VERIFICATION_STATUS
+from coin_user.constants import VERIFICATION_LEVEL, ID_TYPE, VERIFICATION_STATUS, PAYMENT_VERIFICATION_STATUS
 from common.constants import LANGUAGE, COUNTRY, FIAT_CURRENCY
 
 
@@ -30,6 +30,8 @@ class ExchangeUser(models.Model):
     currency = models.CharField(max_length=5, choices=FIAT_CURRENCY, null=True)
     wallet = models.TextField(null=True, blank=True)
     payment_info = models.TextField(null=True, blank=True)
+    payment_verification_status = models.CharField(max_length=30, choices=PAYMENT_VERIFICATION_STATUS,
+                                                   default=PAYMENT_VERIFICATION_STATUS.not_yet)
     referral = models.ForeignKey('ExchangeUser', null=True, blank=True, related_name='referral_users',
                                  on_delete=models.SET_NULL)
     first_purchase = models.BooleanField(default=False)
@@ -49,6 +51,23 @@ class ExchangeUser(models.Model):
     def _change_verification_status(self, status):
         self.verification_status = status
         self.save(update_fields=['phone_number', 'pending_phone_number', 'verification_status'])
+
+    def change_payment_verification(self, save=True):
+        self._change_payment_verification_status(PAYMENT_VERIFICATION_STATUS.pending, save=save)
+
+    def approve_payment_verification(self):
+        self._change_payment_verification_status(PAYMENT_VERIFICATION_STATUS.verified, save=True)
+
+    def reject_payment_verification(self):
+        self._change_payment_verification_status(PAYMENT_VERIFICATION_STATUS.rejected, save=True)
+
+    def process_payment_verification(self):
+        self._change_payment_verification_status(PAYMENT_VERIFICATION_STATUS.processing, save=True)
+
+    def _change_payment_verification_status(self, status, save=True):
+        self.payment_verification_status = status
+        if save:
+            self.save(update_fields=['payment_info', 'payment_verification_status'])
 
 
 class AdminUser(models.Model):

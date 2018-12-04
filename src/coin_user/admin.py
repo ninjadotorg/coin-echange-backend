@@ -1,3 +1,5 @@
+import simplejson
+
 from django.contrib import admin
 from django.db import transaction
 from django.http import HttpResponseRedirect
@@ -6,7 +8,7 @@ from django.utils.html import format_html
 from django.utils.http import urlunquote
 
 from coin_exchange.models import UserLimit
-from coin_user.constants import VERIFICATION_LEVEL, VERIFICATION_STATUS
+from coin_user.constants import VERIFICATION_LEVEL, VERIFICATION_STATUS, PAYMENT_VERIFICATION_STATUS
 from coin_user.models import ExchangeUser
 
 
@@ -32,7 +34,7 @@ class ExchangeUserAdmin(admin.ModelAdmin):
                     'display_front_image', 'display_back_image', 'display_selfie_image',
                     'display_level', 'display_status', 'country', 'user_actions']
     inlines = (UserLimitInline,)
-    list_filter = ('country', 'verification_level', 'verification_status')
+    list_filter = ('verification_level', 'verification_status', 'country')
     search_fields = ['name']
 
     def changelist_view(self, request, *args, **kwargs):
@@ -146,3 +148,110 @@ class ExchangeUserAdmin(admin.ModelAdmin):
             <img src="{}" width="75" height="75" />
         </a>
         ''', image_url, image_url) if image_url else ''
+
+
+class PaymentUser(ExchangeUser):
+    class Meta:
+        proxy = True
+
+
+@admin.register(PaymentUser)
+class PaymentUserAdmin(admin.ModelAdmin):
+    list_display = ['user', 'name', 'display_payment_info', 'payment_verification_status', 'country', 'user_actions']
+    list_filter = ('payment_verification_status', 'country')
+    search_fields = ['name']
+
+    def changelist_view(self, request, *args, **kwargs):
+        self.request = request
+        return super().changelist_view(request, *args, **kwargs)
+
+    def get_queryset(self, request):
+        return PaymentUser.objects.exclude(payment_info='')
+
+    def display_payment_info(self, obj):
+        data = '-'
+        if obj.payment_info:
+            try:
+                data = simplejson.loads(obj.payment_info)
+                result = '<table>'
+                for key, value in data.items():
+                    result += '<tr><td>{}</td><td>{}</td></tr>'.format(key, value)
+                result += '</table>'
+                data = format_html(result)
+            except Exception:
+                data = obj.payment_info
+
+        return data
+
+    display_payment_info.short_description = 'Payment Info'
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path('verify-process/<int:user_id>',
+                 self.admin_site.admin_view(self.user_verify_process),
+                 name='user-payment-verify-process'),
+            path('verify-approve/<int:user_id>',
+                 self.admin_site.admin_view(self.user_verify_approve),
+                 name='user-payment-verify-approve'),
+            path('verify-reject/<int:user_id>',
+                 self.admin_site.admin_view(self.user_verify_reject),
+                 name='user-payment-verify-reject'),
+        ]
+        return custom_urls + urls
+
+    def user_verify_process(self, request, user_id, *args, **kwargs):
+        return self.do_action(request, user_id, self._do_change_verify_process)
+
+    def user_verify_approve(self, request, user_id, *args, **kwargs):
+        return self.do_action(request, user_id, self._do_change_verify_approve)
+
+    def user_verify_reject(self, request, user_id, *args, **kwargs):
+        return self.do_action(request, user_id, self._do_change_verify_reject)
+
+    def do_action(self, request, user_id, action_func):
+        user = self.get_object(request, user_id)
+        action_func(user)
+
+        # Get it back
+        changelist_filters = request.GET.get('_changelist_filters')
+        return HttpResponseRedirect('../?{}'.format(urlunquote(changelist_filters) if changelist_filters else ''))
+
+    def _do_change_verify_process(self, user):
+        user.process_payment_verification()
+
+    def _do_change_verify_approve(self, user):
+        user.approve_payment_verification()
+
+    def _do_change_verify_reject(self, user):
+        user.reject_payment_verification()
+
+    def user_actions(self, obj):
+        if obj.payment_verification_status == PAYMENT_VERIFICATION_STATUS.pending:
+            return self._get_process_button(obj)
+        if obj.payment_verification_status == PAYMENT_VERIFICATION_STATUS.processing:
+            return self._get_approve_button(obj) + format_html('&nbsp;') + self._get_reject_button(obj)
+
+    user_actions.short_description = 'Actions'
+    user_actions.allow_tags = True
+
+    def _get_process_button(self, obj):
+        return format_html(
+            '<a class="button" href="{}?{}">Process</a>',
+            reverse('admin:user-payment-verify-process', args=[obj.pk]),
+            self.get_preserved_filters(self.request),
+        )
+
+    def _get_approve_button(self, obj):
+        return format_html(
+            '''<a class="button" href="{}?{}" onclick="return confirm('Are you sure?')">Approve</a>''',
+            reverse('admin:user-payment-verify-approve', args=[obj.pk]),
+            self.get_preserved_filters(self.request),
+        )
+
+    def _get_reject_button(self, obj):
+        return format_html(
+            '''<a class="button" href="{}?{}" onclick="return confirm('Are you sure?')">Reject</a>''',
+            reverse('admin:user-payment-verify-reject', args=[obj.pk]),
+            self.get_preserved_filters(self.request),
+        )

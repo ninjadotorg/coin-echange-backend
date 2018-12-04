@@ -1,3 +1,5 @@
+import simplejson
+
 from django import forms
 from django.contrib import messages
 from django.db import transaction
@@ -7,7 +9,7 @@ from django.urls import reverse
 from django.utils.http import urlunquote
 
 from coin_exchange.business.order import OrderManagement
-from coin_exchange.constants import ORDER_STATUS, ORDER_TYPE, PAYMENT_STATUS
+from coin_exchange.constants import ORDER_STATUS, ORDER_TYPE, PAYMENT_STATUS, ORDER_USER_PAYMENT_TYPE
 from coin_exchange.models import Order
 from coin_exchange.widgets import ImageWidget, CryptoTransactionWidget, CryptoAmountWidget, FiatAmountWidget, \
     TextWidget, JSONWidget, CryptoAddressWidget, PaymentTransactionWidget
@@ -118,6 +120,13 @@ def custom_order_cod_view(admin_view, request, pk, title, read_only):
 
     order = Order.objects.get(id=pk)
     if request.method != 'POST':
+        user_info = order.user_info
+        try:
+            user_info = simplejson.loads(user_info)
+            user_info = simplejson.dumps(user_info, indent=2, sort_keys=True)
+        except Exception:
+            pass
+
         form = OrderCODForm(initial={
             'id': order.id,
             'user': order.user,
@@ -126,7 +135,7 @@ def custom_order_cod_view(admin_view, request, pk, title, read_only):
             'fiat_local_amount': order.fiat_local_amount,
             'fiat_local_currency': order.fiat_local_currency,
             'address': order.address,
-            'user_info': order.user_info,
+            'user_info': user_info,
             'ref_code': order.ref_code,
             'tx_hash': order.tx_hash,
             'instance': order,
@@ -174,6 +183,7 @@ class SellingOrderForm(forms.Form):
     fiat_local_amount = forms.DecimalField(label='Fiat Amount', max_digits=18, decimal_places=2,
                                            disabled=True, widget=FiatAmountWidget)
     ref_code = forms.CharField(label='Ref Code', disabled=True, widget=TextWidget)
+    order_user_payment_type = forms.CharField(label='Payment Type', disabled=True, widget=TextWidget)
     user_info = forms.CharField(label='User Info', disabled=True, widget=JSONWidget)
     address = forms.CharField(label='Receiving address', disabled=True, widget=CryptoAddressWidget)
     payment = forms.CharField(label='Total received', disabled=True, widget=TextWidget)
@@ -205,6 +215,13 @@ def custom_selling_order_view(admin_view, request, pk, title, read_only):
             payment = order.selling_order_payments.first()
             payment_details = payment.selling_payment_details
 
+        user_info = order.user_info
+        try:
+            user_info = simplejson.loads(user_info)
+            user_info = simplejson.dumps(user_info, indent=2, sort_keys=True)
+        except Exception:
+            pass
+
         form = SellingOrderForm(initial={
             'id': order.id,
             'user': order.user,
@@ -215,7 +232,9 @@ def custom_selling_order_view(admin_view, request, pk, title, read_only):
             'fiat_local_amount': order.fiat_local_amount,
             'fiat_local_currency': order.fiat_local_currency,
             'address': order.address,
-            'user_info': order.user_info,
+            'order_user_payment_type': ORDER_USER_PAYMENT_TYPE[order.order_user_payment_type]
+            if order.order_user_payment_type else '-',
+            'user_info': user_info,
             'ref_code': order.ref_code,
             'tx_hash': order.tx_hash,
             'instance': order,
