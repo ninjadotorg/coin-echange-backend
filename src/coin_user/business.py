@@ -1,7 +1,10 @@
+import logging
+
 import simplejson
 
 import requests
 from django.conf import settings
+from requests import Timeout
 
 from coin_user.models import ExchangeUser
 
@@ -16,8 +19,10 @@ class UserVerificationManagement(object):
                 'id': user.id,
                 'name': user.name,
             }, headers={'Content-type': 'application/json'}, timeout=200)
-        except Exception:
+        except Timeout:
             pass
+        except Exception as ex:
+            logging.error(ex)
 
 
 class UserWalletManagement(object):

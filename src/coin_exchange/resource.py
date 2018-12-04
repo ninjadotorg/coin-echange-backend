@@ -80,7 +80,9 @@ class OrderViewSet(mixins.CreateModelMixin,
         serializer.is_valid(True)
         if order.order_type == ORDER_TYPE.bank and order.status == ORDER_STATUS.pending \
                 and order.user.user == request.user:
-            serializer.save(status=ORDER_STATUS.fiat_transferring)
+            instance = serializer.save(status=ORDER_STATUS.fiat_transferring)
+            # To trigger signal
+            instance.save(updated_fields=['status'])
         else:
             raise InvalidOrderStatusException
 

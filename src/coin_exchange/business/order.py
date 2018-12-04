@@ -9,6 +9,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import transaction
 from django.db.models import F, Q
+from requests import Timeout
 
 from coin_exchange.business.crypto import CryptoTransactionManagement
 from coin_exchange.business.quote import QuoteManagement
@@ -292,5 +293,7 @@ class OrderManagement(object):
                 'ref_code': order.ref_code,
                 'id': order.id,
             }, headers={'Content-type': 'application/json'}, timeout=200)
-        except Exception:
+        except Timeout:
             pass
+        except Exception as ex:
+            logging.error(ex)

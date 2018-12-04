@@ -82,7 +82,7 @@ class OrderNotification(object):
             else:
                 order_page = 'order'
 
-        order_link = settings.FRONTEND_HOST + '/admin/' + order_page + '/?q=' + order_data['ref_code']
+        order_link = settings.FRONTEND_HOST + '/admin/coin_exchange/' + order_page + '/?q=' + order_data['ref_code']
         email_content = email_template.format(order_data['id'], order_link)
 
         slack_content = msg + '\n' + 'Click here to view the Order #{} - {}'.format(order_data['id'], order_link)
