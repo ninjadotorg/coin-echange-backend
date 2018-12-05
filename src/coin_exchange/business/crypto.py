@@ -8,6 +8,7 @@ from django.db.models import Q
 from coin_exchange.constants import TRACKING_ADDRESS_STATUS, TRACKING_TRANSACTION_STATUS, \
     TRACKING_TRANSACTION_DIRECTION, ORDER_STATUS, PAYMENT_STATUS
 from coin_exchange.models import TrackingAddress, Order, TrackingTransaction, SellingPayment, SellingPaymentDetail
+from coin_system.business import round_crypto_currency
 from coin_user.models import ExchangeUser
 from common.constants import CURRENCY, DIRECTION
 from common.provider_data import BitstampTxData
@@ -44,7 +45,7 @@ class CryptoTransactionManagement(object):
             tx_hash = 'ThisIsATestTransactionHash'
             provider_data['tx_id'] = 'TestProviderTransactionId'
         else:
-            tx_id = bitstamp.send_transaction(address, currency, amount)
+            tx_id = bitstamp.send_transaction(address, currency, round_crypto_currency(amount))
             # Get transaction in 1 minutes to find this one
             list_tx = bitstamp.list_withdrawal_requests(1 * 60)
             for tx in list_tx:

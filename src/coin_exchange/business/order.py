@@ -223,7 +223,7 @@ class OrderManagement(object):
     @staticmethod
     def load_transferring_order_to_track():
         orders = Order.objects.filter(Q(tx_hash='') | Q(tx_hash__isnull=True),
-                                      order_type=ORDER_TYPE.buy, status=ORDER_STATUS.transferring)
+                                      direction=DIRECTION.buy, status=ORDER_STATUS.transferring)
 
         list_tx = bitstamp.list_withdrawal_requests(30 * 60)
         dict_tx = {tx['id']: tx for tx in list_tx}
