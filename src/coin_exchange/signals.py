@@ -10,6 +10,7 @@ from coin_exchange.business.referral import ReferralManagement
 from coin_exchange.business.user_limit import update_limit_by_level
 from coin_exchange.constants import ORDER_STATUS, PAYMENT_STATUS, ORDER_TYPE
 from coin_exchange.models import Order, SellingPaymentDetail
+from coin_user.business import UserManagement
 from coin_user.constants import VERIFICATION_STATUS
 from coin_user.models import ExchangeUser
 from common.constants import DIRECTION
@@ -55,12 +56,14 @@ def post_save_order(sender, **kwargs):
                             TrackingManagement.create_tracking_simple_transaction(order)
                         ReferralManagement.create_referral(order)
                     elif order.status == ORDER_STATUS.success:
+                        UserManagement.update_first_purchase(order.user)
                         TrackingManagement.remove_tracking(order)
                         # TODO Send notification
                 elif order.direction == DIRECTION.sell:
                     if order.status == ORDER_STATUS.transferred:
                         TrackingManagement.remove_tracking(order)
                     elif order.status == ORDER_STATUS.success:
+                        UserManagement.update_first_purchase(order.user)
                         ReferralManagement.create_referral(order)
                         TrackingManagement.remove_tracking(order)
                         # TODO Send notification

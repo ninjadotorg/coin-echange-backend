@@ -7,6 +7,7 @@ from django.conf import settings
 from requests import Timeout
 
 from coin_user.models import ExchangeUser
+from common.business import get_now
 
 
 class UserVerificationManagement(object):
@@ -44,3 +45,11 @@ class UserWalletManagement(object):
             pass
 
         return address
+
+
+class UserManagement(object):
+    @staticmethod
+    def update_first_purchase(user: ExchangeUser):
+        if not user.first_purchase:
+            user.first_purchase = get_now()
+            user.save(update_fields=['first_purchase'])

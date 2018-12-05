@@ -185,7 +185,7 @@ class OrderManagement(object):
         # Convert local currency to user currency
         update_amount = fiat_local_amount
         if user.currency != fiat_local_currency:
-            update_amount = RateManagement.convert_currency(update_amount, user.currency, fiat_local_currency)
+            update_amount = RateManagement.convert_currency(update_amount, fiat_local_currency, user.currency)
         UserLimit.objects.filter(user=user,
                                  direction=DIRECTION_ALL,
                                  fiat_currency=user.currency) \
@@ -201,7 +201,7 @@ class OrderManagement(object):
         # Convert local currency to user currency
         update_amount = fiat_local_amount
         if user.currency != fiat_local_currency:
-            update_amount = RateManagement.convert_currency(update_amount, user.currency, fiat_local_currency)
+            update_amount = RateManagement.convert_currency(update_amount, fiat_local_currency, user.currency)
 
         user_limit = UserLimit.objects.get(user=user,
                                            direction=DIRECTION_ALL,
