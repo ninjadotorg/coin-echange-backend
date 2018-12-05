@@ -96,3 +96,4 @@ class TrackingTransactionDetailView(APIView):
 class TrackingBitstampTransaction(APIView):
     def post(self, request, format=None):
         OrderManagement.load_transferring_order_to_track()
+        return Response()
