@@ -197,7 +197,7 @@ class TrackingManagement(object):
 
     @staticmethod
     def remove_tracking(order: Order):
-        TrackingTransaction.objects.filter(Q(order=order) | Q(address__iexact=order.order_address)).delete()
+        TrackingTransaction.objects.filter(Q(order=order) | Q(address__iexact=order.address)).delete()
         TrackingAddress.objects.filter(order=order).delete()
 
     @staticmethod

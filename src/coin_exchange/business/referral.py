@@ -15,6 +15,9 @@ class ReferralManagement(object):
         except ExchangeUser.DoesNotExist:
             return
 
+        if not referrer:
+            return
+
         referee = order.user
         referrals = []
 
