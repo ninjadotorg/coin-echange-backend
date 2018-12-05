@@ -34,7 +34,7 @@ class ExchangeUser(models.Model):
                                                    default=PAYMENT_VERIFICATION_STATUS.not_yet)
     referral = models.ForeignKey('ExchangeUser', null=True, blank=True, related_name='referral_users',
                                  on_delete=models.SET_NULL)
-    first_purchase = models.DateTimeField(null=True)
+    # first_purchase = models.DateTimeField(null=True)
 
     def __str__(self):
         return '%s' % self.user.username
