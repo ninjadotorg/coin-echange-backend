@@ -6,3 +6,4 @@ src/static
 src/conf/coin-exchange-storage.json
 src/conf/settings/local*.py
 src/assets/*
+*/__pycache__
