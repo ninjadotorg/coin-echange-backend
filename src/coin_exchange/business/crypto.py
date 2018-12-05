@@ -49,11 +49,11 @@ class CryptoTransactionManagement(object):
             # Get transaction in 1 minutes to find this one
             list_tx = bitstamp.list_withdrawal_requests(1 * 60)
             for tx in list_tx:
-                if tx['id'] == tx_id:
+                if tx['id'] == tx_id['id']:
                     tx_hash = tx['transaction_id']
                     break
 
-            provider_data['tx_id'] = tx_id
+            provider_data['tx_id'] = tx_id['id']
 
         return tx_hash, BitstampTxData(provider_data).to_json()
 
