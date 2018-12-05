@@ -52,12 +52,12 @@ class ProfileView(APIView):
         serializer.is_valid(raise_exception=True)
         user_serializer = UserSerializer(instance=obj.user, data=request.data, partial=True)
         user_serializer.is_valid(raise_exception=True)
-        if user_serializer.validated_data.get('currency') and \
-                old_currency != user_serializer.validated_data.get('currency'):
-            update_currency(obj, user_serializer.validated_data['currency'])
+        if serializer.validated_data.get('currency') and \
+                old_currency != serializer.validated_data.get('currency'):
+            update_currency(obj, serializer.validated_data['currency'])
 
-        if user_serializer.validated_data.get('payment_info') and \
-                old_payment_info != user_serializer.validated_data.get('payment_info'):
+        if serializer.validated_data.get('payment_info') and \
+                old_payment_info != serializer.validated_data.get('payment_info'):
             obj.change_payment_verification(save=False)
 
         obj = serializer.save()

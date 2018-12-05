@@ -161,3 +161,42 @@ class ReferralOrder(TimestampedModel):
         return '{:.6f}'.format(self.amount)
 
     format_amount.short_description = 'Amount'
+
+
+class PromotionRule(TimestampedModel):
+    country = model_fields.CountryField()
+    currency = model_fields.FiatCurrencyField()
+    active = models.BooleanField(default=True)
+    first_click_count = models.IntegerField(default=0)
+    first_click_amount = models.IntegerField(default=0)
+    first_click_days = models.IntegerField(default=0)
+    first_click_bonus = model_fields.FiatAmountField()
+    first_referral_count = models.IntegerField(default=0)
+    first_referral_amount = model_fields.FiatAmountField(default=0)
+    first_referral_referrer_bonus = model_fields.FiatAmountField(default=0)
+    first_referral_referee_bonus = model_fields.FiatAmountField(default=0)
+    referrer_percentage = models.DecimalField(max_digits=7, decimal_places=4, default=0)
+    referrer_next_duration = models.IntegerField(default=0)
+    referrer_percentage_2 = models.DecimalField(max_digits=7, decimal_places=4, default=0)
+    referee_percentage = models.DecimalField(max_digits=7, decimal_places=4, default=0)
+    referee_next_duration = models.IntegerField(default=0)
+    referee_percentage_2 = models.DecimalField(max_digits=7, decimal_places=4, default=0)
+
+
+class PromotionUser(TimestampedModel):
+    user = models.OneToOneField(Order, related_name='user_promotion', on_delete=models.PROTECT)
+    first_click_count = models.IntegerField(default=0)
+    first_click_amount = model_fields.FiatAmountField(default=0)
+    first_click_expired = models.DateTimeField(null=True)
+    referral_count = models.IntegerField(default=0)
+    currency = model_fields.FiatCurrencyField()
+
+
+class PromotionOrder(TimestampedModel):
+    order = models.ForeignKey(Order, related_name='order_promotions', on_delete=models.PROTECT)
+    user = models.ForeignKey(Order, related_name='user_order_promotions', on_delete=models.PROTECT)
+    amount = model_fields.FiatAmountField()
+    currency = model_fields.FiatCurrencyField()
+    status = models.CharField(max_length=20, choices=REFERRAL_STATUS, default=REFERRAL_STATUS.pending)
+    referrer = models.BooleanField(default=True)
+    note = models.CharField(max_length=200, null=True, blank=True)
