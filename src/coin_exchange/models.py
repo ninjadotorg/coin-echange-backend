@@ -155,6 +155,7 @@ class ReferralOrder(TimestampedModel):
     status = models.CharField(max_length=20, choices=REFERRAL_STATUS, default=REFERRAL_STATUS.pending)
     referrer = models.BooleanField(default=True)
     address = model_fields.CryptoHashField()
+    tx_hash = model_fields.CryptoHashField(null=True)
 
     def format_amount(self):
         return '{:.6f}'.format(self.amount)
