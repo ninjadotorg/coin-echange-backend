@@ -1,5 +1,6 @@
 # from django.utils.decorators import method_decorator
 # from django.views.decorators.cache import cache_page
+from decimal import Decimal
 
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -7,7 +8,10 @@ from rest_framework.views import APIView
 from coin_exchange.constants import CONFIG_USER_LIMIT
 from coin_system.models import Config
 from common.business import PriceManagement, RateManagement
-from common.constants import SUPPORT_CURRENCIES, LANGUAGE
+from common.constants import SUPPORT_CURRENCIES, LANGUAGE, CURRENCY
+from integration import coincap
+from notification.business import ComparePriceNotification
+from integration.bitstamp import get_price
 
 
 class CurrencyRateView(APIView):
@@ -57,3 +61,19 @@ class LanguageView(APIView):
             LANGUAGE.en: LANGUAGE[LANGUAGE.en],
             LANGUAGE.hk: LANGUAGE[LANGUAGE.hk],
         })
+
+
+class ComparePrice(APIView):
+    def get(self, request, format=None):
+        result = []
+        coins = [
+            (CURRENCY.BTC, 'bitcoin'),
+            (CURRENCY.ETH, 'ethereum')
+        ]
+        for currency in coins:
+            price = coincap.get_rate(currency[1])
+            if Decimal(get_price(currency[0])) >= price['rateUsd']:
+                ComparePriceNotification.send_new_compare_price_notification(price)
+                result.append(price)
+
+        return Response(result)

@@ -32,6 +32,7 @@ NOTIFICATION_METHOD = Choices(
 )
 
 NOTIFICATION_GROUP = Choices(
+    ('compare_price', 'Compare price'),
     ('verification', 'Verification'),
     ('order', 'Order'),
 )

@@ -23,6 +23,11 @@ def get_sell_price(currency: str) -> str:
 
 
 @raise_api_exception(ExternalAPIException)
+def get_price(currency: str) -> str:
+    return public_client.ticker(base=currency.lower())['last']
+
+
+@raise_api_exception(ExternalAPIException)
 def send_transaction(address: str, currency: str, amount: Decimal):
     resp = 0
 

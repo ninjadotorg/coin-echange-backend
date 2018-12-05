@@ -97,6 +97,31 @@ class OrderNotification(object):
                 NotificationManagement.send_sms_notification(notification, msg)
 
 
+class ComparePriceNotification(object):
+    @staticmethod
+    def send_new_compare_price_notification(compare_data: dict):
+        msg = ''
+        title = ''
+        if settings.TEST:
+            msg = 'TEST - '
+            title = 'TEST - '
+
+        msg += '[COMPARE-PRICE] We have high rate of {} with CoinCap at rate usd is {}, please check our prices'.format(
+            compare_data['symbol'],
+            compare_data['rateUsd'],
+        )
+        title += '[COMPARE-PRICE] We have high rate detected!'
+
+        content = {
+            'subject': title,
+            'content': msg,
+        }
+
+        notifications = get_system_notification(NOTIFICATION_GROUP.compare_price)
+        for notification in notifications:
+            NotificationManagement.send_notification(notification, **content)
+
+
 class UserVerificationNotification(object):
     @staticmethod
     def send_user_verification_notification(user_data: dict):
