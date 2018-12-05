@@ -18,9 +18,9 @@ def update_currency(user: ExchangeUser, currency: str):
     # We can do this because only 1 currency right now
     user_limit = UserLimit.objects.filter(user=user).first()
     if user_limit:
-        if user_limit.currency != currency:
-            old_currency = user_limit.currency
-            user_limit.currency = currency
+        if user_limit.fiat_currency != currency:
+            old_currency = user_limit.fiat_currency
+            user_limit.fiat_currency = currency
             user_limit.usage = RateManagement.convert_currency(user_limit.usage, old_currency, currency)
             user_limit.limit = RateManagement.convert_currency(user_limit.limit, old_currency, currency)
             user_limit.save()
