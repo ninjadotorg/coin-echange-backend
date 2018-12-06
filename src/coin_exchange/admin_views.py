@@ -85,6 +85,8 @@ def custom_order_view(admin_view, request, pk, title, read_only):
     context['obj'] = order
     context['title'] = title
     context['read_only'] = read_only
+    context['url_filters'] = url_filters
+
     return TemplateResponse(
         request,
         'admin/order/order_bank.html',
@@ -169,6 +171,8 @@ def custom_order_cod_view(admin_view, request, pk, title, read_only):
     context['obj'] = order
     context['title'] = title
     context['read_only'] = read_only
+    context['url_filters'] = url_filters
+
     return TemplateResponse(
         request,
         'admin/order/order_cod.html',
@@ -268,8 +272,86 @@ def custom_selling_order_view(admin_view, request, pk, title, read_only):
     context['obj'] = order
     context['title'] = title
     context['read_only'] = read_only
+    context['url_filters'] = url_filters
+
     return TemplateResponse(
         request,
         'admin/order/selling_order.html',
+        context,
+    )
+
+
+@transaction.atomic
+def custom_selling_cod_order_view(admin_view, request, pk, title, read_only):
+    changelist_filters = request.GET.get('_changelist_filters')
+    url_filters = urlunquote(changelist_filters) if changelist_filters else ''
+
+    order = Order.objects.get(id=pk)
+    if request.method != 'POST':
+        payment = None
+        payment_details = []
+        if order.selling_order_payments:
+            payment = order.selling_order_payments.first()
+            payment_details = payment.selling_payment_details
+
+        user_info = order.user_info
+        try:
+            user_info = simplejson.loads(user_info)
+            user_info = simplejson.dumps(user_info, indent=2, sort_keys=True)
+        except Exception:
+            pass
+
+        form = SellingOrderForm(initial={
+            'id': order.id,
+            'user': order.user,
+            'amount': order.amount,
+            'currency': order.currency,
+            'payment': '{:.6f} ({})'.format(payment.amount, PAYMENT_STATUS[payment.status]),
+            'payment_details': payment_details,
+            'fiat_local_amount': order.fiat_local_amount,
+            'fiat_local_currency': order.fiat_local_currency,
+            'address': order.address,
+            'order_user_payment_type': ORDER_USER_PAYMENT_TYPE[order.order_user_payment_type]
+            if order.order_user_payment_type else '-',
+            'user_info': user_info,
+            'ref_code': order.ref_code,
+            'tx_hash': order.tx_hash,
+            'instance': order,
+        })
+        if not read_only:
+            if order.status not in [ORDER_STATUS.transferred, ORDER_STATUS.processing] and \
+                    order.direction == DIRECTION.buy and \
+                    order.order_type == ORDER_TYPE.cod:
+                messages.warning(request, 'Order is in invalid status to process')
+                return HttpResponseRedirect(
+                    reverse("admin:coin_exchange_sellingcodorder_changelist") + '?{}'.format(url_filters))
+
+            # Change to processing status
+            if order.status == ORDER_STATUS.transferred:
+                order.status = ORDER_STATUS.processing
+                order.save(update_fields=['status', 'updated_at'])
+    else:
+        action = request.POST['action'].lower()
+        if action == 'approve':
+            OrderManagement.complete_order(order)
+            messages.success(request, 'Order is approved successful.')
+        elif action == 'reject':
+            OrderManagement.reject_order(order)
+            messages.success(request, 'Order is rejected successful.')
+
+        return HttpResponseRedirect(
+            reverse("admin:coin_exchange_sellingcodorder_changelist") + '?{}'.format(url_filters))
+
+    context = admin_view.admin_site.each_context(request)
+    context['opts'] = admin_view.model._meta
+    context['form'] = form
+    context['obj'] = order
+    context['title'] = title
+    context['read_only'] = read_only
+    context['url_filters'] = url_filters
+
+    return TemplateResponse(
+        request,
+        'admin/order/selling_cod_order.html',
         context,
     )

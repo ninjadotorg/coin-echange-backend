@@ -5,7 +5,7 @@
     <div class="breadcrumbs">
         <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
         &rsaquo;
-        <a href="{% url 'admin:coin_exchange_sellingorder_changelist' %}">{% trans 'Selling Orders' %}</a>
+        <a href="{% url 'admin:coin_exchange_sellingorder_changelist' %}?{{ url_filters }}">{% trans 'Selling Orders' %}</a>
         &rsaquo;
         Change Status
     </div>

@@ -75,7 +75,10 @@ class OrderNotification(object):
         email_template = '''Click here to view the Order #{} - {}'''
 
         if order_data['direction'] == DIRECTION.sell:
-            order_page = 'sellingorder'
+            if order_data['order_type'] == ORDER_TYPE.cod:
+                order_page = 'sellingcodorder'
+            else:
+                order_page = 'sellingorder'
         else:
             if order_data['order_type'] == ORDER_TYPE.cod:
                 order_page = 'codorder'
