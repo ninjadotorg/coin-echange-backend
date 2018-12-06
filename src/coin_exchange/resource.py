@@ -36,7 +36,9 @@ class ReviewViewSet(mixins.CreateModelMixin,
         order = serializer.validated_data['order']
 
         exchange_user = self.request.user.exchange_user
-        serializer.save(user=exchange_user, country=exchange_user.country, order=order, direction=order.direction)
+        name = exchange_user.name if exchange_user else 'Anonymous'
+        serializer.save(user=exchange_user, name=name, country=exchange_user.country,
+                        order=order, direction=order.direction)
 
         order.reviewed = True
         order.save()

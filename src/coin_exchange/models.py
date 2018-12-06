@@ -104,6 +104,7 @@ class TrackingTransaction(TimestampedModel):
 class Review(TimestampedModel):
     user = models.ForeignKey(ExchangeUser, related_name='user_reviews', on_delete=models.SET_NULL,
                              null=True, blank=True)
+    name = models.CharField(max_length=100, blank=True)
     direction = model_fields.DirectionField()
     review = models.CharField(max_length=500)
     country = model_fields.CountryField()
