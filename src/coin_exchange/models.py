@@ -113,7 +113,7 @@ class Review(TimestampedModel):
                                  null=True, blank=True)
 
     def __str__(self):
-        return '%s' % self.user.id
+        return '%s' % self.name
 
 
 class RefCode(TimestampedModel):
