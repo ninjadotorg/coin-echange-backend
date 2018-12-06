@@ -6,10 +6,24 @@ from django.conf import settings
 from common.decorators import raise_api_exception
 from integration.exceptions import ExternalAPIException
 
+
+class CustomClientTrading(client.Trading):
+    def withdrawal_requests(self, timedelta=86400):
+        """
+        Returns list of withdrawal requests.
+
+        Each request is represented as a dictionary.
+
+        By default, the last 24 hours (86400 seconds) are returned.
+        """
+        data = {'timedelta': timedelta}
+        return self._post("withdrawal-requests/", return_json=True, version=2, data=data)
+
+
 public_client = client.Public()
-trading_client = client.Trading(settings.BITSTAMP['CUSTOMER_ID'],
-                                settings.BITSTAMP['API_KEY'],
-                                settings.BITSTAMP['API_SECRET'])
+trading_client = CustomClientTrading(settings.BITSTAMP['CUSTOMER_ID'],
+                                     settings.BITSTAMP['API_KEY'],
+                                     settings.BITSTAMP['API_SECRET'])
 
 
 @raise_api_exception(ExternalAPIException)
