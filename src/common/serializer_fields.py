@@ -8,7 +8,7 @@ from common.constants import SUPPORT_CURRENCIES, SUPPORT_FIAT_CURRENCIES, DIRECT
 
 
 class FiatAmountField(serializers.DecimalField):
-    def __init__(self, coerce_to_string=None, max_value=None, min_value=Decimal('0'),
+    def __init__(self, coerce_to_string=None, max_value=None, min_value=None,
                  localize=False, rounding=None, **kwargs):
         max_digits = 18
         decimal_places = 2
