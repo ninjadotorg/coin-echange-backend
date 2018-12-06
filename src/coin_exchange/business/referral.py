@@ -21,7 +21,9 @@ class ReferralManagement(object):
         referee = order.user
         referrals = []
 
-        referrer_rule = PromotionRule.objects.filter(country=referrer.country, currency=referrer.currency).first()
+        referrer_rule = PromotionRule.objects.filter(country=referrer.country,
+                                                     currency=referrer.currency,
+                                                     active=True).first()
         if referrer_rule:
             percentage = referrer_rule.referrer_percentage
             first_order = ReferralOrder.objects.filter(user=referrer, referrer=True).order_by('created_at').first()
@@ -39,7 +41,9 @@ class ReferralManagement(object):
                 address=UserWalletManagement.get_default_address(referrer, order.currency),
             )),
 
-        referee_rule = PromotionRule.objects.filter(country=referee.country, currency=referee.currency).first()
+        referee_rule = PromotionRule.objects.filter(country=referee.country,
+                                                    currency=referee.currency,
+                                                    active=True).first()
         if referee_rule:
             percentage = referee_rule.referee_percentage
             if referee.first_purchase + timedelta(days=referee_rule.referrer_next_duration) > get_now():

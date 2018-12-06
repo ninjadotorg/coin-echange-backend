@@ -56,6 +56,12 @@ REFERRAL_STATUS = Choices(
     ('rejected', 'Rejected'),
 )
 
+PROMOTION = Choices(
+    ('first_click', 'First Click'),
+    ('referrer', 'Referrer'),
+    ('referee', 'Referee'),
+)
+
 FEE_COIN_ORDER_COD = "FEE_COIN_ORDER_COD"
 FEE_COIN_ORDER_BANK = "FEE_COIN_ORDER_BANK"
 FEE_COIN_SELLING_ORDER_BANK = "FEE_COIN_SELLING_ORDER_BANK"

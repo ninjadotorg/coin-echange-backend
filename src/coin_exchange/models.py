@@ -31,6 +31,7 @@ class Order(TimestampedModel):
     receipt_url = models.CharField(max_length=500, null=True, blank=True)
     ref_code = models.CharField(max_length=10)
     reviewed = models.BooleanField(default=False)
+    first_purchase = models.BooleanField(default=False)
 
     def __str__(self):
         return 'Order #{} for {}ing {:.6f} {}'.format(self.id, self.direction, self.amount, self.currency)

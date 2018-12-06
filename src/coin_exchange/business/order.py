@@ -74,6 +74,7 @@ class OrderManagement(object):
             duration=ORDER_EXPIRATION_DURATION,
             fee=check_fee,
             ref_code=generate_random_code(REF_CODE_LENGTH),
+            first_purchase=True if user.exchange_user.first_purchase else False,
         )
         return order
 
@@ -103,7 +104,8 @@ class OrderManagement(object):
             direction=DIRECTION.sell,
             status=ORDER_STATUS.transferring,
             fee=check_fee,
-            ref_code=generate_random_code(REF_CODE_LENGTH)
+            ref_code=generate_random_code(REF_CODE_LENGTH),
+            first_purchase=True if user.exchange_user.first_purchase else False,
         )
         return order
 
