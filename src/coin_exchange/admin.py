@@ -199,7 +199,7 @@ class ReferralOrderAdmin(admin.ModelAdmin):
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
-    list_display = ['id', 'user', 'name', 'country', 'direction', 'review']
+    list_display = ['id', 'name', 'country', 'direction', 'review']
 
     def has_delete_permission(self, request, obj=None):
         return False
