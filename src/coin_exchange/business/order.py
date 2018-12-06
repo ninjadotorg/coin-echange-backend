@@ -233,7 +233,7 @@ class OrderManagement(object):
                 data = ProviderData(None, order.provider_data).from_json()
                 tx = dict_tx.get(data.get('tx_id', ''))
                 if tx:
-                    order.tx_hash = tx['transaction_id']
+                    order.tx_hash = tx.get('transaction_id', '')
                     order.save(update_fields=['status', 'tx_hash', 'updated_at'])
             except Exception as ex:
                 logging.exception(ex)
