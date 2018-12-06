@@ -6,7 +6,8 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from coin_exchange.constants import FEE_COIN_ORDER_BANK, FEE_COIN_ORDER_COD, FEE_COIN_SELLING_ORDER_BANK
+from coin_exchange.constants import FEE_COIN_ORDER_BANK, FEE_COIN_ORDER_COD, FEE_COIN_SELLING_ORDER_BANK, ORDER_TYPE, \
+    FEE_COIN_SELLING_ORDER_COD
 from coin_exchange.factories import PoolFactory, UserLimitFactory
 from coin_system.constants import FEE_TYPE
 from coin_system.factories import FeeFactory
@@ -152,6 +153,7 @@ class SellingQuoteTests(APITestCase):
         RateManagement.get_cache_rate = MagicMock(return_value=Decimal('23000'))
 
         FeeFactory(key=FEE_COIN_SELLING_ORDER_BANK, value=Decimal('1'), fee_type=FEE_TYPE.percentage)
+        FeeFactory(key=FEE_COIN_SELLING_ORDER_COD, value=Decimal('1'), fee_type=FEE_TYPE.percentage)
         PoolFactory(currency=CURRENCY.ETH, direction=DIRECTION.sell, usage=1, limit=2)
 
         user = self.auth_utils.create_user()
@@ -172,15 +174,16 @@ class SellingQuoteTests(APITestCase):
             'amount': '1',
             'currency': CURRENCY.ETH,
             'fiat_currency': FIAT_CURRENCY.PHP,
-            'direction': DIRECTION.sell
+            'direction': DIRECTION.sell,
+            'order_type': ORDER_TYPE.bank,
         }, format='json')
 
         data = response.json()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(data['fiat_amount'], Decimal(101), '100 added 1%')
-        self.assertEqual(data['fiat_amount_cod'], 0, 'Not support')
+        self.assertEqual(data['fiat_amount_cod'], Decimal(101), '100 added 1%')
         self.assertEqual(data['fiat_local_amount'], Decimal(2323000), '100 added 1% * 23000')
-        self.assertEqual(data['fiat_local_amount_cod'], 0, 'Not support')
+        self.assertEqual(data['fiat_local_amount_cod'], Decimal(2323000), '100 added 1% * 23000')
 
     def test_check_pool_limit_success(self):
         url = reverse('exchange:quote-detail')
@@ -189,7 +192,8 @@ class SellingQuoteTests(APITestCase):
             'currency': CURRENCY.ETH,
             'fiat_currency': FIAT_CURRENCY.PHP,
             'check': True,
-            'direction': DIRECTION.sell
+            'direction': DIRECTION.sell,
+            'order_type': ORDER_TYPE.bank,
         }, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -217,7 +221,8 @@ class SellingQuoteTests(APITestCase):
             'currency': CURRENCY.ETH,
             'fiat_currency': FIAT_CURRENCY.PHP,
             'user_check': True,
-            'direction': DIRECTION.sell
+            'direction': DIRECTION.sell,
+            'order_type': ORDER_TYPE.bank,
         }, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 

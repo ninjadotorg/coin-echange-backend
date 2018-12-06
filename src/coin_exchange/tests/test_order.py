@@ -8,7 +8,7 @@ from rest_framework.test import APITestCase
 
 from coin_exchange.business.order import OrderManagement
 from coin_exchange.constants import ORDER_TYPE, MIN_ETH_AMOUNT, MIN_BTC_AMOUNT, \
-    FEE_COIN_ORDER_BANK, FEE_COIN_ORDER_COD, FEE_COIN_SELLING_ORDER_BANK, ORDER_STATUS
+    FEE_COIN_ORDER_BANK, FEE_COIN_ORDER_COD, FEE_COIN_SELLING_ORDER_BANK, ORDER_STATUS, FEE_COIN_SELLING_ORDER_COD
 from coin_exchange.exceptions import AmountIsTooSmallException, PriceChangeException
 from coin_exchange.factories import OrderFactory, PoolFactory, UserLimitFactory
 from coin_exchange.models import Order
@@ -109,6 +109,7 @@ class AddSellingOrderTest(APITestCase):
         RateManagement.get_cache_rate = MagicMock(return_value=Decimal('23000'))
 
         FeeFactory(key=FEE_COIN_SELLING_ORDER_BANK, value=Decimal('1'), fee_type=FEE_TYPE.percentage)
+        FeeFactory(key=FEE_COIN_SELLING_ORDER_COD, value=Decimal('1'), fee_type=FEE_TYPE.percentage)
 
         PoolFactory(currency=CURRENCY.ETH, direction=DIRECTION.sell, usage=1, limit=2)
 
@@ -127,6 +128,7 @@ class AddSellingOrderTest(APITestCase):
             'fiat_local_amount': '2323000',
             'fiat_local_currency': FIAT_CURRENCY.PHP,
             'direction': DIRECTION.sell,
+            'order_type': ORDER_TYPE.bank,
             'address': '0x6d86cf435978cb75aecc43d0a4e3a379af7667d8',
         }, format='json')
 

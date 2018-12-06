@@ -100,7 +100,6 @@ class OrderManagement(object):
             fiat_currency=FIAT_CURRENCY.USD,
             raw_fiat_amount=quote_data['raw_fiat_amount'],
             price=quote_data['price'],
-            order_type=ORDER_TYPE.bank,
             direction=DIRECTION.sell,
             status=ORDER_STATUS.transferring,
             fee=check_fee,

@@ -3,7 +3,8 @@ from decimal import Decimal
 
 from rest_framework.exceptions import NotAuthenticated, ValidationError
 
-from coin_exchange.constants import FEE_COIN_ORDER_COD, FEE_COIN_ORDER_BANK, FEE_COIN_SELLING_ORDER_BANK, ORDER_TYPE
+from coin_exchange.constants import FEE_COIN_ORDER_COD, FEE_COIN_ORDER_BANK, FEE_COIN_SELLING_ORDER_BANK, ORDER_TYPE, \
+    FEE_COIN_SELLING_ORDER_COD
 from coin_exchange.exceptions import CoinUserOverLimitException, CoinOverLimitException
 from coin_exchange.models import UserLimit, Pool, Order
 from coin_exchange.serializers import QuoteSerializer, QuoteInputSerializer, QuoteReverseInputSerializer, \
@@ -69,8 +70,9 @@ class QuoteManagement(object):
                 fiat_local_amount_cod = RateManagement.convert_to_local_currency(fiat_amount_cod, fiat_local_currency)
                 fee_local_cod = RateManagement.convert_to_local_currency(fiat_amount_fee_cod, fiat_local_currency)
             else:
-                fiat_amount_cod = fiat_amount_fee_cod = Decimal(0)
-                fiat_local_amount_cod = fee_local_cod = Decimal(0)
+                fiat_amount_cod, fiat_amount_fee_cod = markup_fee(raw_fiat_amount, FEE_COIN_SELLING_ORDER_COD)
+                fiat_local_amount_cod = RateManagement.convert_to_local_currency(fiat_amount_cod, fiat_local_currency)
+                fee_local_cod = RateManagement.convert_to_local_currency(fiat_amount_fee_cod, fiat_local_currency)
 
             serializer = QuoteSerializer(data={
                 'fiat_amount': round_currency(fiat_amount),
@@ -119,9 +121,15 @@ class QuoteManagement(object):
             fiat_amount = RateManagement.convert_from_local_currency(fiat_local_amount, fiat_local_currency)
 
             if direction == DIRECTION.buy:
-                raw_fiat_amount, fiat_amount_fee = remove_markup_fee(fiat_amount, FEE_COIN_ORDER_BANK)
+                if order_type == ORDER_TYPE.bank:
+                    raw_fiat_amount, fiat_amount_fee = remove_markup_fee(fiat_amount, FEE_COIN_ORDER_BANK)
+                else:
+                    raw_fiat_amount, fiat_amount_fee = remove_markup_fee(fiat_amount, FEE_COIN_ORDER_COD)
             else:
-                raw_fiat_amount, fiat_amount_fee = remove_markup_fee(fiat_amount, FEE_COIN_SELLING_ORDER_BANK)
+                if order_type == ORDER_TYPE.bank:
+                    raw_fiat_amount, fiat_amount_fee = remove_markup_fee(fiat_amount, FEE_COIN_SELLING_ORDER_BANK)
+                else:
+                    raw_fiat_amount, fiat_amount_fee = remove_markup_fee(fiat_amount, FEE_COIN_SELLING_ORDER_COD)
 
             price = QuoteManagement.get_price(direction, safe_data)
             amount = raw_fiat_amount / price
