@@ -50,7 +50,7 @@ class CryptoTransactionManagement(object):
             list_tx = bitstamp.list_withdrawal_requests(1 * 60)
             for tx in list_tx:
                 if tx['id'] == tx_id['id']:
-                    tx_hash = tx['transaction_id']
+                    tx_hash = tx.get('transaction_id', '')
                     break
 
             provider_data['tx_id'] = tx_id['id']
