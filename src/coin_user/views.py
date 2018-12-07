@@ -26,7 +26,7 @@ from coin_user.exceptions import InvalidVerificationException, AlreadyVerifiedEx
 from coin_user.models import ExchangeUser
 from coin_user.serializers import SignUpSerializer, ExchangeUserSerializer, ExchangeUserProfileSerializer, \
     ExchangeUserIDVerificationSerializer, ExchangeUserSelfieVerificationSerializer, UserSerializer, \
-    ResetPasswordSerializer, ChangePasswordSerializer
+    ResetPasswordSerializer, ChangePasswordSerializer, VerifyPasswordSerializer
 from common.business import generate_random_code, generate_random_digit, Is2FA
 from common.constants import DIRECTION_ALL, CACHE_KEY_FORGOT_PASSWORD
 from common.exceptions import InvalidDataException, InvalidInputDataException
@@ -392,6 +392,20 @@ class ChangePasswordView(APIView):
         if user.check_password(serializer.validated_data['old_password']):
             user.set_password(serializer.validated_data['password'])
             user.save()
+            return Response(True)
+
+        raise InvalidPasswordException
+
+
+class VerifyPasswordView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request, format=None):
+        serializer = VerifyPasswordSerializer(data=request.data)
+        serializer.is_valid(True)
+
+        user = request.user
+        if user.check_password(serializer.validated_data['password']):
             return Response(True)
 
         raise InvalidPasswordException

@@ -78,3 +78,7 @@ class ResetPasswordSerializer(serializers.Serializer):
 class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(min_length=8, write_only=True)
     password = serializers.CharField(min_length=8, write_only=True)
+
+
+class VerifyPasswordSerializer(serializers.Serializer):
+    password = serializers.CharField(min_length=8, write_only=True)
