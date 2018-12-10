@@ -7,6 +7,7 @@ from rest_framework.views import APIView
 from coin_exchange.business.crypto import AddressManagement, TrackingManagement
 from coin_exchange.business.order import OrderManagement
 from coin_exchange.business.quote import QuoteManagement
+from coin_exchange.business.referral import ReferralManagement
 from common.business import view_serializer_fields
 from common.constants import SUPPORT_CURRENCIES
 
@@ -96,4 +97,16 @@ class TrackingTransactionDetailView(APIView):
 class TrackingBitstampTransaction(APIView):
     def post(self, request, format=None):
         OrderManagement.load_transferring_order_to_track()
+        return Response()
+
+
+class PayReferralOrderView(APIView):
+    def post(self, request, format=None):
+        ReferralManagement.pay_referral()
+        return Response()
+
+
+class TrackingBitstampReferralTransaction(APIView):
+    def post(self, request, format=None):
+        ReferralManagement.load_transferring_referral_to_track()
         return Response()

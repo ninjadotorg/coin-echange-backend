@@ -4,7 +4,7 @@ from rest_framework.routers import DefaultRouter
 from coin_exchange.resource import ReviewViewSet, OrderViewSet, ReferralOrderViewSet, PromotionOrderViewSet
 from coin_exchange.views import QuoteView, QuoteReverseView, AddressView, ExpireOrderView, DepositedAddressView, \
     TrackingAddressView, TrackingAddressDetailView, TrackingTransactionView, TrackingTransactionDetailView, \
-    ResetUserLimitView, TrackingBitstampTransaction
+    ResetUserLimitView, TrackingBitstampTransaction, PayReferralOrderView, TrackingBitstampReferralTransaction
 
 router = DefaultRouter()
 router.register('reviews', ReviewViewSet)
@@ -31,6 +31,9 @@ patterns = ([
          name='tracking-transaction-detail'),
     path('tracking-bitstamp-transactions/', TrackingBitstampTransaction.as_view(),
          name='tracking-bitstamp-transaction-list'),
+    path('pay-referral-order/', PayReferralOrderView.as_view(), name='pay-referral-order-view'),
+    path('tracking-bitstamp-referral-transactions/', TrackingBitstampReferralTransaction.as_view(),
+         name='tracking-bitstamp-referral-transaction-list'),
 ], 'exchange')
 
 urlpatterns = [

@@ -158,6 +158,7 @@ class ReferralOrder(TimestampedModel):
     referrer = models.BooleanField(default=True)
     address = model_fields.CryptoHashField()
     tx_hash = model_fields.CryptoHashField(null=True)
+    provider_data = models.TextField(null=True)
 
     def format_amount(self):
         return '{:.6f}'.format(self.amount)
