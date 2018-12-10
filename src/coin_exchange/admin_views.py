@@ -125,7 +125,7 @@ def custom_order_cod_view(admin_view, request, pk, title, read_only):
         user_info = order.user_info
         try:
             user_info = simplejson.loads(user_info)
-            user_info = simplejson.dumps(user_info, indent=2, sort_keys=True)
+            user_info = simplejson.dumps(user_info, ensure_ascii=False, indent=2, sort_keys=True)
         except Exception:
             pass
 
@@ -222,7 +222,7 @@ def custom_selling_order_view(admin_view, request, pk, title, read_only):
         user_info = order.user_info
         try:
             user_info = simplejson.loads(user_info)
-            user_info = simplejson.dumps(user_info, indent=2, sort_keys=True)
+            user_info = simplejson.dumps(user_info, ensure_ascii=False, indent=2, sort_keys=True)
         except Exception:
             pass
 
@@ -297,7 +297,7 @@ def custom_selling_cod_order_view(admin_view, request, pk, title, read_only):
         user_info = order.user_info
         try:
             user_info = simplejson.loads(user_info)
-            user_info = simplejson.dumps(user_info, indent=2, sort_keys=True)
+            user_info = simplejson.dumps(user_info, ensure_ascii=False, indent=2, sort_keys=True)
         except Exception:
             pass
 

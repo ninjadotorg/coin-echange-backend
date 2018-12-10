@@ -35,7 +35,7 @@ def get_btc_transaction(tx_hash: str) -> TransactionResponse:
     resp = make_bitpay_btc_request('/tx/{}'.format(tx_hash))
     data = resp.json()
     tx_obj = BTCTransactionResponse(data['txid'],
-                                    data['valueOut'],
+                                    Decimal(str(data['valueOut'])),
                                     data['confirmations'])
 
     return tx_obj

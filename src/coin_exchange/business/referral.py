@@ -27,37 +27,40 @@ class ReferralManagement(object):
         if referrer_rule:
             percentage = referrer_rule.referrer_percentage
             first_order = ReferralOrder.objects.filter(user=referrer, referrer=True).order_by('created_at').first()
-            if first_order and \
-                    first_order.created_at + timedelta(days=referrer_rule.referrer_next_duration) > get_now():
+            if first_order and referrer_rule.referrer_next_duration > 0 and \
+                    first_order.created_at + timedelta(days=referrer_rule.referrer_next_duration) < get_now():
                 percentage = referrer_rule.referrer_percentage_2
 
             bonus = (order.amount * percentage) / Decimal('100')
-            referrals.append(ReferralOrder(
-                order=order,
-                user=referrer,
-                amount=bonus,
-                currency=order.currency,
-                referrer=True,
-                address=UserWalletManagement.get_default_address(referrer, order.currency),
-            )),
+            if bonus:
+                referrals.append(ReferralOrder(
+                    order=order,
+                    user=referrer,
+                    amount=bonus,
+                    currency=order.currency,
+                    referrer=True,
+                    address=UserWalletManagement.get_default_address(referrer, order.currency),
+                )),
 
         referee_rule = PromotionRule.objects.filter(country=referee.country,
                                                     currency=referee.currency,
                                                     active=True).first()
         if referee_rule:
             percentage = referee_rule.referee_percentage
-            if referee.first_purchase + timedelta(days=referee_rule.referrer_next_duration) > get_now():
+            if referee.first_purchase and referee_rule.referrer_next_duration > 0 and \
+                    referee.first_purchase + timedelta(days=referee_rule.referrer_next_duration) < get_now():
                 percentage = referee_rule.referee_percentage_2
 
             bonus = (order.amount * percentage) / Decimal('100')
-            referrals.append(ReferralOrder(
-                order=order,
-                user=referee,
-                amount=bonus,
-                currency=order.currency,
-                referrer=True,
-                address=UserWalletManagement.get_default_address(referee, order.currency),
-            )),
+            if bonus:
+                referrals.append(ReferralOrder(
+                    order=order,
+                    user=referee,
+                    amount=bonus,
+                    currency=order.currency,
+                    referrer=True,
+                    address=UserWalletManagement.get_default_address(referee, order.currency),
+                )),
 
         if referrals:
             ReferralOrder.objects.bulk_create(referrals)
