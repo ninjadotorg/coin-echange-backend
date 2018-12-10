@@ -257,7 +257,7 @@ class OrderManagement(object):
         OrderManagement._check_minimum_amount(amount, currency)
         if not validate_crypto_address(currency, address):
             raise InvalidAddress
-        if Order.objects.fiter(address=address, direction=DIRECTION.sell).first():
+        if Order.objects.filter(address=address, direction=DIRECTION.sell).first():
             raise InvalidAddress
 
         quote_data = QuoteManagement.get_quote(user, {
