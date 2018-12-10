@@ -79,6 +79,8 @@ class ReferralOrderSerializer(serializers.ModelSerializer):
         model = ReferralOrder
         fields = '__all__'
 
+    amount = serializer_fields.CryptoAmountField()
+
 
 class PromotionOrderSerializer(serializers.ModelSerializer):
     class Meta:
