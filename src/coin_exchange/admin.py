@@ -6,9 +6,10 @@ from django.urls import reverse, path
 from django.utils.html import format_html
 
 from coin_exchange.admin_views import custom_order_view, custom_order_cod_view, custom_selling_order_view, \
-    custom_selling_cod_order_view
-from coin_exchange.constants import ORDER_TYPE, ORDER_STATUS
-from coin_exchange.models import Order, Review, Pool, TrackingAddress, TrackingTransaction, ReferralOrder
+    custom_selling_cod_order_view, custom_promotion_order_view
+from coin_exchange.constants import ORDER_TYPE, ORDER_STATUS, REFERRAL_STATUS
+from coin_exchange.models import Order, Review, Pool, TrackingAddress, TrackingTransaction, ReferralOrder, \
+    PromotionOrder, PromotionRule
 from common.constants import DIRECTION
 
 
@@ -225,10 +226,10 @@ class SellingCODOrderAdmin(BaseOrderAdmin):
     def get_urls(self):
         urls = super().get_urls()
         custom_urls = [
-            path('selling-order-view/<int:pk>',
+            path('selling-cod-order-view/<int:pk>',
                  self.admin_site.admin_view(self.order_view),
                  name='custom-selling-cod-order-view'),
-            path('selling-order-process/<int:pk>',
+            path('selling-cod-order-process/<int:pk>',
                  self.admin_site.admin_view(self.order_process),
                  name='custom-selling-cod-order-process'),
         ]
@@ -241,9 +242,60 @@ class SellingCODOrderAdmin(BaseOrderAdmin):
         return custom_selling_cod_order_view(self, request, pk, 'Process Selling Order', False)
 
 
+@admin.register(PromotionRule)
+class PromotionRuleAdmin(admin.ModelAdmin):
+    list_display = ['country', 'currency', 'first_referral_amount',
+                    'first_referral_referrer_bonus', 'first_referral_referee_bonus',
+                    'referrer_percentage',
+                    'active']
+
+
 @admin.register(ReferralOrder)
 class ReferralOrderAdmin(admin.ModelAdmin):
     list_display = ['order', 'format_amount', 'currency', 'status', 'referrer']
+    list_filter = ['status', 'referrer']
+
+
+@admin.register(PromotionOrder)
+class PromotionOrderAdmin(InlineLinkMixin, admin.ModelAdmin):
+    list_display = ['order', 'amount', 'currency', 'status', 'referrer', 'user_actions']
+    list_filter = ['status', 'referrer']
+
+    def changelist_view(self, request, extra_context=None, *args, **kwargs):
+        self.request = request
+        return super(PromotionOrderAdmin, self).changelist_view(request, extra_context, *args, **kwargs)
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def user_actions(self, obj):
+        process_button_html = format_html('')
+        if obj.status in [REFERRAL_STATUS.pending, REFERRAL_STATUS.processing]:
+            process_button_html = self.create_button(obj, 'Process', 'admin:custom-promotion-order-process')
+
+        return self.create_button(obj, 'View', 'admin:custom-promotion-order-view') + \
+            format_html('&nbsp;') + process_button_html
+
+    user_actions.short_description = 'Actions'
+    user_actions.allow_tags = True
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path('promotion-order-view/<int:pk>',
+                 self.admin_site.admin_view(self.order_view),
+                 name='custom-promotion-order-view'),
+            path('promotion-order-process/<int:pk>',
+                 self.admin_site.admin_view(self.order_process),
+                 name='custom-promotion-order-process'),
+        ]
+        return custom_urls + urls
+
+    def order_view(self, request, pk, *args, **kwargs):
+        return custom_promotion_order_view(self, request, pk, 'View Promotion Order', True)
+
+    def order_process(self, request, pk, *args, **kwargs):
+        return custom_promotion_order_view(self, request, pk, 'Process Promotion Order', False)
 
 
 @admin.register(Review)

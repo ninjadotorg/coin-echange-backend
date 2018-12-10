@@ -53,6 +53,7 @@ TRACKING_TRANSACTION_DIRECTION = Choices(
 
 REFERRAL_STATUS = Choices(
     ('pending', 'Pending'),
+    ('processing', 'Processing'),
     ('paid', 'Paid'),
     ('rejected', 'Rejected'),
 )

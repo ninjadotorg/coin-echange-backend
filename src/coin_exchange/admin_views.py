@@ -9,8 +9,8 @@ from django.urls import reverse
 from django.utils.http import urlunquote
 
 from coin_exchange.business.order import OrderManagement
-from coin_exchange.constants import ORDER_STATUS, ORDER_TYPE, PAYMENT_STATUS, ORDER_USER_PAYMENT_TYPE
-from coin_exchange.models import Order
+from coin_exchange.constants import ORDER_STATUS, ORDER_TYPE, PAYMENT_STATUS, ORDER_USER_PAYMENT_TYPE, REFERRAL_STATUS
+from coin_exchange.models import Order, PromotionOrder
 from coin_exchange.widgets import ImageWidget, CryptoTransactionWidget, CryptoAmountWidget, FiatAmountWidget, \
     TextWidget, JSONWidget, CryptoAddressWidget, PaymentTransactionWidget
 from common.constants import DIRECTION
@@ -354,5 +354,78 @@ def custom_selling_cod_order_view(admin_view, request, pk, title, read_only):
     return TemplateResponse(
         request,
         'admin/order/selling_cod_order.html',
+        context,
+    )
+
+
+class PromotionOrderForm(forms.Form):
+    id = forms.CharField(label='Order #', disabled=True, widget=TextWidget)
+    user = forms.CharField(disabled=True, widget=TextWidget)
+    amount = forms.DecimalField(label='Fiat Amount', max_digits=18, decimal_places=2,
+                                disabled=True, widget=FiatAmountWidget)
+    user_info = forms.CharField(label='User Info', disabled=True, widget=JSONWidget)
+
+    def __init__(self, *args, **kwargs):
+        super(PromotionOrderForm, self).__init__(*args, **kwargs)
+        self.fields['amount'].widget.currency = self.initial['currency']
+
+
+@transaction.atomic
+def custom_promotion_order_view(admin_view, request, pk, title, read_only):
+    changelist_filters = request.GET.get('_changelist_filters')
+    url_filters = urlunquote(changelist_filters) if changelist_filters else ''
+
+    order = PromotionOrder.objects.get(id=pk)
+    if request.method != 'POST':
+        user_info = order.user.payment_info
+        try:
+            user_info = simplejson.loads(user_info)
+            user_info = simplejson.dumps(user_info, ensure_ascii=False, indent=2, sort_keys=True)
+        except Exception:
+            pass
+
+        form = PromotionOrderForm(initial={
+            'id': order.id,
+            'user': order.user,
+            'amount': order.amount,
+            'currency': order.currency,
+            'user_info': user_info,
+            'instance': order,
+        })
+        if not read_only:
+            if order.status not in [REFERRAL_STATUS.pending, REFERRAL_STATUS.processing]:
+                messages.warning(request, 'Order is in invalid status to process')
+                return HttpResponseRedirect(
+                    reverse("admin:coin_exchange_promotionorder_changelist") + '?{}'.format(url_filters))
+
+            # Change to processing status
+            if order.status == REFERRAL_STATUS.pending:
+                order.status = REFERRAL_STATUS.processing
+                order.save(update_fields=['status', 'updated_at'])
+    else:
+        action = request.POST['action'].lower()
+        if action == 'approve':
+            order.status = REFERRAL_STATUS.paid
+            order.save(update_fields=['status', 'updated_at'])
+            messages.success(request, 'Order is approved successful.')
+        elif action == 'reject':
+            order.status = REFERRAL_STATUS.rejected
+            order.save(update_fields=['status', 'updated_at'])
+            messages.success(request, 'Order is rejected successful.')
+
+        return HttpResponseRedirect(
+            reverse("admin:coin_exchange_promotionorder_changelist") + '?{}'.format(url_filters))
+
+    context = admin_view.admin_site.each_context(request)
+    context['opts'] = admin_view.model._meta
+    context['form'] = form
+    context['obj'] = order
+    context['title'] = title
+    context['read_only'] = read_only
+    context['url_filters'] = url_filters
+
+    return TemplateResponse(
+        request,
+        'admin/order/promotion_order.html',
         context,
     )

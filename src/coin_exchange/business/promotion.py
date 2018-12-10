@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.db.models import F
 
 from coin_exchange.constants import REFERRAL_STATUS, PROMOTION
@@ -11,10 +13,16 @@ class PromotionManagement(object):
         referrer = order.user.referral
         user = order.user
 
+        # Pre-check if user already has bonus
+        if PromotionOrder.objects.filter(user=user, referrer=False).first():
+            return
+
         referrer_promotion = PromotionUser.objects.filter(user=referrer).first()
         currency = referrer.currency
         if referrer_promotion:
             currency = referrer_promotion.currency
+
+        user_promotion = PromotionUser.objects.filter(user=user).first()
 
         # Referral
         referrer_rule = PromotionRule.objects.filter(country=referrer.country,
@@ -23,7 +31,7 @@ class PromotionManagement(object):
         if referrer_rule:
             if not referrer_promotion:
                 referrer_promotion = PromotionUser.objects.create(
-                    user=user,
+                    user=referrer,
                     currency=currency,
                     referral_count=0,
                 )
@@ -32,16 +40,30 @@ class PromotionManagement(object):
                 if referrer_promotion.referral_count >= referrer_rule.first_referral_count > 0:
                     return
 
-            first_referral_count = referrer_promotion.first_referral_count
+            if not user_promotion:
+                user_promotion = PromotionUser.objects.create(
+                    user=user,
+                    currency=user.currency,
+                    referral_amount=Decimal('0')
+                )
+
+            first_referral_count = referrer_promotion.referral_count
+            org_amount = RateManagement.convert_currency(user_promotion.referral_amount,
+                                                         user.currency,
+                                                         referrer_promotion.currency)
             check_amount = RateManagement.convert_currency(order.fiat_local_amount,
                                                            order.fiat_local_currency,
                                                            referrer_promotion.currency)
 
-            referrer_promotion.first_referral_count = F('first_referral_count') + 1
+            referrer_promotion.referral_count = F('referral_count') + 1
+            referrer_promotion.save()
+
+            user_promotion.referral_amount = F('referral_amount') + check_amount
+            user_promotion.save()
+
             if ((referrer_rule.first_referral_count < 0 or
                  first_referral_count + 1 <= referrer_rule.first_referral_count)
-                    and check_amount >= referrer_rule.first_referral_amount
-                    and order.first_purchase):
+                    and org_amount + check_amount >= referrer_rule.first_referral_amount):
                 PromotionOrder.objects.create(
                     order=order,
                     user=referrer,

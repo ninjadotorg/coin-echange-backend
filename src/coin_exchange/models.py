@@ -151,7 +151,7 @@ class UserLimit(TimestampedModel):
 
 class ReferralOrder(TimestampedModel):
     order = models.ForeignKey(Order, related_name='order_referrals', on_delete=models.PROTECT)
-    user = models.ForeignKey(Order, related_name='user_order_referrals', on_delete=models.PROTECT)
+    user = models.ForeignKey(ExchangeUser, related_name='user_order_referrals', null=True, on_delete=models.PROTECT)
     amount = model_fields.CryptoAmountField()
     currency = model_fields.CurrencyField()
     status = models.CharField(max_length=20, choices=REFERRAL_STATUS, default=REFERRAL_STATUS.pending)
@@ -191,12 +191,13 @@ class PromotionUser(TimestampedModel):
     first_click_amount = model_fields.FiatAmountField(default=0)
     first_click_expired = models.DateTimeField(null=True)
     referral_count = models.IntegerField(default=0)
+    referral_amount = model_fields.FiatAmountField(default=0)
     currency = model_fields.FiatCurrencyField()
 
 
 class PromotionOrder(TimestampedModel):
     order = models.ForeignKey(Order, related_name='order_promotions', on_delete=models.PROTECT)
-    user = models.ForeignKey(Order, related_name='user_order_promotions', on_delete=models.PROTECT)
+    user = models.ForeignKey(ExchangeUser, related_name='user_order_promotions', null=True, on_delete=models.PROTECT)
     amount = model_fields.FiatAmountField()
     currency = model_fields.FiatCurrencyField()
     status = models.CharField(max_length=20, choices=REFERRAL_STATUS, default=REFERRAL_STATUS.pending)

@@ -1,0 +1,44 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_static admin_modify %}
+
+{% block breadcrumbs %}
+    <div class="breadcrumbs">
+        <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+        &rsaquo;
+        <a href="{% url 'admin:coin_exchange_promotionorder_changelist' %}?{{ url_filters }}">{% trans 'Promotion Orders' %}</a>
+        &rsaquo;
+        Change Status
+    </div>
+{% endblock %}
+
+{% block content %}
+    <form action="" method="POST">
+        {% csrf_token %}
+        {% if form.non_field_errors|length > 0 %}
+            <p class="errornote">
+                "Please correct the errors below."
+            </p>
+            {{ form.non_field_errors }}
+        {% endif %}
+        <fieldset class="module aligned">
+            {% for field in form %}
+                <div class="form-row">
+                    {{ field.errors }}
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {% if field.field.help_text %}
+                        <p class="help">
+                            {{ field.field.help_text|safe }}
+                        </p>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </fieldset>
+        {% if not read_only %}
+            <div class="submit-row">
+                <input type="submit" onclick="return confirm('Are you sure?')" class="default" name="action" value="APPROVE">
+                <input type="submit" onclick="return confirm('Are you sure?')" style="background-color: #ba2121;" name="action" value="REJECT">
+            </div>
+        {% endif %}
+    </form>
+{% endblock %}
