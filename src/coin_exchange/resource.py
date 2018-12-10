@@ -1,6 +1,6 @@
 # from django.utils.decorators import method_decorator
 # from django.views.decorators.cache import cache_page
-from rest_framework import mixins, status
+from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.response import Response
@@ -9,8 +9,9 @@ from rest_framework.viewsets import GenericViewSet
 from coin_exchange.business.order import OrderManagement
 from coin_exchange.constants import ORDER_STATUS, ORDER_TYPE
 from coin_exchange.exceptions import InvalidOrderStatusException
-from coin_exchange.models import Review, Order
-from coin_exchange.serializers import ReviewSerializer, OrderSerializer, SellingOrderSerializer
+from coin_exchange.models import Review, Order, ReferralOrder, PromotionOrder
+from coin_exchange.serializers import ReviewSerializer, OrderSerializer, SellingOrderSerializer, \
+    ReferralOrderSerializer, PromotionOrderSerializer
 from common.constants import DIRECTION
 from common.http import StandardPagination
 
@@ -100,3 +101,25 @@ class OrderViewSet(mixins.CreateModelMixin,
         qs = Order.objects.filter(user__user=self.request.user).order_by('-created_at')
 
         return qs
+
+
+class ReferralOrderViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    serializer_class = ReferralOrderSerializer
+    pagination_class = StandardPagination
+    queryset = ReferralOrder.objects.all().order_by('-created_at')
+
+    # @method_decorator(cache_page(5 * 60))
+    def dispatch(self, *args, **kwargs):
+        return super(ReferralOrderViewSet, self).dispatch(*args, **kwargs)
+
+
+class PromotionOrderViewSet(viewsets.ReadOnlyModelViewSet):
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+    serializer_class = PromotionOrderSerializer
+    pagination_class = StandardPagination
+    queryset = PromotionOrder.objects.all().order_by('-created_at')
+
+    # @method_decorator(cache_page(5 * 60))
+    def dispatch(self, *args, **kwargs):
+        return super(PromotionOrderViewSet, self).dispatch(*args, **kwargs)

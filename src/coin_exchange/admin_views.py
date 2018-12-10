@@ -292,7 +292,8 @@ def custom_selling_cod_order_view(admin_view, request, pk, title, read_only):
         payment_details = []
         if order.selling_order_payments:
             payment = order.selling_order_payments.first()
-            payment_details = payment.selling_payment_details
+            if payment:
+                payment_details = payment.selling_payment_details
 
         user_info = order.user_info
         try:

@@ -74,7 +74,7 @@ class OrderManagement(object):
             duration=ORDER_EXPIRATION_DURATION,
             fee=check_fee,
             ref_code=generate_random_code(REF_CODE_LENGTH),
-            first_purchase=True if user.exchange_user.first_purchase else False,
+            first_purchase=True if not user.exchange_user.first_purchase else False,
         )
         return order
 
@@ -105,7 +105,7 @@ class OrderManagement(object):
             status=ORDER_STATUS.transferring,
             fee=check_fee,
             ref_code=generate_random_code(REF_CODE_LENGTH),
-            first_purchase=True if user.exchange_user.first_purchase else False,
+            first_purchase=True if not user.exchange_user.first_purchase else False,
         )
         return order
 
@@ -142,7 +142,6 @@ class OrderManagement(object):
     @transaction.atomic
     def complete_order(order: Order):
         if order.status == ORDER_STATUS.processing:
-            order.first_purchase = True
             if order.direction == DIRECTION.buy:
                 order.status = ORDER_STATUS.transferring
                 tx_hash, provider_data = CryptoTransactionManagement.transfer(order.address,

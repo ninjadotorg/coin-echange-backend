@@ -69,6 +69,9 @@ class RateManagement(object):
 
     @staticmethod
     def convert_currency(amount: Decimal, from_currency: str, to_currency: str) -> Decimal:
+        if from_currency == to_currency:
+            return amount
+
         amount_usd = RateManagement.convert_from_local_currency(amount, from_currency)
         return RateManagement.convert_to_local_currency(amount_usd, to_currency)
 

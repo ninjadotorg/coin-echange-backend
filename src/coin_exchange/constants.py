@@ -23,7 +23,8 @@ ORDER_TYPE = Choices(
 
 ORDER_USER_PAYMENT_TYPE = Choices(
     ('bank', 'Bank'),
-    ('tng', 'TNG')
+    ('tng', 'TNG'),
+    ('payoneer', 'Payoneer'),
 )
 
 PAYMENT_STATUS = Choices(

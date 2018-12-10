@@ -6,6 +6,7 @@ from django.dispatch import receiver
 
 from coin_exchange.business.crypto import TrackingManagement
 from coin_exchange.business.order import OrderManagement
+from coin_exchange.business.promotion import PromotionManagement
 from coin_exchange.business.referral import ReferralManagement
 from coin_exchange.business.user_limit import update_limit_by_level
 from coin_exchange.constants import ORDER_STATUS, PAYMENT_STATUS, ORDER_TYPE
@@ -55,6 +56,7 @@ def post_save_order(sender, **kwargs):
                         if order.tx_hash:
                             TrackingManagement.create_tracking_simple_transaction(order)
                         ReferralManagement.create_referral(order)
+                        PromotionManagement.create_promotion(order)
                     elif order.status == ORDER_STATUS.success:
                         UserManagement.update_first_purchase(order.user)
                         TrackingManagement.remove_tracking(order)
@@ -65,6 +67,7 @@ def post_save_order(sender, **kwargs):
                     elif order.status == ORDER_STATUS.success:
                         UserManagement.update_first_purchase(order.user)
                         ReferralManagement.create_referral(order)
+                        PromotionManagement.create_promotion(order)
                         TrackingManagement.remove_tracking(order)
                         # TODO Send notification
     except Exception as ex:

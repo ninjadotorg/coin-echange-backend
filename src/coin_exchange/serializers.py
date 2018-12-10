@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from coin_exchange.models import Order, Review
+from coin_exchange.models import Order, Review, ReferralOrder, PromotionOrder
 from common import serializer_fields
 
 
@@ -72,3 +72,15 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Review
         fields = ('name', 'review', 'order')
         extra_kwargs = {'order': {'write_only': True}}
+
+
+class ReferralOrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReferralOrder
+        fields = '__all__'
+
+
+class PromotionOrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PromotionOrder
+        fields = '__all__'
