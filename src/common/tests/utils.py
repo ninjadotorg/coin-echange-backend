@@ -3,7 +3,8 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 
 from coin_user.factories import ExchangeUserFactory
-from common.constants import FIAT_CURRENCY
+from coin_user.models import ExchangeUser
+from common.constants import FIAT_CURRENCY, COUNTRY
 
 
 class AuthenticationUtils(object):
@@ -19,14 +20,15 @@ class AuthenticationUtils(object):
         )
         return user
 
-    def create_exchange_user(self, username: str = None):
+    def create_exchange_user(self, username: str = None, referral: ExchangeUser = None) -> ExchangeUser:
         user = User.objects.create_user(
             username=username if username else self.username,
             password=self.password,
             first_name='First',
             last_name='Last',
         )
-        exchange_user = ExchangeUserFactory(user=user, currency=FIAT_CURRENCY.PHP)
+        exchange_user = ExchangeUserFactory(user=user, country=COUNTRY.PH,
+                                            currency=FIAT_CURRENCY.PHP, referral=referral)
 
         return exchange_user
 

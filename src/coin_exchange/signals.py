@@ -55,10 +55,10 @@ def post_save_order(sender, **kwargs):
                     if order.status == ORDER_STATUS.transferring:
                         if order.tx_hash:
                             TrackingManagement.create_tracking_simple_transaction(order)
-                        ReferralManagement.create_referral(order)
-                        PromotionManagement.create_promotion(order)
                     elif order.status == ORDER_STATUS.success:
                         UserManagement.update_first_purchase(order.user)
+                        ReferralManagement.create_referral(order)
+                        PromotionManagement.create_promotion(order)
                         TrackingManagement.remove_tracking(order)
                         # TODO Send notification
                 elif order.direction == DIRECTION.sell:

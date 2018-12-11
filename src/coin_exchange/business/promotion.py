@@ -61,9 +61,10 @@ class PromotionManagement(object):
             user_promotion.referral_amount = F('referral_amount') + check_amount
             user_promotion.save()
 
-            if ((referrer_rule.first_referral_count < 0 or
-                 first_referral_count + 1 <= referrer_rule.first_referral_count)
-                    and org_amount + check_amount >= referrer_rule.first_referral_amount):
+            if referrer_rule.first_referral_referrer_bonus > 0 and \
+                    ((referrer_rule.first_referral_count < 0 or
+                      first_referral_count + 1 <= referrer_rule.first_referral_count)
+                     and org_amount + check_amount >= referrer_rule.first_referral_amount):
                 PromotionOrder.objects.create(
                     order=order,
                     user=referrer,
@@ -72,7 +73,9 @@ class PromotionManagement(object):
                     status=REFERRAL_STATUS.pending,
                     referrer=True,
                     note=PROMOTION.referrer)
-            if order.first_purchase:
+
+            if referrer_rule.first_referral_referee_bonus > 0 and \
+                    org_amount + check_amount >= referrer_rule.first_referral_amount:
                 PromotionOrder.objects.create(
                     order=order,
                     user=user,

@@ -65,3 +65,26 @@ class ReviewFactory(factory.django.DjangoModelFactory):
     country = factory.Iterator([COUNTRY.KH, COUNTRY.PH])
     direction = factory.Iterator([DIRECTION.buy, DIRECTION.sell])
     review = factory.Sequence(lambda n: "Review %03d" % n)
+
+
+class PromotionRuleFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = 'coin_exchange.PromotionRule'
+
+    country = COUNTRY.PH
+    currency = FIAT_CURRENCY.PHP
+    active = True
+    first_click_count = 0
+    first_click_amount = 0
+    first_click_days = 0
+    first_click_bonus = 0
+    first_referral_count = -1
+    first_referral_amount = Decimal('1000')
+    first_referral_referrer_bonus = Decimal('100')
+    first_referral_referee_bonus = Decimal('10')
+    referrer_percentage = Decimal('1')
+    referrer_next_duration = -1
+    referrer_percentage_2 = 0
+    referee_percentage = Decimal('10')
+    referee_next_duration = -1
+    referee_percentage_2 = 0

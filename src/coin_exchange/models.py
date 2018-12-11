@@ -187,7 +187,7 @@ class PromotionRule(TimestampedModel):
 
 
 class PromotionUser(TimestampedModel):
-    user = models.OneToOneField(Order, related_name='user_promotion', on_delete=models.PROTECT)
+    user = models.OneToOneField(ExchangeUser, related_name='user_promotion', on_delete=models.PROTECT)
     first_click_count = models.IntegerField(default=0)
     first_click_amount = model_fields.FiatAmountField(default=0)
     first_click_expired = models.DateTimeField(null=True)
