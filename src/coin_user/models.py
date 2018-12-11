@@ -7,6 +7,11 @@ from common.constants import LANGUAGE, COUNTRY, FIAT_CURRENCY
 
 
 class ExchangeUser(models.Model):
+    class Meta:
+        verbose_name = 'Exch User'
+        verbose_name_plural = 'Exch Users'
+
+    user = models.OneToOneField(User, related_name='exchange_user', on_delete=models.CASCADE)
     user = models.OneToOneField(User, related_name='exchange_user', on_delete=models.CASCADE)
     name = models.CharField(max_length=255, unique=True)
     phone_number = models.CharField(max_length=20, blank=True)

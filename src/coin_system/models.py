@@ -53,6 +53,8 @@ class Bank(models.Model):
 class CountryCurrency(models.Model):
     class Meta:
         unique_together = ('country', 'currency')
+        verbose_name = 'Country Currency'
+        verbose_name_plural = 'Country Currencies'
 
     country = model_fields.CountryField()
     currency = model_fields.FiatCurrencyField()
@@ -63,6 +65,10 @@ class CountryCurrency(models.Model):
 
 
 class PopularPlace(models.Model):
+    class Meta:
+        verbose_name = 'Popular Place'
+        verbose_name_plural = 'Popular Places'
+
     country = model_fields.CountryField()
     language = model_fields.LanguageField(null=True, blank=True)
     name = models.CharField(max_length=100)
@@ -76,6 +82,10 @@ class PopularPlace(models.Model):
 
 
 class PopularBank(models.Model):
+    class Meta:
+        verbose_name = 'Popular Bank'
+        verbose_name_plural = 'Popular Banks'
+
     country = model_fields.CountryField()
     language = model_fields.LanguageField(null=True, blank=True)
     name = models.CharField(max_length=100)
@@ -86,6 +96,10 @@ class PopularBank(models.Model):
 
 
 class CountryDefaultConfig(models.Model):
+    class Meta:
+        verbose_name = 'Country Default Config'
+        verbose_name_plural = 'Country Default Configs'
+
     country = model_fields.CountryField(primary_key=True)
     country_name = models.CharField(max_length=50, blank=True)
     phone_country_code = models.CharField(max_length=5, blank=True)
@@ -95,6 +109,10 @@ class CountryDefaultConfig(models.Model):
 
 
 class LandingPageContact(TimestampedModel):
+    class Meta:
+        verbose_name = 'Landing Page Contact'
+        verbose_name_plural = 'Landing Page Contacts'
+
     name = models.CharField(max_length=255)
     phone_number = models.CharField(max_length=20, blank=True)
     email = models.EmailField()

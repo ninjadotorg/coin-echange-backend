@@ -75,15 +75,9 @@ class OrderNotification(object):
         email_template = '''Click here to view the Order #{} - {}'''
 
         if order_data['direction'] == DIRECTION.sell:
-            if order_data['order_type'] == ORDER_TYPE.cod:
-                order_page = 'sellingcodorder'
-            else:
-                order_page = 'sellingorder'
+            order_page = 'sellingorder'
         else:
-            if order_data['order_type'] == ORDER_TYPE.cod:
-                order_page = 'codorder'
-            else:
-                order_page = 'order'
+            order_page = 'order'
 
         order_link = settings.FRONTEND_HOST + '/admin/coin_exchange/' + order_page + '/?q=' + order_data['ref_code']
         email_content = email_template.format(order_data['id'], order_link)

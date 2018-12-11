@@ -53,12 +53,22 @@ class DefaultFilterMixin:
 class BaseOrderAdmin(InlineLinkMixin, admin.ModelAdmin):
     list_display = ['id', 'user', 'ref_code', 'format_amount', 'currency', 'fiat_local_amount', 'fiat_local_currency',
                     'status', 'user_actions']
-    list_filter = ['status', 'currency']
+    list_filter = ['status', 'currency', 'order_type']
     search_fields = ['ref_code']
+    date_hierarchy = 'created_at'
 
     def changelist_view(self, request, extra_context=None, *args, **kwargs):
         self.request = request
         return super(BaseOrderAdmin, self).changelist_view(request, extra_context, *args, **kwargs)
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return request.user.is_superuser
 
 
 @admin.register(Order)
@@ -70,9 +80,6 @@ class OrderAdmin(BaseOrderAdmin):
 
     def get_queryset(self, request):
         return self.model.objects.filter(direction=DIRECTION.buy).order_by('-id')
-
-    def has_delete_permission(self, request, obj=None):
-        return False
 
     def user_actions(self, obj):
         if obj.order_type == ORDER_TYPE.bank:
@@ -126,6 +133,8 @@ class OrderAdmin(BaseOrderAdmin):
 class SellingOrder(Order):
     class Meta:
         proxy = True
+        verbose_name = 'Exch Selling Order'
+        verbose_name_plural = 'Exch Selling Orders'
 
 
 @admin.register(SellingOrder)
@@ -217,6 +226,9 @@ class PromotionOrderAdmin(InlineLinkMixin, admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return False
 
+    def has_change_permission(self, request, obj=None):
+        return request.user.is_superuser
+
     def user_actions(self, obj):
         process_button_html = format_html('')
         if obj.status in [REFERRAL_STATUS.pending, REFERRAL_STATUS.processing]:
@@ -262,8 +274,14 @@ class PoolAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         return self.model.objects.all().order_by('-id')
 
+    def has_add_permission(self, request, obj=None):
+        return False
+
     def has_delete_permission(self, request, obj=None):
         return False
+
+    def has_change_permission(self, request, obj=None):
+        return request.user.is_superuser
 
 
 @admin.register(TrackingAddress)

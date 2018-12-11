@@ -25,8 +25,8 @@ class UserLimitInline(admin.StackedInline):
     def has_delete_permission(self, request, obj=None):
         return False
 
-    # def has_change_permission(self, request, obj=None):
-    #    return False
+    def has_change_permission(self, request, obj=None):
+        return request.user.is_superuser
 
 
 @admin.register(ExchangeUser)
@@ -42,8 +42,14 @@ class ExchangeUserAdmin(admin.ModelAdmin):
         self.request = request
         return super().changelist_view(request, *args, **kwargs)
 
+    def has_add_permission(self, request, obj=None):
+        return False
+
     def has_delete_permission(self, request, obj=None):
         return False
+
+    def has_change_permission(self, request, obj=None):
+        return request.user.is_superuser
 
     def display_level(self, obj):
         return VERIFICATION_LEVEL[obj.verification_level]
@@ -154,6 +160,8 @@ class ExchangeUserAdmin(admin.ModelAdmin):
 class PaymentUser(ExchangeUser):
     class Meta:
         proxy = True
+        verbose_name = 'Payment Approval'
+        verbose_name_plural = 'Payment Approvals'
 
 
 @admin.register(PaymentUser)
@@ -165,6 +173,15 @@ class PaymentUserAdmin(admin.ModelAdmin):
     def changelist_view(self, request, *args, **kwargs):
         self.request = request
         return super().changelist_view(request, *args, **kwargs)
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return request.user.is_superuser
 
     def get_queryset(self, request):
         return PaymentUser.objects.exclude(Q(payment_info__isnull=True) | Q(payment_info=''))

@@ -9,6 +9,10 @@ from common.constants import DIRECTION, DIRECTION_ALL
 
 
 class Order(TimestampedModel):
+    class Meta:
+        verbose_name = 'Exch Order'
+        verbose_name_plural = 'Exch Orders'
+
     user = models.ForeignKey(ExchangeUser, related_name='user_orders', on_delete=models.PROTECT)
     user_info = models.TextField(null=True)
     amount = model_fields.CryptoAmountField()
@@ -79,6 +83,8 @@ class SellingPaymentDetail(TimestampedModel):
 class TrackingAddress(TimestampedModel):
     class Meta:
         unique_together = ('user', 'address', 'currency')
+        verbose_name = 'Tracking Address'
+        verbose_name_plural = 'Tracking Addresses'
 
     user = models.ForeignKey(ExchangeUser, related_name='user_addresses', on_delete=models.CASCADE)
     order = models.OneToOneField(Order, related_name='order_address', on_delete=models.CASCADE, null=True, blank=True)
@@ -90,6 +96,8 @@ class TrackingAddress(TimestampedModel):
 class TrackingTransaction(TimestampedModel):
     class Meta:
         unique_together = ('tx_hash', 'currency')
+        verbose_name = 'Tracking Transaction'
+        verbose_name_plural = 'Tracking Transactions'
 
     tx_hash = model_fields.CryptoHashField()
     currency = model_fields.CurrencyField()
@@ -103,6 +111,10 @@ class TrackingTransaction(TimestampedModel):
 
 
 class Review(TimestampedModel):
+    class Meta:
+        verbose_name = 'Review'
+        verbose_name_plural = 'Reviews'
+
     user = models.ForeignKey(ExchangeUser, related_name='user_reviews', on_delete=models.SET_NULL,
                              null=True, blank=True)
     name = models.CharField(max_length=100, blank=True)
@@ -150,6 +162,10 @@ class UserLimit(TimestampedModel):
 
 
 class ReferralOrder(TimestampedModel):
+    class Meta:
+        verbose_name = 'Referral Transaction'
+        verbose_name_plural = 'Referral Transactions'
+
     order = models.ForeignKey(Order, related_name='order_referrals', on_delete=models.PROTECT)
     user = models.ForeignKey(ExchangeUser, related_name='user_order_referrals', null=True, on_delete=models.PROTECT)
     amount = model_fields.CryptoAmountField()
@@ -167,6 +183,10 @@ class ReferralOrder(TimestampedModel):
 
 
 class PromotionRule(TimestampedModel):
+    class Meta:
+        verbose_name = 'Promotion Rule'
+        verbose_name_plural = 'Promotion Rules'
+
     country = model_fields.CountryField()
     currency = model_fields.FiatCurrencyField()
     active = models.BooleanField(default=True)
@@ -197,6 +217,10 @@ class PromotionUser(TimestampedModel):
 
 
 class PromotionOrder(TimestampedModel):
+    class Meta:
+        verbose_name = 'Promotion Transaction'
+        verbose_name_plural = 'Promotion Transactions'
+
     order = models.ForeignKey(Order, related_name='order_promotions', on_delete=models.PROTECT)
     user = models.ForeignKey(ExchangeUser, related_name='user_order_promotions', null=True, on_delete=models.PROTECT)
     amount = model_fields.FiatAmountField()

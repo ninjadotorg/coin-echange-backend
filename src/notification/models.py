@@ -5,6 +5,10 @@ from notification.constants import NOTIFICATION_GROUP, NOTIFICATION_METHOD
 
 
 class SystemReminder(models.Model):
+    class Meta:
+        verbose_name = 'Reminder'
+        verbose_name_plural = 'Reminders'
+
     group = models.CharField(max_length=50, choices=NOTIFICATION_GROUP)
     method = models.CharField(max_length=50, choices=NOTIFICATION_METHOD)
     target = models.CharField(max_length=1000, blank=True)
@@ -21,6 +25,8 @@ class SystemReminder(models.Model):
 class SystemReminderAction(TimestampedModel):
     class Meta:
         unique_together = ('group', )
+        verbose_name = 'Reminder Action'
+        verbose_name_plural = 'Reminder Actions'
 
     group = models.CharField(max_length=50, choices=NOTIFICATION_GROUP)
     active_reminder = models.ForeignKey(SystemReminder, on_delete=models.CASCADE)
@@ -31,6 +37,8 @@ class SystemReminderAction(TimestampedModel):
 class SystemNotification(models.Model):
     class Meta:
         unique_together = ('group', 'method')
+        verbose_name = 'Notification'
+        verbose_name_plural = 'Notifications'
 
     group = models.CharField(max_length=50, choices=NOTIFICATION_GROUP)
     method = models.CharField(max_length=50, choices=NOTIFICATION_METHOD)

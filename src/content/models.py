@@ -9,6 +9,8 @@ from common import model_fields
 class EmailContent(TimestampedModel):
     class Meta:
         unique_together = ('purpose', 'language')
+        verbose_name = 'Email Content'
+        verbose_name_plural = 'Email Contents'
 
     purpose = models.CharField(max_length=100, choices=EMAIL_PURPOSE)
     language = model_fields.LanguageField()
@@ -20,6 +22,8 @@ class EmailContent(TimestampedModel):
 class SMSContent(TimestampedModel):
     class Meta:
         unique_together = ('purpose', 'language')
+        verbose_name = 'SMS Content'
+        verbose_name_plural = 'SMS Contents'
 
     purpose = models.CharField(max_length=100, choices=SMS_PURPOSE)
     language = model_fields.LanguageField()
@@ -30,6 +34,8 @@ class SMSContent(TimestampedModel):
 class StaticPage(TimestampedModel):
     class Meta:
         unique_together = ('page', 'language')
+        verbose_name = 'Static Page'
+        verbose_name_plural = 'Static Pages'
 
     page = models.CharField(max_length=100, choices=STATIC_PAGE)
     language = model_fields.LanguageField()
@@ -37,6 +43,10 @@ class StaticPage(TimestampedModel):
 
 
 class FAQ(TimestampedModel):
+    class Meta:
+        verbose_name = 'FAQ'
+        verbose_name_plural = 'FAQs'
+
     language = model_fields.LanguageField()
     question = models.CharField(max_length=500)
     answer = HTMLField()
