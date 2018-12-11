@@ -1,13 +1,14 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
-from coin_user.resource import ContactViewSet
+from coin_user.resource import ContactViewSet, ExchangeUserLogViewSet
 from coin_user.views import SignUpView, ProfileView, VerifyEmailView, WalletView, VerifyPhoneView, VerifyIDView, \
     VerifySelfieView, ForgotPasswordView, ChangePasswordView, ResetPasswordView, TwoFAView, \
     ReferralView, FileUploadView, VerifyPasswordView
 
 router = DefaultRouter()
 router.register('contacts', ContactViewSet)
+router.register('logs', ExchangeUserLogViewSet)
 
 patterns = ([
     path('', include(router.urls)),

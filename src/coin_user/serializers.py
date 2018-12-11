@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 
-from coin_user.models import ExchangeUser, Contact
+from coin_user.models import ExchangeUser, Contact, ExchangeUserLog
 from common import serializer_fields
 
 
@@ -82,3 +82,9 @@ class ChangePasswordSerializer(serializers.Serializer):
 
 class VerifyPasswordSerializer(serializers.Serializer):
     password = serializers.CharField(min_length=8, write_only=True)
+
+
+class ExchangeUserLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ExchangeUserLog
+        exclude = ('user',)

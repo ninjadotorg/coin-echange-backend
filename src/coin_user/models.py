@@ -91,3 +91,17 @@ class Contact(TimestampedModel):
 
     def __str__(self):
         return '%s' % self.name
+
+
+class ExchangeUserLog(TimestampedModel):
+    class Meta:
+        verbose_name = 'Exch User Log'
+        verbose_name_plural = 'Exch User Logs'
+
+    user = models.ForeignKey(ExchangeUser, related_name='user_logs', on_delete=models.CASCADE)
+    action = models.CharField(max_length=255, null=True, blank=True)
+    name = models.CharField(max_length=255, null=True, blank=True)
+    description = models.CharField(max_length=255, null=True, blank=True)
+    path = models.CharField(max_length=255, null=True, blank=True)
+    status = models.CharField(max_length=255, null=True, blank=True)
+    local_time = models.CharField(max_length=255, null=True, blank=True)

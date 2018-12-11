@@ -107,3 +107,19 @@ class ContactTests(APITestCase):
         }, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+class ExchangeUserLogTests(APITestCase):
+    def setUp(self):
+        self.auth_utils = AuthenticationUtils(self.client)
+        self.user = self.auth_utils.create_exchange_user()
+        self.auth_utils.login()
+
+    def test_add_contact(self):
+        url = reverse('user:exchangeuserlog-list')
+
+        response = self.client.post(url, data={
+            'name': 'Log',
+        }, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)

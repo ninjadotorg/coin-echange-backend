@@ -10,7 +10,7 @@ from django.utils.http import urlunquote
 
 from coin_exchange.models import UserLimit
 from coin_user.constants import VERIFICATION_LEVEL, VERIFICATION_STATUS, PAYMENT_VERIFICATION_STATUS
-from coin_user.models import ExchangeUser
+from coin_user.models import ExchangeUser, ExchangeUserLog
 
 
 class UserLimitInline(admin.StackedInline):
@@ -273,3 +273,9 @@ class PaymentUserAdmin(admin.ModelAdmin):
             reverse('admin:user-payment-verify-reject', args=[obj.pk]),
             self.get_preserved_filters(self.request),
         )
+
+
+@admin.register(ExchangeUserLog)
+class ExchangeUserLogAdmin(admin.ModelAdmin):
+    list_display = ['user', 'name', 'action', 'description', 'status', 'created_at', 'local_time']
+    search_fields = ['user__user__email', 'user__name', 'name']

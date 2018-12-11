@@ -54,7 +54,7 @@ class BaseOrderAdmin(InlineLinkMixin, admin.ModelAdmin):
     list_display = ['id', 'user', 'ref_code', 'format_amount', 'currency', 'fiat_local_amount', 'fiat_local_currency',
                     'status', 'user_actions']
     list_filter = ['status', 'currency', 'order_type']
-    search_fields = ['ref_code']
+    search_fields = ['user__user__email', 'user__name', 'ref_code']
     date_hierarchy = 'created_at'
 
     def changelist_view(self, request, extra_context=None, *args, **kwargs):
