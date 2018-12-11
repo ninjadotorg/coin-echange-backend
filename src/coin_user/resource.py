@@ -13,7 +13,6 @@ class ContactViewSet(mixins.CreateModelMixin,
                      GenericViewSet):
     permission_classes = (IsAuthenticated,)
     serializer_class = ContactSerializer
-    pagination_class = StandardPagination
     queryset = Contact.objects.none()
 
     def get_queryset(self):
@@ -33,6 +32,7 @@ class ExchangeUserLogViewSet(mixins.CreateModelMixin,
                              GenericViewSet):
     permission_classes = (IsAuthenticated,)
     serializer_class = ExchangeUserLogSerializer
+    pagination_class = StandardPagination
     queryset = ExchangeUserLog.objects.none()
 
     def get_queryset(self):
