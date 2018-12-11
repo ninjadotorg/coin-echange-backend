@@ -4,6 +4,7 @@ from rest_framework.viewsets import GenericViewSet
 
 from coin_user.models import Contact, ExchangeUserLog
 from coin_user.serializers import ContactSerializer, ExchangeUserLogSerializer
+from common.http import StandardPagination
 
 
 class ContactViewSet(mixins.CreateModelMixin,
@@ -12,6 +13,7 @@ class ContactViewSet(mixins.CreateModelMixin,
                      GenericViewSet):
     permission_classes = (IsAuthenticated,)
     serializer_class = ContactSerializer
+    pagination_class = StandardPagination
     queryset = Contact.objects.none()
 
     def get_queryset(self):
