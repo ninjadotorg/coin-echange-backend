@@ -148,7 +148,7 @@ def custom_order_cod_view(admin_view, request, pk, title, read_only):
                     order.order_type == ORDER_TYPE.cod:
                 messages.warning(request, 'Order is in invalid status to process')
                 return HttpResponseRedirect(
-                    reverse("admin:coin_exchange_codorder_changelist") + '?{}'.format(url_filters))
+                    reverse("admin:coin_exchange_order_changelist") + '?{}'.format(url_filters))
 
             # Change to processing status
             if order.status == ORDER_STATUS.pending:
@@ -163,7 +163,7 @@ def custom_order_cod_view(admin_view, request, pk, title, read_only):
             OrderManagement.reject_order(order)
             messages.success(request, 'Order is rejected successful.')
 
-        return HttpResponseRedirect(reverse("admin:coin_exchange_codorder_changelist") + '?{}'.format(url_filters))
+        return HttpResponseRedirect(reverse("admin:coin_exchange_order_changelist") + '?{}'.format(url_filters))
 
     context = admin_view.admin_site.each_context(request)
     context['opts'] = admin_view.model._meta
@@ -325,7 +325,7 @@ def custom_selling_cod_order_view(admin_view, request, pk, title, read_only):
                     order.order_type == ORDER_TYPE.cod:
                 messages.warning(request, 'Order is in invalid status to process')
                 return HttpResponseRedirect(
-                    reverse("admin:coin_exchange_sellingcodorder_changelist") + '?{}'.format(url_filters))
+                    reverse("admin:coin_exchange_sellingorder_changelist") + '?{}'.format(url_filters))
 
             # Change to processing status
             if order.status == ORDER_STATUS.transferred:
@@ -341,7 +341,7 @@ def custom_selling_cod_order_view(admin_view, request, pk, title, read_only):
             messages.success(request, 'Order is rejected successful.')
 
         return HttpResponseRedirect(
-            reverse("admin:coin_exchange_sellingcodorder_changelist") + '?{}'.format(url_filters))
+            reverse("admin:coin_exchange_sellingorder_changelist") + '?{}'.format(url_filters))
 
     context = admin_view.admin_site.each_context(request)
     context['opts'] = admin_view.model._meta

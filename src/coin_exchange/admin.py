@@ -50,11 +50,15 @@ class DefaultFilterMixin:
         return redirect('{}?{}'.format(path, query))
 
 
-class BaseOrderAdmin(InlineLinkMixin, DefaultFilterMixin, admin.ModelAdmin):
+class BaseOrderAdmin(InlineLinkMixin, admin.ModelAdmin):
     list_display = ['id', 'user', 'ref_code', 'format_amount', 'currency', 'fiat_local_amount', 'fiat_local_currency',
                     'status', 'user_actions']
     list_filter = ['status', 'currency']
     search_fields = ['ref_code']
+
+    def changelist_view(self, request, extra_context=None, *args, **kwargs):
+        self.request = request
+        return super(BaseOrderAdmin, self).changelist_view(request, extra_context, *args, **kwargs)
 
 
 @admin.register(Order)
@@ -65,16 +69,25 @@ class OrderAdmin(BaseOrderAdmin):
         }
 
     def get_queryset(self, request):
-        return self.model.objects.filter(direction=DIRECTION.buy, order_type=ORDER_TYPE.bank).order_by('-id')
+        return self.model.objects.filter(direction=DIRECTION.buy).order_by('-id')
 
     def has_delete_permission(self, request, obj=None):
         return False
 
     def user_actions(self, obj):
-        process_button_html = format_html('')
-        if obj.status in [ORDER_STATUS.fiat_transferring, ORDER_STATUS.processing]:
-            process_button_html = self.create_button(obj, 'Process', 'admin:custom-order-process')
-        return self.create_button(obj, 'View', 'admin:custom-order-view') + format_html('&nbsp;') + process_button_html
+        if obj.order_type == ORDER_TYPE.bank:
+            process_button_html = format_html('')
+            if obj.status in [ORDER_STATUS.fiat_transferring, ORDER_STATUS.processing]:
+                process_button_html = self.create_button(obj, 'Process', 'admin:custom-order-process')
+            return self.create_button(obj, 'View', 'admin:custom-order-view') + \
+                format_html('&nbsp;') + process_button_html
+        else:
+            process_button_html = format_html('')
+            if obj.status in [ORDER_STATUS.pending, ORDER_STATUS.processing]:
+                process_button_html = self.create_button(obj, 'Process', 'admin:custom-order-cod-process')
+
+            return self.create_button(obj, 'View', 'admin:custom-order-cod-view') + \
+                format_html('&nbsp;') + process_button_html
 
     user_actions.short_description = 'Actions'
     user_actions.allow_tags = True
@@ -88,6 +101,12 @@ class OrderAdmin(BaseOrderAdmin):
             path('order-process/<int:pk>',
                  self.admin_site.admin_view(self.order_process),
                  name='custom-order-process'),
+            path('order-cod-view/<int:pk>',
+                 self.admin_site.admin_view(self.order_cod_view),
+                 name='custom-order-cod-view'),
+            path('order-cod-process/<int:pk>',
+                 self.admin_site.admin_view(self.order_cod_process),
+                 name='custom-order-cod-process'),
         ]
         return custom_urls + urls
 
@@ -97,52 +116,10 @@ class OrderAdmin(BaseOrderAdmin):
     def order_process(self, request, pk, *args, **kwargs):
         return custom_order_view(self, request, pk, 'Process Bank Order', False)
 
-
-class CODOrder(Order):
-    class Meta:
-        proxy = True
-
-
-@admin.register(CODOrder)
-class CODOrderAdmin(BaseOrderAdmin):
-    def get_default_filters(self, request):
-        return {
-            'status__exact': ORDER_STATUS.pending,
-        }
-
-    def get_queryset(self, request):
-        return self.model.objects.filter(direction=DIRECTION.buy, order_type=ORDER_TYPE.cod).order_by('-id')
-
-    def has_delete_permission(self, request, obj=None):
-        return False
-
-    def user_actions(self, obj):
-        process_button_html = format_html('')
-        if obj.status in [ORDER_STATUS.pending, ORDER_STATUS.processing]:
-            process_button_html = self.create_button(obj, 'Process', 'admin:custom-order-cod-process')
-
-        return self.create_button(obj, 'View', 'admin:custom-order-cod-view') + \
-            format_html('&nbsp;') + process_button_html
-
-    user_actions.short_description = 'Actions'
-    user_actions.allow_tags = True
-
-    def get_urls(self):
-        urls = super().get_urls()
-        custom_urls = [
-            path('order-cod-view/<int:pk>',
-                 self.admin_site.admin_view(self.order_view),
-                 name='custom-order-cod-view'),
-            path('order-cod-process/<int:pk>',
-                 self.admin_site.admin_view(self.order_process),
-                 name='custom-order-cod-process'),
-        ]
-        return custom_urls + urls
-
-    def order_view(self, request, pk, *args, **kwargs):
+    def order_cod_view(self, request, pk, *args, **kwargs):
         return custom_order_cod_view(self, request, pk, 'View COD Order', True)
 
-    def order_process(self, request, pk, *args, **kwargs):
+    def order_cod_process(self, request, pk, *args, **kwargs):
         return custom_order_cod_view(self, request, pk, 'Process COD Order', False)
 
 
@@ -159,18 +136,26 @@ class SellingOrderAdmin(BaseOrderAdmin):
         }
 
     def get_queryset(self, request):
-        return self.model.objects.filter(direction=DIRECTION.sell, order_type=ORDER_TYPE.bank).order_by('-id')
+        return self.model.objects.filter(direction=DIRECTION.sell).order_by('-id')
 
     def has_delete_permission(self, request, obj=None):
         return False
 
     def user_actions(self, obj):
-        process_button_html = format_html('')
-        if obj.status in [ORDER_STATUS.transferred, ORDER_STATUS.processing]:
-            process_button_html = self.create_button(obj, 'Process', 'admin:custom-selling-order-process')
+        if obj.order_type == ORDER_TYPE.bank:
+            process_button_html = format_html('')
+            if obj.status in [ORDER_STATUS.transferred, ORDER_STATUS.processing]:
+                process_button_html = self.create_button(obj, 'Process', 'admin:custom-selling-order-process')
 
-        return self.create_button(obj, 'View', 'admin:custom-selling-order-view') + \
-            format_html('&nbsp;') + process_button_html
+            return self.create_button(obj, 'View', 'admin:custom-selling-order-view') + \
+                format_html('&nbsp;') + process_button_html
+        else:
+            process_button_html = format_html('')
+            if obj.status in [ORDER_STATUS.transferred, ORDER_STATUS.processing]:
+                process_button_html = self.create_button(obj, 'Process', 'admin:custom-selling-cod-order-process')
+
+            return self.create_button(obj, 'View', 'admin:custom-selling-cod-order-view') + \
+                format_html('&nbsp;') + process_button_html
 
     user_actions.short_description = 'Actions'
     user_actions.allow_tags = True
@@ -184,6 +169,12 @@ class SellingOrderAdmin(BaseOrderAdmin):
             path('selling-order-process/<int:pk>',
                  self.admin_site.admin_view(self.order_process),
                  name='custom-selling-order-process'),
+            path('selling-cod-order-view/<int:pk>',
+                 self.admin_site.admin_view(self.order_cod_view),
+                 name='custom-selling-cod-order-view'),
+            path('selling-cod-order-process/<int:pk>',
+                 self.admin_site.admin_view(self.order_cod_process),
+                 name='custom-selling-cod-order-process'),
         ]
         return custom_urls + urls
 
@@ -193,53 +184,11 @@ class SellingOrderAdmin(BaseOrderAdmin):
     def order_process(self, request, pk, *args, **kwargs):
         return custom_selling_order_view(self, request, pk, 'Process Selling Order', False)
 
+    def order_cod_view(self, request, pk, *args, **kwargs):
+        return custom_selling_cod_order_view(self, request, pk, 'View Selling COD Order', True)
 
-class SellingCODOrder(Order):
-    class Meta:
-        proxy = True
-
-
-@admin.register(SellingCODOrder)
-class SellingCODOrderAdmin(BaseOrderAdmin):
-    def get_default_filters(self, request):
-        return {
-            'status__exact': ORDER_STATUS.transferred,
-        }
-
-    def get_queryset(self, request):
-        return self.model.objects.filter(direction=DIRECTION.sell, order_type=ORDER_TYPE.cod).order_by('-id')
-
-    def has_delete_permission(self, request, obj=None):
-        return False
-
-    def user_actions(self, obj):
-        process_button_html = format_html('')
-        if obj.status in [ORDER_STATUS.transferred, ORDER_STATUS.processing]:
-            process_button_html = self.create_button(obj, 'Process', 'admin:custom-selling-cod-order-process')
-
-        return self.create_button(obj, 'View', 'admin:custom-selling-cod-order-view') + \
-            format_html('&nbsp;') + process_button_html
-
-    user_actions.short_description = 'Actions'
-    user_actions.allow_tags = True
-
-    def get_urls(self):
-        urls = super().get_urls()
-        custom_urls = [
-            path('selling-cod-order-view/<int:pk>',
-                 self.admin_site.admin_view(self.order_view),
-                 name='custom-selling-cod-order-view'),
-            path('selling-cod-order-process/<int:pk>',
-                 self.admin_site.admin_view(self.order_process),
-                 name='custom-selling-cod-order-process'),
-        ]
-        return custom_urls + urls
-
-    def order_view(self, request, pk, *args, **kwargs):
-        return custom_selling_cod_order_view(self, request, pk, 'View Selling Order', True)
-
-    def order_process(self, request, pk, *args, **kwargs):
-        return custom_selling_cod_order_view(self, request, pk, 'Process Selling Order', False)
+    def order_cod_process(self, request, pk, *args, **kwargs):
+        return custom_selling_cod_order_view(self, request, pk, 'Process Selling COD Order', False)
 
 
 @admin.register(PromotionRule)
