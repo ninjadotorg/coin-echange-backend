@@ -12,7 +12,6 @@ class ExchangeUser(models.Model):
         verbose_name_plural = 'Exch Users'
 
     user = models.OneToOneField(User, related_name='exchange_user', on_delete=models.CASCADE)
-    user = models.OneToOneField(User, related_name='exchange_user', on_delete=models.CASCADE)
     name = models.CharField(max_length=255, unique=True)
     phone_number = models.CharField(max_length=20, blank=True)
     pending_phone_number = models.CharField(max_length=20, blank=True)

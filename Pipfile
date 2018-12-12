@@ -36,6 +36,7 @@ twilio = "*"
 redis = "==2.10.6"
 pyotp = "==2.2.7"
 google-cloud-storage = "==1.13.0"
+python-binance = "==0.7.0"
 
 [dev-packages]
 "flake8" = "*"

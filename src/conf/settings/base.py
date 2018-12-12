@@ -50,6 +50,7 @@ DJANGO_APPS = [
 THIRD_PARTY_APPS = [
     'django_extensions',
     'rest_framework',
+    'rest_framework.authtoken',
     'corsheaders',
     'django_filters',
     'tinymce',
@@ -228,6 +229,15 @@ BITSTAMP = {
     'CUSTOMER_ID': '',
     'API_KEY': '',
     'API_SECRET': '',
+}
+
+BINANCE = {
+    'API_KEY': '',
+    'SECRET_KEY': '',
+    'ACCOUNTS': {
+        'ETH': '',
+        'BTC': '',
+    }
 }
 
 OPENEXCHANGERATES = {

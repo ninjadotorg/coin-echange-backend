@@ -1,10 +1,12 @@
 # from django.utils.decorators import method_decorator
 # from django.views.decorators.cache import cache_page
 from rest_framework import mixins, status, viewsets
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from coin_exchange.business.order import OrderManagement
 from coin_exchange.constants import ORDER_STATUS, ORDER_TYPE
@@ -19,6 +21,7 @@ from common.http import StandardPagination
 class ReviewViewSet(mixins.CreateModelMixin,
                     mixins.ListModelMixin,
                     GenericViewSet):
+    authentication_classes = (JWTAuthentication, TokenAuthentication)
     permission_classes = (IsAuthenticatedOrReadOnly,)
     serializer_class = ReviewSerializer
     pagination_class = StandardPagination
@@ -50,6 +53,7 @@ class OrderViewSet(mixins.CreateModelMixin,
                    mixins.DestroyModelMixin,
                    mixins.ListModelMixin,
                    GenericViewSet):
+    authentication_classes = (JWTAuthentication, TokenAuthentication)
     permission_classes = (IsAuthenticated,)
     serializer_class = OrderSerializer
     pagination_class = StandardPagination

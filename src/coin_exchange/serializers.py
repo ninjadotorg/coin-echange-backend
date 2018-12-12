@@ -80,9 +80,12 @@ class ReferralOrderSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     amount = serializer_fields.CryptoAmountField()
+    name = serializers.CharField(source='user.name', read_only=True)
 
 
 class PromotionOrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = PromotionOrder
         fields = '__all__'
+
+    name = serializers.CharField(source='user.name', read_only=True)

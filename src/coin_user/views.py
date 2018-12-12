@@ -8,6 +8,7 @@ from django.core.cache import cache
 from django.db import transaction
 from django.db.models import F
 from rest_framework import status
+from rest_framework.authtoken.models import Token
 from rest_framework.exceptions import ValidationError
 from rest_framework.parsers import FileUploadParser
 from rest_framework.permissions import IsAuthenticated
@@ -480,3 +481,27 @@ class FileUploadView(APIView):
         blob = upload_file('{}/{}'.format(file_type, filename), f)
 
         return Response({'url': blob.public_url})
+
+
+class APITokenView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, format=None):
+        token = Token.objects.filter(user=request.user).first()
+        if token:
+            return Response({'token': token.key})
+
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    def post(self, request, format=None):
+        token = Token.objects.filter(user=request.user).first()
+        if token:
+            return Response({'token': token.key})
+
+        token = Token.objects.create(user=request.user)
+
+        return Response({'token': token.key})
+
+    def delete(self, request, format=None):
+        Token.objects.filter(user=request.user).delete()
+        return Response()

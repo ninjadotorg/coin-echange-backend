@@ -1,8 +1,10 @@
 from rest_framework import status
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from coin_exchange.business.crypto import AddressManagement, TrackingManagement
 from coin_exchange.business.order import OrderManagement
@@ -10,21 +12,25 @@ from coin_exchange.business.quote import QuoteManagement
 from coin_exchange.business.referral import ReferralManagement
 from common.business import view_serializer_fields
 from common.constants import SUPPORT_CURRENCIES
+from common.exceptions import InvalidInputDataException
 
 
 class AddressView(APIView):
+    authentication_classes = (JWTAuthentication, TokenAuthentication)
     permission_classes = (IsAuthenticated,)
 
     def post(self, request, format=None):
         currency = request.query_params.get('currency')
         if currency not in SUPPORT_CURRENCIES:
-            raise ValidationError
+            raise InvalidInputDataException
 
         address, exists = AddressManagement.create_address(request.user.exchange_user, currency)
         return Response(address, status=status.HTTP_200_OK if exists else status.HTTP_201_CREATED)
 
 
 class QuoteView(APIView):
+    authentication_classes = (JWTAuthentication, TokenAuthentication)
+
     def get(self, request, format=None):
         serializer = QuoteManagement.get_quote(request.user, request.query_params)
         view_fields = ['amount', 'currency', 'fiat_currency', 'direction', 'fiat_local_currency',
@@ -35,6 +41,8 @@ class QuoteView(APIView):
 
 
 class QuoteReverseView(APIView):
+    authentication_classes = (JWTAuthentication, TokenAuthentication)
+
     def get(self, request, format=None):
         serializer = QuoteManagement.get_quote_reverse(request.user, request.query_params)
         view_fields = ['amount', 'currency', 'fiat_currency', 'direction', 'fiat_local_currency',
