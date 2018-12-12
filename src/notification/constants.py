@@ -13,7 +13,6 @@ EMAIL_PURPOSE = Choices(
     ('coin_price', 'Coin price'),
     ('successful_buying', 'Successful buying'),
     ('successful_selling', 'Successful selling'),
-    ('api_reference', 'API Reference'),
 )
 
 SMS_PURPOSE = Choices(
@@ -44,4 +43,5 @@ STATIC_PAGE = Choices(
     ('agreement', 'Agreement'),
     ('promotion_programs', 'Promotion Programs'),
     ('how_it_works', 'How It Works'),
+    ('api_reference', 'API Reference'),
 )
