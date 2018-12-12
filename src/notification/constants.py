@@ -13,6 +13,7 @@ EMAIL_PURPOSE = Choices(
     ('coin_price', 'Coin price'),
     ('successful_buying', 'Successful buying'),
     ('successful_selling', 'Successful selling'),
+    ('api_reference', 'API Reference'),
 )
 
 SMS_PURPOSE = Choices(
