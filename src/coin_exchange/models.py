@@ -2,7 +2,8 @@ from django.db import models
 
 from coin_base.models import TimestampedModel
 from coin_exchange.constants import ORDER_STATUS, ORDER_TYPE, PAYMENT_STATUS, TRACKING_ADDRESS_STATUS, \
-    TRACKING_TRANSACTION_STATUS, TRACKING_TRANSACTION_DIRECTION, REFERRAL_STATUS, ORDER_USER_PAYMENT_TYPE
+    TRACKING_TRANSACTION_STATUS, TRACKING_TRANSACTION_DIRECTION, REFERRAL_STATUS, ORDER_USER_PAYMENT_TYPE, \
+    CRYPTO_FUND_TYPE, CRYPTO_FUND_ACTION, CRYPTO_FUND_ACTION_STATUS
 from coin_user.models import ExchangeUser
 from common import model_fields
 from common.constants import DIRECTION, DIRECTION_ALL
@@ -10,8 +11,8 @@ from common.constants import DIRECTION, DIRECTION_ALL
 
 class Order(TimestampedModel):
     class Meta:
-        verbose_name = 'Exch Order'
-        verbose_name_plural = 'Exch Orders'
+        verbose_name = 'Exch Buying Order'
+        verbose_name_plural = 'Exch Buying Orders'
 
     user = models.ForeignKey(ExchangeUser, related_name='user_orders', on_delete=models.PROTECT)
     user_info = models.TextField(null=True)
@@ -228,3 +229,45 @@ class PromotionOrder(TimestampedModel):
     status = models.CharField(max_length=20, choices=REFERRAL_STATUS, default=REFERRAL_STATUS.pending)
     referrer = models.BooleanField(default=True)
     note = models.CharField(max_length=200, null=True, blank=True)
+
+
+class CryptoFund(TimestampedModel):
+    class Meta:
+        verbose_name = 'Crypto Fund'
+        verbose_name_plural = 'Crypto Funds'
+        unique_together = ('currency', 'fund_type')
+
+    amount = model_fields.CryptoAmountField()
+    currency = model_fields.CurrencyField()
+    fund_type = models.CharField(max_length=20, choices=CRYPTO_FUND_TYPE)
+
+    def format_amount(self):
+        return '{:.6f} {}'.format(self.amount, self.currency)
+
+    format_amount.short_description = 'Amount'
+
+
+class CryptoFundAction(TimestampedModel):
+    class Meta:
+        verbose_name = 'Crypto Fund Action'
+        verbose_name_plural = 'Crypto Fund Actions'
+
+    from_amount = model_fields.CryptoAmountField()
+    from_currency = model_fields.CurrencyField()
+    amount = model_fields.CryptoAmountField()
+    currency = model_fields.CurrencyField()
+    from_fund_type = models.CharField(max_length=20, choices=CRYPTO_FUND_TYPE, null=True, blank=True)
+    fund_type = models.CharField(max_length=20, choices=CRYPTO_FUND_TYPE, null=True, blank=True)
+    action = models.CharField(max_length=20, choices=CRYPTO_FUND_ACTION, null=True, blank=True)
+    status = models.CharField(max_length=20, choices=CRYPTO_FUND_ACTION_STATUS, null=True, blank=True)
+    provider_data = models.TextField(null=True)
+
+    def format_from_amount(self):
+        return '{:.6f} {}'.format(self.from_amount, self.from_currency)
+
+    format_from_amount.short_description = 'From Amount'
+
+    def format_amount(self):
+        return '{:.6f} {}'.format(self.amount, self.currency)
+
+    format_amount.short_description = 'Amount'

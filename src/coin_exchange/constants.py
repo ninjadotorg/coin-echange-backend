@@ -64,6 +64,25 @@ PROMOTION = Choices(
     ('referee', 'Referee'),
 )
 
+CRYPTO_FUND_TYPE = Choices(
+    ('in_fund', 'In Fund'),
+    ('out_fund', 'Out Fund'),
+    ('storage_fund', 'Storage Fund'),
+)
+
+CRYPTO_FUND_ACTION = Choices(
+    ('update', 'Update'),
+    ('transfer', 'Transfer'),
+    ('convert', 'Convert'),
+)
+
+CRYPTO_FUND_ACTION_STATUS = Choices(
+    ('transferring', 'Transferring'),
+    ('transferred', 'Transferred'),
+    ('converting', 'Converting'),
+    ('converted', 'Converted'),
+)
+
 FEE_COIN_ORDER_COD = "FEE_COIN_ORDER_COD"
 FEE_COIN_ORDER_BANK = "FEE_COIN_ORDER_BANK"
 FEE_COIN_SELLING_ORDER_BANK = "FEE_COIN_SELLING_ORDER_BANK"

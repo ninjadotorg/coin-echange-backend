@@ -9,7 +9,7 @@ from coin_exchange.admin_views import custom_order_view, custom_order_cod_view, 
     custom_selling_cod_order_view, custom_promotion_order_view
 from coin_exchange.constants import ORDER_TYPE, ORDER_STATUS, REFERRAL_STATUS
 from coin_exchange.models import Order, Review, Pool, TrackingAddress, TrackingTransaction, ReferralOrder, \
-    PromotionOrder, PromotionRule
+    PromotionOrder, PromotionRule, CryptoFund, CryptoFundAction
 from common.constants import DIRECTION
 
 
@@ -292,3 +292,14 @@ class TrackingAddressAdmin(admin.ModelAdmin):
 @admin.register(TrackingTransaction)
 class TrackingTransactionAdmin(admin.ModelAdmin):
     list_display = ['tx_hash', 'currency', 'status', 'order', 'direction']
+
+
+@admin.register(CryptoFund)
+class CryptoFundAdmin(admin.ModelAdmin):
+    list_display = ['fund_type', 'format_amount', 'updated_at']
+
+
+@admin.register(CryptoFundAction)
+class CryptoFundActionAdmin(admin.ModelAdmin):
+    list_display = ['action', 'format_from_amount', 'from_fund_type', 'format_amount', 'fund_type',
+                    'status', 'updated_at']

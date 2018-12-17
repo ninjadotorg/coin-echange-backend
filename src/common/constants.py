@@ -35,6 +35,7 @@ FIAT_CURRENCY = Choices(
 )
 
 CURRENCY = Choices(
+    ('USDT', 'USDT'),
     ('ETH', 'ETH'),
     ('BTC', 'BTC'),
 )

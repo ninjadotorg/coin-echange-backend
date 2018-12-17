@@ -41,6 +41,9 @@ class StaticPage(TimestampedModel):
     language = model_fields.LanguageField()
     content = HTMLField()
 
+    def get_title(self):
+        return STATIC_PAGE[self.page]
+
 
 class FAQ(TimestampedModel):
     class Meta:
