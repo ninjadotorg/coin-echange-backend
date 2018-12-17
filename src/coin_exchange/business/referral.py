@@ -73,7 +73,7 @@ class ReferralManagement(object):
             ReferralOrder.objects.bulk_create(referrals)
 
     @staticmethod
-    def pay_referral(self):
+    def pay_referral():
         referral_orders = ReferralOrder.objects.filter(status=REFERRAL_STATUS.pending)
         for referral_order in referral_orders:
             try:

@@ -4,7 +4,8 @@ from rest_framework.routers import DefaultRouter
 from coin_exchange.resource import ReviewViewSet, OrderViewSet, ReferralOrderViewSet, PromotionOrderViewSet
 from coin_exchange.views import QuoteView, QuoteReverseView, AddressView, ExpireOrderView, DepositedAddressView, \
     TrackingAddressView, TrackingAddressDetailView, TrackingTransactionView, TrackingTransactionDetailView, \
-    ResetUserLimitView, TrackingBitstampTransaction, PayReferralOrderView, TrackingBitstampReferralTransaction
+    ResetUserLimitView, TrackingBitstampTransactionView, PayReferralOrderView, \
+    TrackingBitstampReferralTransactionView, TrackingFundTransactionView, TrackingInFundView, TrackingOutFundView
 
 router = DefaultRouter()
 router.register('reviews', ReviewViewSet)
@@ -29,11 +30,17 @@ patterns = ([
          name='tracking-address-detail'),
     path('tracking-transactions/<int:pk>/', TrackingTransactionDetailView.as_view(),
          name='tracking-transaction-detail'),
-    path('tracking-bitstamp-transactions/', TrackingBitstampTransaction.as_view(),
+    path('tracking-bitstamp-transactions/', TrackingBitstampTransactionView.as_view(),
          name='tracking-bitstamp-transaction-list'),
     path('pay-referral-order/', PayReferralOrderView.as_view(), name='pay-referral-order-view'),
-    path('tracking-bitstamp-referral-transactions/', TrackingBitstampReferralTransaction.as_view(),
+    path('tracking-bitstamp-referral-transactions/', TrackingBitstampReferralTransactionView.as_view(),
          name='tracking-bitstamp-referral-transaction-list'),
+    path('tracking-in-fund/', TrackingInFundView.as_view(),
+         name='tracking-in-fund-list'),
+    path('tracking-out-fund/', TrackingOutFundView.as_view(),
+         name='tracking-out-fund-list'),
+    path('tracking-fund-transactions/', TrackingFundTransactionView.as_view(),
+         name='tracking-fund-transaction-list'),
 ], 'exchange')
 
 urlpatterns = [

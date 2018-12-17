@@ -1,3 +1,5 @@
+import logging
+
 from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.exceptions import ValidationError
@@ -7,6 +9,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from coin_exchange.business.crypto import AddressManagement, TrackingManagement
+from coin_exchange.business.fund import FundManagement
 from coin_exchange.business.order import OrderManagement
 from coin_exchange.business.quote import QuoteManagement
 from coin_exchange.business.referral import ReferralManagement
@@ -102,7 +105,7 @@ class TrackingTransactionDetailView(APIView):
         return Response()
 
 
-class TrackingBitstampTransaction(APIView):
+class TrackingBitstampTransactionView(APIView):
     def post(self, request, format=None):
         OrderManagement.load_transferring_order_to_track()
         return Response()
@@ -114,7 +117,33 @@ class PayReferralOrderView(APIView):
         return Response()
 
 
-class TrackingBitstampReferralTransaction(APIView):
+class TrackingBitstampReferralTransactionView(APIView):
     def post(self, request, format=None):
         ReferralManagement.load_transferring_referral_to_track()
+        return Response()
+
+
+class TrackingInFundView(APIView):
+    def post(self, request, format=None):
+        try:
+            for curr in SUPPORT_CURRENCIES:
+                FundManagement.update_in_fund(curr)
+        except Exception as ex:
+            logging.exception(ex)
+        return Response()
+
+
+class TrackingOutFundView(APIView):
+    def post(self, request, format=None):
+        try:
+            for curr in SUPPORT_CURRENCIES:
+                FundManagement.update_out_fund(curr)
+        except Exception as ex:
+            logging.exception(ex)
+        return Response()
+
+
+class TrackingFundTransactionView(APIView):
+    def post(self, request, format=None):
+        FundManagement.track_transferring()
         return Response()

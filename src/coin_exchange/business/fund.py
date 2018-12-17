@@ -18,7 +18,7 @@ class FundManagement(object):
     def update_in_fund(currency: str):
         fund = CryptoFund.objects.get(currency=currency, fund_type=CRYPTO_FUND_TYPE.in_fund)
         sum_amount = Order.objects.filter(direction=DIRECTION.sell,
-                                          status=ORDER_STATUS.sucess,
+                                          status=ORDER_STATUS.success,
                                           updated_at__gte=fund.updated_at).aggregate(Sum('amount'))
         fund.amount = F('amount') + sum_amount['amount__sum']
         fund.save()
@@ -27,7 +27,7 @@ class FundManagement(object):
     def update_out_fund(currency: str):
         fund = CryptoFund.objects.get(currency=currency, fund_type=CRYPTO_FUND_TYPE.out_fund)
         sum_amount = Order.objects.filter(direction=DIRECTION.buy,
-                                          status=ORDER_STATUS.sucess,
+                                          status=ORDER_STATUS.success,
                                           updated_at__gte=fund.updated_at).aggregate(Sum('amount'))
         fund.amount = F('amount') - sum_amount['amount__sum']
         fund.save()
