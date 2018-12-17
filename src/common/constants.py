@@ -55,6 +55,7 @@ SUPPORT_FIAT_CURRENCIES = [
 EXCHANGE_SITE = Choices(
     ('coinbase', 'Coinbase'),
     ('bitstamp', 'BitStamp'),
+    ('binance', 'Binance'),
 )
 
 CACHE_KEY_CRYPTO_RATE_CURRENCY_BY_EXCHANGE = 'crypto_rates.{}_{}'

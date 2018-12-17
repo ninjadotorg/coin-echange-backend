@@ -229,6 +229,10 @@ BITSTAMP = {
     'CUSTOMER_ID': '',
     'API_KEY': '',
     'API_SECRET': '',
+    'ACCOUNTS': {
+        'ETH': '',
+        'BTC': '',
+    }
 }
 
 BINANCE = {

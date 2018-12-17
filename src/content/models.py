@@ -37,12 +37,10 @@ class StaticPage(TimestampedModel):
         verbose_name = 'Static Page'
         verbose_name_plural = 'Static Pages'
 
+    title = models.CharField(max_length=255, null=True, blank=True)
     page = models.CharField(max_length=100, choices=STATIC_PAGE)
     language = model_fields.LanguageField()
     content = HTMLField()
-
-    def get_title(self):
-        return STATIC_PAGE[self.page]
 
 
 class FAQ(TimestampedModel):

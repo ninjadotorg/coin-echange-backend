@@ -1,3 +1,4 @@
+from datetime import timedelta
 from decimal import Decimal
 
 from binance.client import Client
@@ -20,10 +21,11 @@ def send_transaction(address: str, currency: str, amount: Decimal):
     result = client.withdraw(
         asset=currency,
         address=address,
-        amount=amount)
+        amount=amount,
+        timestamp=get_now().timestamp())
 
-    if result['status'] > 0:
-        raise Exception('Binance: Something wrong when transfer')
+    if not result['success']:
+        raise Exception('Binance: Something wrong when withdraw')
 
     return result
 
@@ -59,3 +61,15 @@ def send_order(symbol: str, amount: Decimal, side: str, test=False):
 @raise_api_exception(ExternalAPIException)
 def get_account():
     return client.get_account(timestamp=get_now().timestamp())
+
+
+@raise_api_exception(ExternalAPIException)
+def list_withdraw(delta=86400):
+    from_time = get_now() - timedelta(seconds=delta)
+    result = client.get_withdraw_history(
+        startTime=from_time,
+        timestamp=get_now().timestamp()
+    )
+    if not result['success']:
+        raise Exception('Binance: Something wrong when get_withdraw_history')
+    return result['withdrawList']

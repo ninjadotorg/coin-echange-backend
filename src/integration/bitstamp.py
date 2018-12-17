@@ -58,3 +58,14 @@ def send_transaction(address: str, currency: str, amount: Decimal):
 @raise_api_exception(ExternalAPIException)
 def list_withdrawal_requests(timedelta=86400):
     return trading_client.withdrawal_requests(timedelta)
+
+
+@raise_api_exception(ExternalAPIException)
+def get_address(currency: str):
+    resp = None
+    if currency == 'BTC':
+        resp = trading_client.bitcoin_deposit_address().get('address', '')
+    elif currency == 'ETH':
+        resp = trading_client.ethereum_deposit_address()
+
+    return resp
