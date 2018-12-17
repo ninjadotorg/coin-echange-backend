@@ -20,8 +20,9 @@ class FundManagement(object):
         sum_amount = Order.objects.filter(direction=DIRECTION.sell,
                                           status=ORDER_STATUS.success,
                                           updated_at__gte=fund.updated_at).aggregate(Sum('amount'))
-        fund.amount = F('amount') + sum_amount['amount__sum']
-        fund.save()
+        if sum_amount['amount__sum']:
+            fund.amount = F('amount') + sum_amount['amount__sum']
+            fund.save()
 
     @staticmethod
     def update_out_fund(currency: str):
@@ -29,8 +30,9 @@ class FundManagement(object):
         sum_amount = Order.objects.filter(direction=DIRECTION.buy,
                                           status=ORDER_STATUS.success,
                                           updated_at__gte=fund.updated_at).aggregate(Sum('amount'))
-        fund.amount = F('amount') - sum_amount['amount__sum']
-        fund.save()
+        if sum_amount['amount__sum']:
+            fund.amount = F('amount') - sum_amount['amount__sum']
+            fund.save()
 
     @staticmethod
     @transaction.atomic
