@@ -42,18 +42,16 @@ class FundManagement(object):
             provider_data = FundManagement.crypto_transfer_in_fund_to_storage(currency, amount)
 
         in_fund = CryptoFund.objects.get(currency=currency, fund_type=CRYPTO_FUND_TYPE.in_fund)
-        old_fund_amount = in_fund.amount - amount
         in_fund.amount = F('amount') - amount
         in_fund.save()
         storage_fund = CryptoFund.objects.get(currency=currency, fund_type=CRYPTO_FUND_TYPE.storage_fund)
-        new_fund_amount = storage_fund.amount + amount
         storage_fund.amount = F('amount') + amount
         storage_fund.save()
 
         action = CryptoFundAction.objects.create(
-            from_amount=old_fund_amount,
+            from_amount=amount,
             from_currency=in_fund.currency,
-            amount=new_fund_amount,
+            amount=amount,
             currency=storage_fund.currency,
             from_fund_type=CRYPTO_FUND_TYPE.in_fund,
             fund_type=CRYPTO_FUND_TYPE.storage_fund,
@@ -72,18 +70,16 @@ class FundManagement(object):
             provider_data = FundManagement.crypto_transfer_storage_to_out_fund(currency, amount)
 
         out_fund = CryptoFund.objects.get(currency=currency, fund_type=CRYPTO_FUND_TYPE.out_fund)
-        old_fund_amount = out_fund.amount + amount
         out_fund.amount = F('amount') + amount
         out_fund.save()
         storage_fund = CryptoFund.objects.get(currency=currency, fund_type=CRYPTO_FUND_TYPE.storage_fund)
-        new_fund_amount = storage_fund.amount - amount
         storage_fund.amount = F('amount') - amount
         storage_fund.save()
 
         action = CryptoFundAction.objects.create(
-            from_amount=old_fund_amount,
+            from_amount=amount,
             from_currency=out_fund.currency,
-            amount=new_fund_amount,
+            amount=amount,
             currency=storage_fund.currency,
             from_fund_type=CRYPTO_FUND_TYPE.storage_fund,
             fund_type=CRYPTO_FUND_TYPE.out_fund,
@@ -102,18 +98,16 @@ class FundManagement(object):
             provider_data = FundManagement.crypto_transfer_in_fund_to_out_fund(currency, amount)
 
         in_fund = CryptoFund.objects.get(currency=currency, fund_type=CRYPTO_FUND_TYPE.in_fund)
-        old_fund_amount = in_fund.amount - amount
         in_fund.amount = F('amount') - amount
         in_fund.save()
         out_fund = CryptoFund.objects.get(currency=currency, fund_type=CRYPTO_FUND_TYPE.out_fund)
-        new_fund_amount = out_fund.amount + amount
         out_fund.amount = F('amount') + amount
         out_fund.save()
 
         action = CryptoFundAction.objects.create(
-            from_amount=old_fund_amount,
+            from_amount=amount,
             from_currency=in_fund.currency,
-            amount=new_fund_amount,
+            amount=amount,
             currency=out_fund.currency,
             from_fund_type=CRYPTO_FUND_TYPE.in_fund,
             fund_type=CRYPTO_FUND_TYPE.out_fund,
@@ -131,18 +125,16 @@ class FundManagement(object):
         if not settings.TEST:
             provider_data = binance.send_sell_order('{}USDT'.format(currency), amount)
         storage_fund = CryptoFund.objects.get(currency=currency, fund_type=CRYPTO_FUND_TYPE.storage_fund)
-        old_fund_amount = storage_fund.amount - amount
         storage_fund.amount = F('amount') - amount
         storage_fund.save()
         vault_fund = CryptoFund.objects.get(currency=CURRENCY.USDT, fund_type=CRYPTO_FUND_TYPE.storage_fund)
-        new_fund_amount = vault_fund.amount + amount
         vault_fund.amount = F('amount') + amount * Decimal(str(provider_data.get('price', 0)))
         vault_fund.save()
 
         action = CryptoFundAction.objects.create(
-            from_amount=old_fund_amount,
+            from_amount=amount,
             from_currency=storage_fund.currency,
-            amount=new_fund_amount,
+            amount=amount * Decimal(str(provider_data.get('price', 0))),
             currency=vault_fund.currency,
             from_fund_type=CRYPTO_FUND_TYPE.storage_fund,
             fund_type=CRYPTO_FUND_TYPE.storage_fund,
@@ -160,18 +152,16 @@ class FundManagement(object):
         if not settings.TEST:
             provider_data = binance.send_buy_order('{}USDT'.format(currency), amount)
         vault_fund = CryptoFund.objects.get(currency=CURRENCY.USDT, fund_type=CRYPTO_FUND_TYPE.storage_fund)
-        old_fund_amount = vault_fund.amount - amount
         vault_fund.amount = F('amount') - amount
         vault_fund.save()
         storage_fund = CryptoFund.objects.get(currency=currency, fund_type=CRYPTO_FUND_TYPE.storage_fund)
-        new_fund_amount = storage_fund.amount + amount
         storage_fund.amount = F('amount') + Decimal(str(provider_data.get('executedQty', 0)))
         storage_fund.save()
 
         action = CryptoFundAction.objects.create(
-            from_amount=old_fund_amount,
+            from_amount=amount,
             from_currency=vault_fund.currency,
-            amount=new_fund_amount,
+            amount=Decimal(str(provider_data.get('executedQty', 0))),
             currency=storage_fund.currency,
             from_fund_type=CRYPTO_FUND_TYPE.storage_fund,
             fund_type=CRYPTO_FUND_TYPE.storage_fund,
