@@ -5,12 +5,36 @@ from django.shortcuts import redirect
 from django.urls import reverse, path
 from django.utils.html import format_html
 
-from coin_exchange.admin_views import custom_order_view, custom_order_cod_view, custom_selling_order_view, \
-    custom_selling_cod_order_view, custom_promotion_order_view
-from coin_exchange.constants import ORDER_TYPE, ORDER_STATUS, REFERRAL_STATUS
-from coin_exchange.models import Order, Review, Pool, TrackingAddress, TrackingTransaction, ReferralOrder, \
-    PromotionOrder, PromotionRule, CryptoFund, CryptoFundAction
-from common.constants import DIRECTION
+from coin_exchange.admin_views import (
+    custom_order_view,
+    custom_order_cod_view,
+    custom_selling_order_view,
+    custom_selling_cod_order_view,
+    custom_promotion_order_view,
+    custom_out_fund_view,
+    custom_storage_fund_view,
+    custom_convert_from_fund_view,
+    custom_convert_to_fund_view
+)
+from coin_exchange.constants import (
+    ORDER_TYPE,
+    ORDER_STATUS,
+    REFERRAL_STATUS,
+    CRYPTO_FUND_TYPE
+)
+from coin_exchange.models import (
+    Order,
+    Review,
+    Pool,
+    TrackingAddress,
+    TrackingTransaction,
+    ReferralOrder,
+    PromotionOrder,
+    PromotionRule,
+    CryptoFund,
+    CryptoFundAction
+)
+from common.constants import DIRECTION, CURRENCY
 
 
 class InlineLinkMixin:
@@ -295,11 +319,85 @@ class TrackingTransactionAdmin(admin.ModelAdmin):
 
 
 @admin.register(CryptoFund)
-class CryptoFundAdmin(admin.ModelAdmin):
-    list_display = ['fund_type', 'format_amount', 'updated_at']
+class CryptoFundAdmin(InlineLinkMixin, admin.ModelAdmin):
+    list_display = ['fund_type', 'format_amount', 'updated_at', 'user_actions']
+
+    def changelist_view(self, request, extra_context=None, *args, **kwargs):
+        self.request = request
+        return super(CryptoFundAdmin, self).changelist_view(request, extra_context, *args, **kwargs)
+
+    # def has_add_permission(self, request, obj=None):
+    #    return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+    def user_actions(self, obj):
+        process_button_html = format_html('')
+        if obj.fund_type in CRYPTO_FUND_TYPE.in_fund:
+            process_button_html = self.create_button(obj, 'Out Fund', 'admin:custom-transfer-out-fund-view') + \
+                                  format_html('&nbsp;') + \
+                                  self.create_button(obj, 'Storage', 'admin:custom-transfer-storage-view')
+        if obj.fund_type in CRYPTO_FUND_TYPE.storage_fund:
+            if obj.currency != CURRENCY.USDT:
+                process_button_html = self.create_button(obj, 'Out Fund', 'admin:custom-transfer-out-fund-view') + \
+                                      format_html('&nbsp;') + \
+                                      self.create_button(obj, 'Convert', 'admin:custom-convert-from-storage-view')
+            else:
+                process_button_html = self.create_button(obj, 'Convert', 'admin:custom-convert-to-storage-view')
+
+        return process_button_html
+
+    user_actions.short_description = 'Actions'
+    user_actions.allow_tags = True
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path('out-fund/<int:pk>',
+                 self.admin_site.admin_view(self.out_fund_view),
+                 name='custom-transfer-out-fund-view'),
+            path('storage-fund/<int:pk>',
+                 self.admin_site.admin_view(self.storage_fund_view),
+                 name='custom-transfer-storage-view'),
+            path('convert-from-fund/<int:pk>',
+                 self.admin_site.admin_view(self.convert_from_fund_view),
+                 name='custom-convert-from-storage-view'),
+            path('convert-to-fund/<int:pk>',
+                 self.admin_site.admin_view(self.convert_to_fund_view),
+                 name='custom-convert-to-storage-view'),
+        ]
+        return custom_urls + urls
+
+    def out_fund_view(self, request, pk, *args, **kwargs):
+        return custom_out_fund_view(self, request, pk, 'Transfer To Out-Fund')
+
+    def storage_fund_view(self, request, pk, *args, **kwargs):
+        return custom_storage_fund_view(self, request, pk, 'Transfer To Storage-Fund')
+
+    def convert_from_fund_view(self, request, pk, *args, **kwargs):
+        return custom_convert_from_fund_view(self, request, pk, 'Convert Storage-Fund to USDT')
+
+    def convert_to_fund_view(self, request, pk, *args, **kwargs):
+        return custom_convert_to_fund_view(self, request, pk, 'Convert Storage-Fund from USDT')
 
 
 @admin.register(CryptoFundAction)
 class CryptoFundActionAdmin(admin.ModelAdmin):
     list_display = ['action', 'format_from_amount', 'from_fund_type', 'format_amount', 'fund_type',
                     'status', 'updated_at']
+
+    def get_queryset(self, request):
+        return self.model.objects.all().order_by('-id')
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return request.user.is_superuser

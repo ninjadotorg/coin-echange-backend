@@ -36,8 +36,10 @@ class FundManagement(object):
 
     @staticmethod
     @transaction.atomic
-    def transfer_in_fund_to_storage(amount: Decimal, currency: str):
-        provider_data = FundManagement.crypto_transfer_in_fund_to_storage(amount, currency)
+    def transfer_in_fund_to_storage(currency: str, amount: Decimal):
+        provider_data = {}
+        if not settings.TEST:
+            provider_data = FundManagement.crypto_transfer_in_fund_to_storage(currency, amount)
 
         in_fund = CryptoFund.objects.get(currency=currency, fund_type=CRYPTO_FUND_TYPE.in_fund)
         old_fund_amount = in_fund.amount - amount
@@ -64,8 +66,10 @@ class FundManagement(object):
 
     @staticmethod
     @transaction.atomic
-    def transfer_storage_to_out_fund(amount: Decimal, currency: str):
-        provider_data = FundManagement.crypto_transfer_storage_to_out_fund(amount, currency)
+    def transfer_storage_to_out_fund(currency: str, amount: Decimal):
+        provider_data = {}
+        if not settings.TEST:
+            provider_data = FundManagement.crypto_transfer_storage_to_out_fund(currency, amount)
 
         out_fund = CryptoFund.objects.get(currency=currency, fund_type=CRYPTO_FUND_TYPE.out_fund)
         old_fund_amount = out_fund.amount + amount
@@ -92,8 +96,10 @@ class FundManagement(object):
 
     @staticmethod
     @transaction.atomic
-    def transfer_in_fund_to_out_fund(amount: Decimal, currency: str):
-        provider_data = FundManagement.crypto_transfer_in_fund_to_out_fund(amount, currency)
+    def transfer_in_fund_to_out_fund(currency: str, amount: Decimal):
+        provider_data = {}
+        if not settings.TEST:
+            provider_data = FundManagement.crypto_transfer_in_fund_to_out_fund(currency, amount)
 
         in_fund = CryptoFund.objects.get(currency=currency, fund_type=CRYPTO_FUND_TYPE.in_fund)
         old_fund_amount = in_fund.amount - amount
@@ -120,15 +126,17 @@ class FundManagement(object):
 
     @staticmethod
     @transaction.atomic
-    def convert_storage_to_vault(amount: Decimal, currency: str):
-        provider_data = binance.send_sell_order('{}USDT'.format(currency), amount)
+    def convert_storage_to_vault(currency: str, amount: Decimal):
+        provider_data = {}
+        if not settings.TEST:
+            provider_data = binance.send_sell_order('{}USDT'.format(currency), amount)
         storage_fund = CryptoFund.objects.get(currency=currency, fund_type=CRYPTO_FUND_TYPE.storage_fund)
         old_fund_amount = storage_fund.amount - amount
         storage_fund.amount = F('amount') - amount
         storage_fund.save()
         vault_fund = CryptoFund.objects.get(currency=CURRENCY.USDT, fund_type=CRYPTO_FUND_TYPE.storage_fund)
         new_fund_amount = vault_fund.amount + amount
-        vault_fund.amount = F('amount') + amount
+        vault_fund.amount = F('amount') + amount * Decimal(str(provider_data.get('price', 0)))
         vault_fund.save()
 
         action = CryptoFundAction.objects.create(
@@ -147,22 +155,24 @@ class FundManagement(object):
 
     @staticmethod
     @transaction.atomic
-    def convert_vault_to_storage(amount: Decimal, currency: str):
-        provider_data = binance.send_buy_order('{}USDT'.format(currency), amount)
-        storage_fund = CryptoFund.objects.get(currency=CURRENCY.USDT, fund_type=CRYPTO_FUND_TYPE.storage_fund)
-        old_fund_amount = storage_fund.amount - amount
-        storage_fund.amount = F('amount') - amount
-        storage_fund.save()
-        vault_fund = CryptoFund.objects.get(currency=currency, fund_type=CRYPTO_FUND_TYPE.storage_fund)
-        new_fund_amount = vault_fund.amount + amount
-        vault_fund.amount = F('amount') + amount
+    def convert_vault_to_storage(currency: str, amount: Decimal):
+        provider_data = {}
+        if not settings.TEST:
+            provider_data = binance.send_buy_order('{}USDT'.format(currency), amount)
+        vault_fund = CryptoFund.objects.get(currency=CURRENCY.USDT, fund_type=CRYPTO_FUND_TYPE.storage_fund)
+        old_fund_amount = vault_fund.amount - amount
+        vault_fund.amount = F('amount') - amount
         vault_fund.save()
+        storage_fund = CryptoFund.objects.get(currency=currency, fund_type=CRYPTO_FUND_TYPE.storage_fund)
+        new_fund_amount = storage_fund.amount + amount
+        storage_fund.amount = F('amount') + Decimal(str(provider_data.get('executedQty', 0)))
+        storage_fund.save()
 
         action = CryptoFundAction.objects.create(
             from_amount=old_fund_amount,
-            from_currency=storage_fund.currency,
+            from_currency=vault_fund.currency,
             amount=new_fund_amount,
-            currency=vault_fund.currency,
+            currency=storage_fund.currency,
             from_fund_type=CRYPTO_FUND_TYPE.storage_fund,
             fund_type=CRYPTO_FUND_TYPE.storage_fund,
             action=CRYPTO_FUND_ACTION.convert,
@@ -173,21 +183,21 @@ class FundManagement(object):
         return action
 
     @staticmethod
-    def crypto_transfer_in_fund_to_storage(amount: Decimal, currency: str):
+    def crypto_transfer_in_fund_to_storage(currency: str, amount: Decimal):
         # from coinbase to binance
         address = settings.BINANCE['ACCOUNTS'][currency]
         resp = coinbase.send_transaction(address, currency, amount)
         return {'id': resp.id, 'src': EXCHANGE_SITE.coinbase}
 
     @staticmethod
-    def crypto_transfer_storage_to_out_fund(amount: Decimal, currency: str):
+    def crypto_transfer_storage_to_out_fund(currency: str, amount: Decimal):
         # from binance to bitstamp
         address = settings.BITSTAMP['ACCOUNTS'][currency]
         resp = binance.send_transaction(address, currency, amount)
         return {'id': resp['id'], 'src': EXCHANGE_SITE.binance}
 
     @staticmethod
-    def crypto_transfer_in_fund_to_out_fund(amount: Decimal, currency: str):
+    def crypto_transfer_in_fund_to_out_fund(currency: str, amount: Decimal):
         # from coinbase to bitstamp
         address = settings.BITSTAMP['ACCOUNTS'][currency]
         resp = coinbase.send_transaction(address, currency, amount)

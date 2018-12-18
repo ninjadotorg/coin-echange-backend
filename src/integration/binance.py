@@ -21,8 +21,7 @@ def send_transaction(address: str, currency: str, amount: Decimal):
     result = client.withdraw(
         asset=currency,
         address=address,
-        amount=amount,
-        timestamp=get_now().timestamp())
+        amount=amount)
 
     if not result['success']:
         raise Exception('Binance: Something wrong when withdraw')
@@ -46,7 +45,6 @@ def send_order(symbol: str, amount: Decimal, side: str, test=False):
         'side': side,
         'type': 'MARKET',
         'quantity': amount,
-        'timestamp': get_now().timestamp(),
         'newOrderRespType': 'RESULT',
     }
 
@@ -67,8 +65,8 @@ def get_account():
 def list_withdraw(delta=86400):
     from_time = get_now() - timedelta(seconds=delta)
     result = client.get_withdraw_history(
-        startTime=from_time,
-        timestamp=get_now().timestamp()
+        startTime=int(from_time.timestamp() * 1000),
+        endTime=int(get_now().timestamp() * 1000),
     )
     if not result['success']:
         raise Exception('Binance: Something wrong when get_withdraw_history')
