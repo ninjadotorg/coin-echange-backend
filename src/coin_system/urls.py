@@ -3,7 +3,8 @@ from rest_framework.routers import DefaultRouter
 
 from coin_system.resource import BankViewSet, PopularPlaceViewSet, PopularBankViewSet, \
     CountryCurrencyViewSet, CountryDefaultConfigViewSet, ContactViewSet
-from coin_system.views import CurrencyRateView, CryptoRateView, CurrencyLevelLimitView, LanguageView, ComparePrice
+from coin_system.views import CurrencyRateView, CryptoRateView, CurrencyLevelLimitView, LanguageView, ComparePrice, \
+    CurrencyView
 
 router = DefaultRouter()
 router.register('banks', BankViewSet)
@@ -18,8 +19,9 @@ patterns = ([
     path('currency-rates/', CurrencyRateView.as_view(), name='currency-rates'),
     path('crypto-rates/', CryptoRateView.as_view(), name='crypto-rates'),
     path('currency-level-limits/', CurrencyLevelLimitView.as_view(), name='currency-level-limits'),
-    path('languages/', LanguageView.as_view(), name='language-view'),
+    path('languages/', LanguageView.as_view(), name='languages'),
     path('compare-price/', ComparePrice.as_view(), name='compare-price'),
+    path('currencies/', CurrencyView.as_view(), name='currencies')
 ], 'system')
 
 urlpatterns = [

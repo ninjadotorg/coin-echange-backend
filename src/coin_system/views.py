@@ -63,6 +63,11 @@ class LanguageView(APIView):
         })
 
 
+class CurrencyView(APIView):
+    def get(self, request, format=None):
+        return Response(SUPPORT_CURRENCIES)
+
+
 class ComparePrice(APIView):
     def get(self, request, format=None):
         result = []
