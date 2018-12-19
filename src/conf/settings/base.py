@@ -277,3 +277,9 @@ ETHERSCAN = {
     'URL': 'http://api.etherscan.io/api',
     'API_KEY': ''
 }
+
+ETH = {
+    'URL': '',
+    'WALLET': '',
+    'WALLET_KEY': '',
+}
