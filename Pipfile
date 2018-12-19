@@ -40,6 +40,7 @@ python-binance = "==0.7.0"
 "urllib3" = "==1.24.1"
 coverage = "==4.5.2"
 "web3" = "*"
+pycryptodome = "==3.7.2"
 
 [dev-packages]
 "flake8" = "*"
