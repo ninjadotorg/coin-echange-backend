@@ -44,4 +44,5 @@ STATIC_PAGE = Choices(
     ('promotion_programs', 'Promotion Programs'),
     ('how_it_works', 'How It Works'),
     ('api_reference', 'API Reference'),
+    ('digital_assets', 'Digital Assets'),
 )
