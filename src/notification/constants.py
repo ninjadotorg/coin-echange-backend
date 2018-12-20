@@ -38,11 +38,11 @@ NOTIFICATION_GROUP = Choices(
 )
 
 STATIC_PAGE = Choices(
-    ('about_us', 'About Us'),
+    ('about-us', 'About Us'),
     ('privacy', 'Privacy'),
     ('agreement', 'Agreement'),
-    ('promotion_programs', 'Promotion Programs'),
-    ('how_it_works', 'How It Works'),
-    ('api_reference', 'API Reference'),
-    ('digital_assets', 'Digital Assets'),
+    ('promotion-programs', 'Promotion Programs'),
+    ('how-it-works', 'How It Works'),
+    ('api-reference', 'API Reference'),
+    ('digital-assets', 'Digital Assets'),
 )
