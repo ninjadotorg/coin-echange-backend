@@ -3,7 +3,7 @@ from django.db import models
 from coin_base.models import TimestampedModel
 from coin_exchange.constants import ORDER_STATUS, ORDER_TYPE, PAYMENT_STATUS, TRACKING_ADDRESS_STATUS, \
     TRACKING_TRANSACTION_STATUS, TRACKING_TRANSACTION_DIRECTION, REFERRAL_STATUS, ORDER_USER_PAYMENT_TYPE, \
-    CRYPTO_FUND_TYPE, CRYPTO_FUND_ACTION, CRYPTO_FUND_ACTION_STATUS
+    CRYPTO_FUND_TYPE, CRYPTO_FUND_ACTION, CRYPTO_FUND_ACTION_STATUS, CRYPTO_TOKEN_PROTOCOL
 from coin_user.models import ExchangeUser
 from common import model_fields
 from common.constants import DIRECTION, DIRECTION_ALL
@@ -271,3 +271,19 @@ class CryptoFundAction(TimestampedModel):
         return '{:.6f} {}'.format(self.amount, self.currency)
 
     format_amount.short_description = 'Amount'
+
+
+class CryptoToken(models.Model):
+    class Meta:
+        verbose_name = 'Crypto Token'
+        verbose_name_plural = 'Crypto Tokens'
+
+    address = model_fields.CryptoHashField(primary_key=True)
+    name = models.CharField(max_length=50, null=True, blank=True)
+    symbol = models.CharField(max_length=10, null=True, blank=True)
+    protocol = models.CharField(max_length=10, choices=CRYPTO_TOKEN_PROTOCOL)
+    decimals = models.IntegerField(default=18)
+    auto_price = models.BooleanField()
+    buy_price = model_fields.FiatAmountField(null=True, blank=True)
+    sell_price = model_fields.FiatAmountField(null=True, blank=True)
+    active = models.BooleanField(default=True)

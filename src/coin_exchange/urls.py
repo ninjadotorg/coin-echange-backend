@@ -5,7 +5,8 @@ from coin_exchange.resource import ReviewViewSet, OrderViewSet, ReferralOrderVie
 from coin_exchange.views import QuoteView, QuoteReverseView, AddressView, ExpireOrderView, DepositedAddressView, \
     TrackingAddressView, TrackingAddressDetailView, TrackingTransactionView, TrackingTransactionDetailView, \
     ResetUserLimitView, TrackingBitstampTransactionView, PayReferralOrderView, \
-    TrackingBitstampReferralTransactionView, TrackingFundTransactionView, TrackingInFundView, TrackingOutFundView
+    TrackingBitstampReferralTransactionView, TrackingFundTransactionView, TrackingInFundView, TrackingOutFundView, \
+    CurrencyView
 
 router = DefaultRouter()
 router.register('reviews', ReviewViewSet)
@@ -19,6 +20,7 @@ patterns = ([
     path('quote-reverse/', QuoteReverseView.as_view(), name='quote-reverse-detail'),
     path('addresses/', AddressView.as_view(), name='address-list'),
     path('deposited-address/', DepositedAddressView.as_view(), name='deposited-address-view'),
+    path('currencies/', CurrencyView.as_view(), name='currencies'),
 
     path('expire-order/', ExpireOrderView.as_view(), name='expire-order-view'),
     path('reset-user-limit/', ResetUserLimitView.as_view(), name='reset-user-limit-view'),

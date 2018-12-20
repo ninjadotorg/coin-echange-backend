@@ -81,6 +81,11 @@ class DepositedAddressView(APIView):
         return Response({'has_transaction': has_transaction})
 
 
+class CurrencyView(APIView):
+    def get(self, request, format=None):
+        return Response(SUPPORT_CURRENCIES)
+
+
 class TrackingAddressView(APIView):
     def post(self, request, format=None):
         TrackingManagement.load_tracking_address()

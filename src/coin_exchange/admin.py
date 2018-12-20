@@ -32,9 +32,10 @@ from coin_exchange.models import (
     PromotionOrder,
     PromotionRule,
     CryptoFund,
-    CryptoFundAction
-)
+    CryptoFundAction,
+    CryptoToken)
 from common.constants import DIRECTION, CURRENCY
+from integration import ethereum
 
 
 class InlineLinkMixin:
@@ -401,3 +402,21 @@ class CryptoFundActionAdmin(admin.ModelAdmin):
 
     def has_change_permission(self, request, obj=None):
         return request.user.is_superuser
+
+
+@admin.register(CryptoToken)
+class CryptoTokenAdmin(admin.ModelAdmin):
+    list_display = ['address', 'protocol', 'name', 'symbol', 'decimals', 'auto_price',
+                    'buy_price', 'sell_price', 'active']
+    readonly_fields = ['name', 'symbol', 'decimals']
+
+    def save_model(self, request, obj, form, change):
+        obj.user = request.user
+        if not change:
+            data = ethereum.inspect_erc20(obj.address)
+            obj.address = data['address']
+            obj.name = data['name']
+            obj.symbol = data['symbol']
+            obj.decimals = data['decimals']
+
+        super().save_model(request, obj, form, change)
